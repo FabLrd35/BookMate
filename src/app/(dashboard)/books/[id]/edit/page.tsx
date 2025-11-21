@@ -32,7 +32,10 @@ export default async function EditBookPage({ params }: EditBookPageProps) {
         author: { name: book.author.name },
         genre: book.genre ? { name: book.genre.name } : null,
         coverUrl: book.coverUrl,
+        summary: book.summary,
         status: book.status,
+        currentPage: book.currentPage,
+        totalPages: book.totalPages,
         rating: book.rating,
         comment: book.comment,
     }
