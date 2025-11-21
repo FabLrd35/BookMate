@@ -150,7 +150,11 @@ export async function updateBook(id: string, formData: FormData) {
             author: {
                 connect: { id: author.id }
             },
-            genreId: genre ? genre.id : undefined,
+            genre: genre ? {
+                connect: { id: genre.id }
+            } : {
+                disconnect: true
+            },
             coverUrl: coverUrl || null,
             status,
             rating: rating ? parseInt(rating) : null,
