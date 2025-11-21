@@ -9,7 +9,7 @@ import { AbandonBookDialog } from "@/components/abandon-book-dialog"
 
 interface BookStatusActionsProps {
     bookId: string
-    status: "TO_READ" | "READING" | "READ"
+    status: "TO_READ" | "READING" | "READ" | "ABANDONED"
     currentRating?: number | null
     currentComment?: string | null
     finishDate?: Date | null
