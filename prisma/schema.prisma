@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(uuid())
+  name            String
+  email           String            @unique
+  password        String
+  image           String?
+  bannerUrl       String?
+  books           Book[]
+  words           Word[]
+  readingGoals    ReadingGoal[]
+  quotes          Quote[]
+  collections     Collection[]
+  badges          Badge[]
+  userChallenges  UserChallenge[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+
+model Book {
+  id          String        @id @default(uuid())
+  title       String
+  author      Author        @relation(fields: [authorId], references: [id])
+  authorId    String
+  coverUrl    String?
+  rating      Int?
+  comment     String?
+  summary     String?
+  status      ReadingStatus @default(TO_READ)
+  currentPage Int?
+  totalPages  Int?
+  startDate   DateTime?
+  finishDate  DateTime?
+  genre       Genre?        @relation(fields: [genreId], references: [id])
+  genreId     String?
+  quotes      Quote[]
+  collections Collection[]
+  activities  ReadingActivity[]
+  words       Word[]
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  images      BookImage[]
+  isFavorite  Boolean       @default(false)
+}
+
+model BookImage {
+  id        String   @id @default(uuid())
+  url       String
+  caption   String?
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Author {
+  id       String  @id @default(uuid())
+  name     String  @unique
+  photoUrl String?
+  books    Book[]
+}
+
+model Genre {
+  id    String @id @default(uuid())
+  name  String @unique
+  books Book[]
+}
+
+model ReadingGoal {
+  id        String     @id @default(uuid())
+  year      Int
+  month     Int?
+  period    GoalPeriod @default(ANNUAL)
+  target    Int
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([year, month, period, userId])
+}
+
+model Quote {
+  id        String   @id @default(uuid())
+  content   String
+  page      String?
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookId    String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Collection {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  books       Book[]
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, userId])
+}
+
+model ReadingActivity {
+  id           String       @id @default(uuid())
+  date         DateTime
+  bookId       String
+  book         Book         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  pagesRead    Int?
+  minutesRead  Int?
+  activityType ActivityType @default(READING)
+  createdAt    DateTime     @default(now())
+
+  @@unique([date, bookId])
+  @@index([date])
+}
+
+model Challenge {
+  id             String           @id @default(uuid())
+  title          String
+  description    String
+  challengeType  ChallengeType
+  target         Int
+  period         ChallengePeriod  @default(ANYTIME)
+  isPredefined   Boolean          @default(false)
+  icon           String?
+  userChallenges UserChallenge[]
+  createdAt      DateTime         @default(now())
+}
+
+model UserChallenge {
+  id          String     @id @default(uuid())
+  challengeId String
+  challenge   Challenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  progress    Int        @default(0)
+  isCompleted Boolean    @default(false)
+  completedAt DateTime?
+  startedAt   DateTime   @default(now())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([challengeId])
+}
+
+model Badge {
+  id          String        @id @default(uuid())
+  name        String
+  description String
+  icon        String
+  category    BadgeCategory
+  unlockedAt  DateTime      @default(now())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Word {
+  id         String   @id @default(uuid())
+  text       String
+  definition String?
+  bookId     String?
+  book       Book?    @relation(fields: [bookId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum ReadingStatus {
+  TO_READ
+  READING
+  READ
+  ABANDONED
+}
+
+enum GoalPeriod {
+  MONTHLY
+  ANNUAL
+}
+
+enum ActivityType {
+  STARTED
+  READING
+  FINISHED
+}
+
+enum ChallengeType {
+  GENRE_DIVERSITY
+  PAGE_COUNT
+  BOOK_COUNT
+  AUTHOR_DIVERSITY
+  LONG_BOOKS
+  REVIEW_COUNT
+  QUOTE_COUNT
+  READING_STREAK
+  COLLECTION_SIZE
+}
+
+enum ChallengePeriod {
+  ANYTIME
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum BadgeCategory {
+  CHALLENGE_COMPLETION
+  MILESTONE
+  SPECIAL
+}
