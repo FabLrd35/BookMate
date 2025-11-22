@@ -2,12 +2,13 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { BookOpen, BarChart3, Target, Quote, Languages, Sparkles } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function LandingPage() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950 transition-colors duration-300">
             {/* Header */}
-            <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+            <header className="border-b bg-white/80 dark:bg-gray-950/80 backdrop-blur-sm sticky top-0 z-50 dark:border-gray-800">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <BookOpen className="h-8 w-8 text-primary" />
@@ -16,6 +17,7 @@ export default function LandingPage() {
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
+                        <ThemeToggle />
                         <Link href="/login">
                             <Button variant="ghost">Se connecter</Button>
                         </Link>
@@ -29,7 +31,7 @@ export default function LandingPage() {
             {/* Hero Section */}
             <section className="container mx-auto px-4 py-20 text-center">
                 <div className="max-w-4xl mx-auto space-y-8">
-                    <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+                    <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground">
                         Votre bibliothèque personnelle,{" "}
                         <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                             réinventée
@@ -39,14 +41,14 @@ export default function LandingPage() {
                         Organisez vos lectures, suivez vos progrès, enrichissez votre vocabulaire
                         et atteignez vos objectifs de lecture avec BookMate.
                     </p>
-                    <div className="flex items-center justify-center gap-4">
-                        <Link href="/register">
-                            <Button size="lg" className="text-lg px-8">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Link href="/register" className="w-full sm:w-auto">
+                            <Button size="lg" className="text-lg px-8 w-full sm:w-auto">
                                 Commencer gratuitement
                             </Button>
                         </Link>
-                        <Link href="/login">
-                            <Button size="lg" variant="outline" className="text-lg px-8">
+                        <Link href="/login" className="w-full sm:w-auto">
+                            <Button size="lg" variant="outline" className="text-lg px-8 w-full sm:w-auto bg-background/50 backdrop-blur-sm">
                                 Se connecter
                             </Button>
                         </Link>
@@ -57,7 +59,7 @@ export default function LandingPage() {
             {/* Features Section */}
             <section className="container mx-auto px-4 py-20">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
                         Tout ce dont vous avez besoin pour gérer vos lectures
                     </h2>
                     <p className="text-muted-foreground text-lg">
@@ -66,7 +68,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                    <Card className="p-6 hover:shadow-lg transition-shadow">
+                    <Card className="p-6 hover:shadow-lg transition-shadow bg-card/50 backdrop-blur-sm border-muted/40">
                         <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center mb-4">
                             <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                         </div>
@@ -76,7 +78,7 @@ export default function LandingPage() {
                         </p>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow">
+                    <Card className="p-6 hover:shadow-lg transition-shadow bg-card/50 backdrop-blur-sm border-muted/40">
                         <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mb-4">
                             <Target className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                         </div>
@@ -86,7 +88,7 @@ export default function LandingPage() {
                         </p>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow">
+                    <Card className="p-6 hover:shadow-lg transition-shadow bg-card/50 backdrop-blur-sm border-muted/40">
                         <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center mb-4">
                             <BarChart3 className="h-6 w-6 text-green-600 dark:text-green-400" />
                         </div>
@@ -96,7 +98,7 @@ export default function LandingPage() {
                         </p>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow">
+                    <Card className="p-6 hover:shadow-lg transition-shadow bg-card/50 backdrop-blur-sm border-muted/40">
                         <div className="h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center mb-4">
                             <Languages className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                         </div>
@@ -106,7 +108,7 @@ export default function LandingPage() {
                         </p>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow">
+                    <Card className="p-6 hover:shadow-lg transition-shadow bg-card/50 backdrop-blur-sm border-muted/40">
                         <div className="h-12 w-12 rounded-full bg-pink-100 dark:bg-pink-900/20 flex items-center justify-center mb-4">
                             <Quote className="h-6 w-6 text-pink-600 dark:text-pink-400" />
                         </div>
@@ -116,7 +118,7 @@ export default function LandingPage() {
                         </p>
                     </Card>
 
-                    <Card className="p-6 hover:shadow-lg transition-shadow">
+                    <Card className="p-6 hover:shadow-lg transition-shadow bg-card/50 backdrop-blur-sm border-muted/40">
                         <div className="h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900/20 flex items-center justify-center mb-4">
                             <Sparkles className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                         </div>
@@ -130,8 +132,8 @@ export default function LandingPage() {
 
             {/* CTA Section */}
             <section className="container mx-auto px-4 py-20">
-                <Card className="max-w-4xl mx-auto p-12 text-center bg-gradient-to-br from-primary/10 to-purple-600/10 border-primary/20">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                <Card className="max-w-4xl mx-auto p-12 text-center bg-gradient-to-br from-primary/10 to-purple-600/10 border-primary/20 dark:bg-gray-900/50">
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
                         Prêt à transformer votre expérience de lecture ?
                     </h2>
                     <p className="text-lg text-muted-foreground mb-8">
@@ -146,7 +148,7 @@ export default function LandingPage() {
             </section>
 
             {/* Footer */}
-            <footer className="border-t bg-white/80 backdrop-blur-sm mt-20">
+            <footer className="border-t bg-white/80 dark:bg-gray-950/80 backdrop-blur-sm mt-20 dark:border-gray-800">
                 <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
                     <p>© 2025 BookMate. Votre compagnon de lecture personnel.</p>
                 </div>
