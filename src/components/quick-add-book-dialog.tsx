@@ -65,7 +65,7 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                 categories: book.categories,
                 status,
                 currentPage: status === "READING" ? currentPage : null,
-                startDate: status === "READ" ? startDate : null,
+                startDate: status === "READING" ? startDate : (status === "READ" ? startDate : null),
                 rating: status === "READ" ? rating : null,
                 comment: status === "READ" ? comment : null,
                 finishDate: status === "READ" ? finishDate : null,
@@ -202,6 +202,33 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                                     value={currentPage || ""}
                                     onChange={(e) => setCurrentPage(e.target.value ? parseInt(e.target.value) : null)}
                                 />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="startDate">Date de début</Label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal",
+                                                !startDate && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {startDate ? format(startDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={startDate}
+                                            onSelect={(d) => d && setStartDate(d)}
+                                            initialFocus
+                                            locale={fr}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         </div>
                     )}

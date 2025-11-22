@@ -116,6 +116,10 @@ export async function updateBook(id: string, formData: FormData) {
     const rating = formData.get("rating") as string | null
     const comment = formData.get("comment") as string | null
     const summary = formData.get("summary") as string | null
+    const totalPages = formData.get("totalPages") as string | null
+    const currentPage = formData.get("currentPage") as string | null
+    const startDateStr = formData.get("startDate") as string | null
+    const finishDateStr = formData.get("finishDate") as string | null
 
     // Find or create author
     let author = await prisma.author.findUnique({
@@ -170,49 +174,15 @@ export async function updateBook(id: string, formData: FormData) {
             rating: rating ? parseFloat(rating) : null,
             comment: comment || null,
             summary: summary || null,
-            // Update dates based on status changes if needed, or keep existing logic
-            // For now, let's keep it simple: if moving to READING/READ, ensure startDate.
-            // If moving to READ, ensure finishDate.
-            // However, we might want to preserve existing dates if they are already set.
-            // Prisma update doesn't automatically handle conditional updates based on previous state easily in one go without fetching first.
-            // But we can just set them if they are null in the DB? No, we don't know the DB state here easily.
-            // Let's just set them if the status implies it, similar to create.
-            // A better approach for edit is to maybe not override dates if they exist, but that requires fetching.
-            // For simplicity in this iteration, we'll update them if the status matches.
-            // Actually, let's fetch the book first to be smart about dates?
-            // Or just let the user edit dates? The form doesn't have date pickers yet.
-            // Let's stick to the create logic for now:
-            // Update dates based on status changes if needed
-            startDate: (status === "READING" || status === "READ") ? undefined : undefined, // Don't reset start date
-            finishDate: status === "READ" ? (formData.get("finishDate") ? new Date(formData.get("finishDate") as string) : undefined) : null,
+            totalPages: totalPages ? parseInt(totalPages) : null,
+            currentPage: currentPage ? parseInt(currentPage) : null,
+            // Use dates from form if provided, otherwise set based on status
+            startDate: startDateStr ? new Date(startDateStr) :
+                (status === "READING" || status === "READ") ? new Date() : null,
+            finishDate: finishDateStr ? new Date(finishDateStr) :
+                (status === "READ" ? new Date() : null),
         },
     })
-
-    // If status changed to READ, we might want to set finishDate if not set.
-    // If status changed to READING, set startDate if not set.
-    // This is complex without fetching. Let's do a quick fetch to handle dates correctly.
-    const currentBook = await prisma.book.findUnique({ where: { id }, select: { startDate: true, finishDate: true } })
-
-    if (currentBook) {
-        const dataToUpdate: any = {}
-        if ((status === "READING" || status === "READ") && !currentBook.startDate) {
-            dataToUpdate.startDate = new Date()
-        }
-        if (status === "READ" && !currentBook.finishDate) {
-            dataToUpdate.finishDate = new Date()
-        }
-        if (status === "TO_READ") {
-            dataToUpdate.startDate = null
-            dataToUpdate.finishDate = null
-        }
-
-        if (Object.keys(dataToUpdate).length > 0) {
-            await prisma.book.update({
-                where: { id },
-                data: dataToUpdate
-            })
-        }
-    }
 
     revalidatePath("/books")
     revalidatePath(`/books/${id}`)

@@ -547,23 +547,55 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
 
                 {/* Current Page (only for books being read) */}
                 {status === "READING" && (
-                    <div className="space-y-2">
-                        <Label htmlFor="currentPage" className="text-base font-semibold">
-                            Page actuelle
-                        </Label>
-                        <Input
-                            id="currentPage"
-                            name="currentPage"
-                            type="number"
-                            min="0"
-                            placeholder="Entrez la page actuelle"
-                            className="text-base"
-                            defaultValue={initialData?.currentPage || ""}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                            Suivez votre progression dans le livre
-                        </p>
-                    </div>
+                    <>
+                        <div className="space-y-2">
+                            <Label htmlFor="currentPage" className="text-base font-semibold">
+                                Page actuelle
+                            </Label>
+                            <Input
+                                id="currentPage"
+                                name="currentPage"
+                                type="number"
+                                min="0"
+                                placeholder="Entrez la page actuelle"
+                                className="text-base"
+                                defaultValue={initialData?.currentPage || ""}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                Suivez votre progression dans le livre
+                            </p>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="startDate" className="text-base font-semibold">
+                                Date de début
+                            </Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !startDate && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {startDate ? format(startDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={startDate}
+                                        onSelect={setStartDate}
+                                        initialFocus
+                                        locale={fr}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <input type="hidden" name="startDate" value={startDate ? startDate.toISOString() : ""} />
+                        </div>
+                    </>
                 )}
 
                 {status === "READ" && (
