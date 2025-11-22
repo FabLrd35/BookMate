@@ -27,6 +27,22 @@ export async function addQuote(bookId: string, content: string, page?: string) {
 }
 
 export async function deleteQuote(quoteId: string, bookId: string) {
+    const session = await auth()
+    if (!session?.user?.email) return
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) return
+
+    const quote = await prisma.quote.findUnique({
+        where: { id: quoteId },
+        select: { userId: true }
+    })
+
+    if (!quote || quote.userId !== user.id) return
+
     await prisma.quote.delete({
         where: { id: quoteId },
     })
@@ -35,6 +51,22 @@ export async function deleteQuote(quoteId: string, bookId: string) {
 }
 
 export async function updateQuote(quoteId: string, bookId: string, content: string, page?: string) {
+    const session = await auth()
+    if (!session?.user?.email) return
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) return
+
+    const quote = await prisma.quote.findUnique({
+        where: { id: quoteId },
+        select: { userId: true }
+    })
+
+    if (!quote || quote.userId !== user.id) return
+
     await prisma.quote.update({
         where: { id: quoteId },
         data: {

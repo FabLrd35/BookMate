@@ -4,8 +4,25 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+
 export default async function BooksPage() {
+    const session = await auth()
+    if (!session?.user?.email) {
+        redirect("/login")
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        redirect("/login")
+    }
+
     const books = await prisma.book.findMany({
+        where: { userId: user.id },
         include: {
             author: true,
             genre: true,

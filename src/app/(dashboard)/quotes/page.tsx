@@ -3,8 +3,25 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Quote as QuoteIcon, BookOpen } from "lucide-react"
 import Link from "next/link"
 
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+
 export default async function QuotesPage() {
+    const session = await auth()
+    if (!session?.user?.email) {
+        redirect("/login")
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        redirect("/login")
+    }
+
     const quotes = await prisma.quote.findMany({
+        where: { userId: user.id },
         include: {
             book: {
                 include: {

@@ -72,6 +72,28 @@ export async function getWords() {
 
 export async function deleteWord(id: string) {
     try {
+        const session = await auth()
+        if (!session?.user?.email) {
+            return { success: false, error: 'Non authentifié' }
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+
+        if (!user) {
+            return { success: false, error: 'Utilisateur non trouvé' }
+        }
+
+        const word = await prisma.word.findUnique({
+            where: { id },
+            select: { userId: true }
+        })
+
+        if (!word || word.userId !== user.id) {
+            return { success: false, error: 'Mot non trouvé ou accès non autorisé' }
+        }
+
         await prisma.word.delete({
             where: { id },
         })

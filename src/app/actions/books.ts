@@ -142,6 +142,16 @@ export async function updateBook(id: string, formData: FormData) {
         }
     }
 
+    // Verify ownership
+    const existingBook = await prisma.book.findUnique({
+        where: { id },
+        select: { userId: true }
+    })
+
+    if (!existingBook || existingBook.userId !== user.id) {
+        throw new Error("Livre non trouvé ou accès non autorisé")
+    }
+
     // Update book
     await prisma.book.update({
         where: { id },
@@ -361,6 +371,29 @@ export async function searchBooks(query: string) {
 }
 
 export async function deleteBook(id: string) {
+    const session = await auth()
+    if (!session?.user?.email) {
+        throw new Error("Non authentifié")
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        throw new Error("Utilisateur non trouvé")
+    }
+
+    // Verify ownership
+    const book = await prisma.book.findUnique({
+        where: { id },
+        select: { userId: true }
+    })
+
+    if (!book || book.userId !== user.id) {
+        throw new Error("Livre non trouvé ou accès non autorisé")
+    }
+
     await prisma.book.delete({
         where: { id },
     })
@@ -370,6 +403,29 @@ export async function deleteBook(id: string) {
 }
 
 export async function updateCurrentPage(bookId: string, currentPage: number) {
+    const session = await auth()
+    if (!session?.user?.email) {
+        return { success: false, error: "Non authentifié" }
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        return { success: false, error: "Utilisateur non trouvé" }
+    }
+
+    // Verify ownership
+    const book = await prisma.book.findUnique({
+        where: { id: bookId },
+        select: { userId: true }
+    })
+
+    if (!book || book.userId !== user.id) {
+        return { success: false, error: "Livre non trouvé ou accès non autorisé" }
+    }
+
     await prisma.book.update({
         where: { id: bookId },
         data: { currentPage },
@@ -388,14 +444,27 @@ export async function updateBookStatus(
         finishDate?: Date
     }
 ) {
+    const session = await auth()
+    if (!session?.user?.email) {
+        return { success: false, error: "Non authentifié" }
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        return { success: false, error: "Utilisateur non trouvé" }
+    }
+
     // Fetch current book to check status and dates
     const currentBook = await prisma.book.findUnique({
         where: { id: bookId },
-        select: { status: true, startDate: true, finishDate: true }
+        select: { status: true, startDate: true, finishDate: true, userId: true }
     })
 
-    if (!currentBook) {
-        return { success: false, error: "Livre non trouvé" }
+    if (!currentBook || currentBook.userId !== user.id) {
+        return { success: false, error: "Livre non trouvé ou accès non autorisé" }
     }
 
     const data: any = { status: newStatus }
@@ -559,13 +628,26 @@ export async function quickAddBook(bookData: {
 
 export async function toggleBookFavorite(bookId: string) {
     try {
-        const book = await prisma.book.findUnique({
-            where: { id: bookId },
-            select: { isFavorite: true }
+        const session = await auth()
+        if (!session?.user?.email) {
+            return { success: false, error: "Non authentifié" }
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
         })
 
-        if (!book) {
-            return { success: false, error: "Livre non trouvé" }
+        if (!user) {
+            return { success: false, error: "Utilisateur non trouvé" }
+        }
+
+        const book = await prisma.book.findUnique({
+            where: { id: bookId },
+            select: { isFavorite: true, userId: true }
+        })
+
+        if (!book || book.userId !== user.id) {
+            return { success: false, error: "Livre non trouvé ou accès non autorisé" }
         }
 
         await prisma.book.update({

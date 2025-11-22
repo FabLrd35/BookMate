@@ -50,6 +50,29 @@ export async function getDashboardStats() {
 }
 
 export async function getDetailedStats() {
+    const session = await auth()
+    if (!session?.user?.email) {
+        return {
+            monthlyActivity: [],
+            genreDistribution: [],
+            ratingDistribution: [],
+            totalRead: 0,
+        }
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        return {
+            monthlyActivity: [],
+            genreDistribution: [],
+            ratingDistribution: [],
+            totalRead: 0,
+        }
+    }
+
     // Monthly reading activity (last 12 months or current year)
     // Since SQLite doesn't support date functions easily in Prisma groupBy without raw query,
     // and dataset is likely small, we can fetch read books and process in JS.
@@ -57,6 +80,7 @@ export async function getDetailedStats() {
         where: {
             status: "READ",
             finishDate: { not: null },
+            userId: user.id,
         },
         select: {
             finishDate: true,
@@ -140,11 +164,35 @@ export async function getRecentBooks() {
 }
 
 export async function getPagesReadStats() {
+    const session = await auth()
+    if (!session?.user?.email) {
+        return {
+            monthlyPages: [],
+            totalPagesThisYear: 0,
+            totalPagesAllTime: 0,
+            averagePagesPerBook: 0,
+        }
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        return {
+            monthlyPages: [],
+            totalPagesThisYear: 0,
+            totalPagesAllTime: 0,
+            averagePagesPerBook: 0,
+        }
+    }
+
     const readBooks = await prisma.book.findMany({
         where: {
             status: "READ",
             finishDate: { not: null },
             totalPages: { not: null },
+            userId: user.id,
         },
         select: {
             finishDate: true,
@@ -185,11 +233,20 @@ export async function getPagesReadStats() {
 // ===== ADVANCED ANALYTICS =====
 
 export async function getReadingMoodAnalysis() {
+    const session = await auth()
+    if (!session?.user?.email) return []
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) return []
+
     const readBooks = await prisma.book.findMany({
         where: {
             status: "READ",
             rating: { not: null },
             finishDate: { not: null },
+            userId: user.id,
         },
         select: {
             finishDate: true,
@@ -221,11 +278,20 @@ export async function getReadingMoodAnalysis() {
 }
 
 export async function getPreferencesAnalysis() {
+    const session = await auth()
+    if (!session?.user?.email) return { topGenres: [], topAuthors: [] }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) return { topGenres: [], topAuthors: [] }
+
     // Top 5 genres
     const readBooks = await prisma.book.findMany({
         where: {
             status: "READ",
             genreId: { not: null },
+            userId: user.id,
         },
         include: {
             genre: true,
@@ -269,10 +335,19 @@ export async function getPreferencesAnalysis() {
 }
 
 export async function getReadingTrends() {
+    const session = await auth()
+    if (!session?.user?.email) return []
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) return []
+
     const readBooks = await prisma.book.findMany({
         where: {
             status: "READ",
             finishDate: { not: null },
+            userId: user.id,
         },
         select: { finishDate: true },
     })
@@ -293,10 +368,19 @@ export async function getReadingTrends() {
 }
 
 export async function getYearOverYearComparison() {
+    const session = await auth()
+    if (!session?.user?.email) return []
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) return []
+
     const readBooks = await prisma.book.findMany({
         where: {
             status: "READ",
             finishDate: { not: null },
+            userId: user.id,
         },
         select: {
             finishDate: true,
@@ -325,6 +409,29 @@ export async function getYearOverYearComparison() {
 }
 
 export async function getReadingPrediction() {
+    const session = await auth()
+    if (!session?.user?.email) {
+        return {
+            currentCount: 0,
+            predictedTotal: 0,
+            daysRemaining: 0,
+            averagePerMonth: "0",
+        }
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        return {
+            currentCount: 0,
+            predictedTotal: 0,
+            daysRemaining: 0,
+            averagePerMonth: "0",
+        }
+    }
+
     const currentYear = new Date().getFullYear()
     const startOfYear = new Date(currentYear, 0, 1)
     const now = new Date()
@@ -336,6 +443,7 @@ export async function getReadingPrediction() {
                 gte: startOfYear,
                 lte: now,
             },
+            userId: user.id,
         },
     })
 

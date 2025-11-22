@@ -4,8 +4,25 @@ import { AddWordDialog } from "@/components/add-word-dialog"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { BookOpen } from "lucide-react"
 
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+
 export default async function LexiquePage() {
+    const session = await auth()
+    if (!session?.user?.email) {
+        redirect("/login")
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        redirect("/login")
+    }
+
     const words = await prisma.word.findMany({
+        where: { userId: user.id },
         orderBy: { createdAt: 'desc' },
         include: {
             book: {
