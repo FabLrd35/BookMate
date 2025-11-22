@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,6 +17,7 @@ interface AddWordDialogProps {
 }
 
 export function AddWordDialog({ bookId, trigger }: AddWordDialogProps) {
+    const router = useRouter()
     const [open, setOpen] = useState(false)
     const [text, setText] = useState('')
     const [definition, setDefinition] = useState('')
@@ -58,6 +60,7 @@ export function AddWordDialog({ bookId, trigger }: AddWordDialogProps) {
                 setOpen(false)
                 setText('')
                 setDefinition('')
+                router.refresh()
             } else {
                 toast.error('Erreur', {
                     description: 'Impossible d\'ajouter le mot.',
