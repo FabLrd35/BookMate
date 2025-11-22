@@ -4,10 +4,26 @@ import { Star } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { ExpandableText } from "@/components/expandable-text"
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
 
 export default async function RatingsPage() {
+    const session = await auth()
+    if (!session?.user?.email) {
+        redirect("/login")
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        redirect("/login")
+    }
+
     const ratings = await prisma.book.findMany({
         where: {
+            userId: user.id,
             status: "READ",
             rating: { not: null },
         },
