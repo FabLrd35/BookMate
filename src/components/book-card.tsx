@@ -10,6 +10,7 @@ import { updateBookStatus, toggleBookFavorite } from "@/app/actions/books"
 import { useTransition, useState } from "react"
 import { UpdateProgressDialog } from "@/components/update-progress-dialog"
 import { AbandonBookDialog } from "@/components/abandon-book-dialog"
+import { FinishBookDialog } from "@/components/finish-book-dialog"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -210,15 +211,20 @@ export function BookCard({ book }: BookCardProps) {
                     )}
                     {book.status === "READING" && (
                         <div className="space-y-2 w-full">
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                className="w-full gap-2 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
-                                onClick={(e) => handleStatusChange(e, "READ")}
-                                disabled={isPending}
-                            >
-                                <CheckCircle2 className="h-3 w-3" /> Terminer
-                            </Button>
+                            <FinishBookDialog
+                                bookId={book.id}
+                                title={book.title}
+                                trigger={
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="w-full gap-2 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                        disabled={isPending}
+                                    >
+                                        <CheckCircle2 className="h-3 w-3" /> Terminer
+                                    </Button>
+                                }
+                            />
                             <UpdateProgressDialog
                                 bookId={book.id}
                                 currentProgress={book.currentPage || 0}
