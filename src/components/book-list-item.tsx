@@ -79,7 +79,7 @@ export function BookListItem({ book }: BookListItemProps) {
 
     return (
         <div
-            className="group flex items-center gap-4 p-4 border-b hover:bg-muted/50 transition-colors cursor-pointer"
+            className="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border-b hover:bg-muted/50 transition-colors cursor-pointer"
             onClick={handleCardClick}
         >
             {/* Book Cover */}
@@ -100,10 +100,10 @@ export function BookListItem({ book }: BookListItemProps) {
 
             {/* Book Info */}
             <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                <h3 className="font-bold text-lg leading-tight truncate group-hover:text-primary transition-colors">
+                <h3 className="font-bold text-base sm:text-lg leading-tight line-clamp-2 sm:truncate group-hover:text-primary transition-colors">
                     {book.title}
                 </h3>
-                <p className="text-muted-foreground truncate">
+                <p className="text-sm sm:text-base text-muted-foreground truncate">
                     {book.author.name}
                 </p>
 
@@ -250,12 +250,12 @@ export function BookListItem({ book }: BookListItemProps) {
                 </div>
 
                 {/* Status & Date */}
-                <div className="flex flex-col items-end justify-center gap-1 min-w-[100px] text-right">
-                    <span className="text-base font-medium text-muted-foreground whitespace-nowrap">
+                <div className="flex flex-col items-end justify-center gap-1 min-w-[80px] sm:min-w-[100px] text-right">
+                    <span className="text-sm sm:text-base font-medium text-muted-foreground whitespace-nowrap">
                         {statusLabels[book.status]}
                     </span>
                     {displayDate && (
-                        <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                             {formatDate(displayDate)}
                         </span>
                     )}
