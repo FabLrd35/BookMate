@@ -185,9 +185,12 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
                             </div>
 
                             <div className="space-y-1">
-                                <p className="text-xl text-muted-foreground">
+                                <Link
+                                    href={`/authors/${book.author.id}`}
+                                    className="text-xl text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                                >
                                     par {book.author.name}
-                                </p>
+                                </Link>
                                 {book.genre && (
                                     <p className="text-sm text-muted-foreground">
                                         Genre : {book.genre.name}

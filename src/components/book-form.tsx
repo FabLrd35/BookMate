@@ -668,7 +668,7 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                                     />
                                 </PopoverContent>
                             </Popover>
-                            <input type="hidden" name="startDate" value={startDate ? startDate.toISOString() : ""} />
+                            <input type="hidden" name="startDate" value={startDate ? startDate.toISOString().split('T')[0] : ""} />
                         </div>
 
                         <div className="space-y-2">
@@ -698,7 +698,7 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                                     />
                                 </PopoverContent>
                             </Popover>
-                            <input type="hidden" name="finishDate" value={finishDate ? finishDate.toISOString() : ""} />
+                            <input type="hidden" name="finishDate" value={finishDate ? finishDate.toISOString().split('T')[0] : ""} />
                         </div>
                     </>
                 )}
