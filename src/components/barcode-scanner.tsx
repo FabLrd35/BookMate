@@ -35,18 +35,6 @@ export function BarcodeScanner({ onScanSuccess }: BarcodeScannerProps) {
                 return
             }
 
-            // Request camera permission first
-            try {
-                await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment" }
-                })
-            } catch (permissionError) {
-                console.error("Camera permission denied:", permissionError)
-                toast.error("Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur")
-                setIsLoading(false)
-                return
-            }
-
             const scanner = new Html5Qrcode("barcode-scanner")
             scannerRef.current = scanner
 
@@ -76,18 +64,20 @@ export function BarcodeScanner({ onScanSuccess }: BarcodeScannerProps) {
             let errorMessage = "Impossible d'accéder à la caméra"
 
             if (error?.name === "NotAllowedError" || error?.name === "PermissionDeniedError") {
-                errorMessage = "Permission refusée. Veuillez autoriser l'accès à la caméra"
+                errorMessage = "Permission refusée. Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur, puis rechargez la page"
             } else if (error?.name === "NotFoundError" || error?.name === "DevicesNotFoundError") {
                 errorMessage = "Aucune caméra trouvée sur cet appareil"
             } else if (error?.name === "NotReadableError" || error?.name === "TrackStartError") {
                 errorMessage = "La caméra est déjà utilisée par une autre application"
             } else if (error?.name === "OverconstrainedError") {
-                errorMessage = "Impossible d'utiliser la caméra arrière"
+                errorMessage = "Impossible d'utiliser la caméra arrière. Essayez de fermer d'autres applications utilisant la caméra"
             } else if (error?.message) {
-                errorMessage = error.message
+                // Show the actual error message for debugging
+                console.log("Camera error details:", error)
+                errorMessage = `Erreur caméra: ${error.message}`
             }
 
-            toast.error(errorMessage)
+            toast.error(errorMessage, { duration: 5000 })
             setIsLoading(false)
         }
     }
