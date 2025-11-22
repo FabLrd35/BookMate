@@ -1,12 +1,25 @@
+```
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Star, Calendar, BookOpen } from "lucide-react"
+import { Star, Calendar, BookOpen, Play, CheckCircle2, MoreVertical } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { StarRating } from "@/components/star-rating"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { Button } from "@/components/ui/button"
+import { updateBookStatus } from "@/app/actions/books"
+import { useTransition } from "react"
+import { UpdateProgressDialog } from "@/components/update-progress-dialog"
+import { AbandonBookDialog } from "@/components/abandon-book-dialog"
+import { FinishBookDialog } from "@/components/finish-book-dialog"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 type Book = {
     id: string
@@ -36,9 +49,18 @@ interface BookListItemProps {
 
 export function BookListItem({ book }: BookListItemProps) {
     const router = useRouter()
+    const [isPending, startTransition] = useTransition()
 
     const handleCardClick = () => {
-        router.push(`/books/${book.id}`)
+        router.push(`/ books / ${ book.id } `)
+    }
+
+    const handleStatusChange = (e: React.MouseEvent, newStatus: "READING" | "READ" | "ABANDONED") => {
+        e.preventDefault()
+        e.stopPropagation()
+        startTransition(async () => {
+            await updateBookStatus(book.id, newStatus)
+        })
     }
 
     const statusLabels = {
@@ -96,17 +118,104 @@ export function BookListItem({ book }: BookListItemProps) {
                 </div>
             </div>
 
-            {/* Status & Date */}
-            <div className="flex flex-col items-end justify-center gap-1 min-w-[100px]">
-                <span className="text-base font-medium text-muted-foreground">
-                    {statusLabels[book.status]}
-                </span>
-                {displayDate && (
-                    <span className="text-sm text-muted-foreground">
-                        {formatDate(displayDate)}
+            {/* Actions & Status */}
+            <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                {/* Quick Actions */}
+                <div className="hidden sm:flex items-center gap-2">
+                    {book.status === "TO_READ" && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2"
+                            onClick={(e) => handleStatusChange(e, "READING")}
+                            disabled={isPending}
+                        >
+                            <Play className="h-3 w-3" /> Commencer
+                        </Button>
+                    )}
+                    {book.status === "READING" && (
+                        <>
+                            <UpdateProgressDialog
+                                bookId={book.id}
+                                currentProgress={book.currentPage || 0}
+                                title={book.title}
+                                trigger={
+                                    <Button size="sm" variant="outline">
+                                        Mettre à jour
+                                    </Button>
+                                }
+                            />
+                            <FinishBookDialog
+                                bookId={book.id}
+                                title={book.title}
+                                trigger={
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="gap-2 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                        disabled={isPending}
+                                    >
+                                        <CheckCircle2 className="h-3 w-3" /> Terminer
+                                    </Button>
+                                }
+                            />
+                        </>
+                    )}
+                </div>
+
+                {/* Mobile Menu (Dropdown) */}
+                <div className="sm:hidden">
+                    {book.status === "READING" && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <UpdateProgressDialog
+                                        bookId={book.id}
+                                        currentProgress={book.currentPage || 0}
+                                        title={book.title}
+                                        trigger={<span className="w-full">Mettre à jour</span>}
+                                    />
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <FinishBookDialog
+                                        bookId={book.id}
+                                        title={book.title}
+                                        trigger={<span className="w-full">Terminer</span>}
+                                    />
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                     {book.status === "TO_READ" && (
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => handleStatusChange(e, "READING")}
+                            disabled={isPending}
+                        >
+                            <Play className="h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
+
+                {/* Status & Date */}
+                <div className="flex flex-col items-end justify-center gap-1 min-w-[100px] text-right">
+                    <span className="text-base font-medium text-muted-foreground">
+                        {statusLabels[book.status]}
                     </span>
-                )}
+                    {displayDate && (
+                        <span className="text-sm text-muted-foreground">
+                            {formatDate(displayDate)}
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
     )
 }
+```
