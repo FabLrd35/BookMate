@@ -627,15 +627,210 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                             variant="outline"
                             size="lg"
                             onClick={() => window.history.back()}
-                            disabled={isSubmitting}
-                        >
-                            Annuler
-                        </Button>
+                            placeholder="Résumé du livre..."
+                            rows={4}
+                            className="text-base resize-none"
+                            value={summary}
+                            onChange={(e) => setSummary(e.target.value)}
+                        />
                     </div>
-                </div>
 
-                {/* Spacer for fixed buttons on mobile */}
-                <div className="h-20 lg:hidden" />
+                    {/* Reading Status */}
+                    <div className="space-y-2">
+                        <Label className="text-base font-semibold">
+                            Statut de lecture <span className="text-destructive">*</span>
+                        </Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <label
+                                className={`relative flex items-center justify-center rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all ${status === "TO_READ"
+                                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                                    : "border-border hover:border-blue-300"
+                                    }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    value="TO_READ"
+                                    checked={status === "TO_READ"}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium text-sm sm:text-base">À lire</span>
+                            </label>
+                            <label
+                                className={`relative flex items-center justify-center rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all ${status === "READING"
+                                    ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
+                                    : "border-border hover:border-orange-300"
+                                    }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    value="READING"
+                                    checked={status === "READING"}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium text-sm sm:text-base">En cours</span>
+                            </label>
+                            <label
+                                className={`relative flex items-center justify-center rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all ${status === "READ"
+                                    ? "border-green-500 bg-green-50 dark:bg-green-950/20"
+                                    : "border-border hover:border-green-300"
+                                    }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    value="READ"
+                                    checked={status === "READ"}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium text-sm sm:text-base">Terminé</span>
+                            </label>
+                            <label
+                                className={`relative flex items-center justify-center rounded-lg border-2 p-3 sm:p-4 cursor-pointer transition-all ${status === "ABANDONED"
+                                    ? "border-gray-500 bg-gray-50 dark:bg-gray-950/20"
+                                    : "border-border hover:border-gray-300"
+                                    }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    value="ABANDONED"
+                                    checked={status === "ABANDONED"}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium text-sm sm:text-base">Abandonné</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Total Pages */}
+                    <div className="space-y-2">
+                        <Label htmlFor="totalPages" className="text-base font-semibold">
+                            Nombre de pages
+                        </Label>
+                        <Input
+                            id="totalPages"
+                            name="totalPages"
+                            type="number"
+                            min="0"
+                            placeholder="Nombre total de pages"
+                            className="text-base"
+                            defaultValue={initialData?.totalPages || ""}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Optionnel - pour suivre vos statistiques de lecture
+                        </p>
+                    </div>
+
+                    {/* Current Page (only for books being read) */}
+                    {status === "READING" && (
+                        <div className="space-y-2">
+                            <Label htmlFor="currentPage" className="text-base font-semibold">
+                                Page actuelle
+                            </Label>
+                            <Input
+                                id="currentPage"
+                                name="currentPage"
+                                type="number"
+                                min="0"
+                                placeholder="Entrez la page actuelle"
+                                className="text-base"
+                                defaultValue={initialData?.currentPage || ""}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                Suivez votre progression dans le livre
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Rating (only for completed books) */}
+                    {status === "READ" && (
+                        <div className="space-y-2">
+                            <Label className="text-base font-semibold">Note</Label>
+                            <div className="flex gap-2">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onClick={() => setRating(star)}
+                                        className="transition-transform hover:scale-110"
+                                    >
+                                        <Star
+                                            className={`h-8 w-8 ${rating && star <= rating
+                                                ? "fill-yellow-400 text-yellow-400"
+                                                : "text-gray-300 dark:text-gray-600"
+                                                }`}
+                                        />
+                                    </button>
+                                ))}
+                                {rating && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setRating(null)}
+                                        className="ml-2 text-sm text-muted-foreground hover:text-foreground"
+                                    >
+                                        Effacer
+                                    </button>
+                                )}
+                            </div>
+                            <input type="hidden" name="rating" value={rating || ""} />
+                        </div>
+                    )}
+
+                    {/* Comment (only for completed books) */}
+                    {status === "READ" && (
+                        <div className="space-y-2">
+                            <Label htmlFor="comment" className="text-base font-semibold">
+                                Critique / Commentaire
+                            </Label>
+                            <Textarea
+                                id="comment"
+                                name="comment"
+                                placeholder="Partagez vos pensées sur ce livre..."
+                                rows={4}
+                                className="text-base resize-none"
+                                defaultValue={initialData?.comment || ""}
+                            />
+                        </div>
+                    )}
+
+                    {/* Submit Button - Sticky on mobile */}
+                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t lg:relative lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 lg:pt-4 z-10">
+                        <div className="flex gap-4 max-w-2xl mx-auto">
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="flex-1"
+                                size="lg"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        {initialData ? "Enregistrement..." : "Ajout en cours..."}
+                                    </>
+                                ) : (
+                                    initialData ? "Enregistrer les modifications" : "Ajouter le livre"
+                                )}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="lg"
+                                onClick={() => window.history.back()}
+                                disabled={isSubmitting}
+                            >
+                                Annuler
+                            </Button>
+                        </div>
+                    </div>
+
+                    {/* Spacer for fixed buttons on mobile */}
+                    <div className="h-32 lg:hidden" />
             </form>
         </Card>
     )
