@@ -2,10 +2,30 @@
 
 import { prisma } from "@/lib/prisma"
 
+import { auth } from "@/auth"
+
 export async function getAuthorsWithStats() {
+    const session = await auth()
+    if (!session?.user?.email) return []
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) return []
+
     const authors = await prisma.author.findMany({
+        where: {
+            books: {
+                some: {
+                    userId: user.id
+                }
+            }
+        },
         include: {
             books: {
+                where: {
+                    userId: user.id
+                },
                 select: {
                     id: true,
                     status: true,
@@ -100,10 +120,19 @@ export async function getAuthorsWithStats() {
 }
 
 export async function getAuthorById(id: string) {
+    const session = await auth()
+    if (!session?.user?.email) return null
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) return null
+
     const author = await prisma.author.findUnique({
         where: { id },
         include: {
             books: {
+                where: { userId: user.id },
                 include: {
                     author: true,
                     genre: true,
@@ -182,9 +211,20 @@ export async function getAuthorById(id: string) {
 
 export async function discoverAuthorBooks(authorName: string, authorId: string) {
     try {
+        const session = await auth()
+        if (!session?.user?.email) return { success: false, books: [], error: "Non authentifié" }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+        if (!user) return { success: false, books: [], error: "Utilisateur non trouvé" }
+
         // Get books already in the user's library for this author
         const existingBooks = await prisma.book.findMany({
-            where: { authorId },
+            where: {
+                authorId,
+                userId: user.id
+            },
             select: { title: true },
         })
 

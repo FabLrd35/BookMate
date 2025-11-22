@@ -2,8 +2,18 @@
 
 import { prisma } from "@/lib/prisma"
 
+import { auth } from "@/auth"
+
 export async function getReadingActivityForYear(year: number) {
     try {
+        const session = await auth()
+        if (!session?.user?.email) return { success: false, activityMap: {}, activities: [] }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+        if (!user) return { success: false, activityMap: {}, activities: [] }
+
         const startDate = new Date(year, 0, 1) // 1er janvier
         const endDate = new Date(year, 11, 31, 23, 59, 59) // 31 décembre
 
@@ -13,6 +23,9 @@ export async function getReadingActivityForYear(year: number) {
                     gte: startDate,
                     lte: endDate,
                 },
+                book: {
+                    userId: user.id
+                }
             },
             include: {
                 book: {
@@ -44,6 +57,14 @@ export async function getReadingActivityForYear(year: number) {
 
 export async function getReadingActivityForDay(dateString: string) {
     try {
+        const session = await auth()
+        if (!session?.user?.email) return { success: false, activities: [] }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+        if (!user) return { success: false, activities: [] }
+
         const date = new Date(dateString)
         const startOfDay = new Date(date.setHours(0, 0, 0, 0))
         const endOfDay = new Date(date.setHours(23, 59, 59, 999))
@@ -54,6 +75,9 @@ export async function getReadingActivityForDay(dateString: string) {
                     gte: startOfDay,
                     lte: endOfDay,
                 },
+                book: {
+                    userId: user.id
+                }
             },
             include: {
                 book: {
@@ -83,7 +107,20 @@ export async function getReadingActivityForDay(dateString: string) {
 
 export async function getCurrentStreak() {
     try {
+        const session = await auth()
+        if (!session?.user?.email) return { success: true, streak: 0 }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+        if (!user) return { success: true, streak: 0 }
+
         const activities = await prisma.readingActivity.findMany({
+            where: {
+                book: {
+                    userId: user.id
+                }
+            },
             orderBy: {
                 date: 'desc',
             },
@@ -130,7 +167,20 @@ export async function getCurrentStreak() {
 
 export async function getLongestStreak() {
     try {
+        const session = await auth()
+        if (!session?.user?.email) return { success: true, streak: 0 }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+        if (!user) return { success: true, streak: 0 }
+
         const activities = await prisma.readingActivity.findMany({
+            where: {
+                book: {
+                    userId: user.id
+                }
+            },
             orderBy: {
                 date: 'asc',
             },
@@ -174,9 +224,18 @@ export async function getLongestStreak() {
 
 export async function populateActivityFromBooks() {
     try {
+        const session = await auth()
+        if (!session?.user?.email) return { success: false, created: 0, error: "Non authentifié" }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+        if (!user) return { success: false, created: 0, error: "Utilisateur non trouvé" }
+
         // Get all books with dates
         const books = await prisma.book.findMany({
             where: {
+                userId: user.id,
                 OR: [
                     { startDate: { not: null } },
                     { finishDate: { not: null } },
