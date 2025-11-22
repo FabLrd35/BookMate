@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { BookCard } from "./book-card"
+import { BookListItem } from "./book-list-item"
 import { BookOpen, Heart, BookMarked, CheckCircle2, XCircle } from "lucide-react"
 
 type Book = {
@@ -181,9 +182,9 @@ export function BookList({ books }: BookListProps) {
                         icon={activeFilter.icon}
                     />
                 ) : (
-                    <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="flex flex-col bg-card rounded-lg border shadow-sm">
                         {activeFilter.books.map((book) => (
-                            <BookCard key={book.id} book={book} />
+                            <BookListItem key={book.id} book={book} />
                         ))}
                     </div>
                 )}
