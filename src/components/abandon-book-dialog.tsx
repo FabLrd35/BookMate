@@ -43,7 +43,7 @@ export function AbandonBookDialog({ bookId, title, trigger }: AbandonBookDialogP
                     <Button
                         size="sm"
                         variant="outline"
-                        className="w-full gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20"
+                        className="gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20"
                     >
                         <XCircle className="h-3 w-3" /> Abandonner
                     </Button>
