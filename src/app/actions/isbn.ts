@@ -9,6 +9,7 @@ const GoogleBookSchema = z.object({
             authors: z.array(z.string()).optional(),
             categories: z.array(z.string()).optional(),
             pageCount: z.number().optional(),
+            description: z.string().optional(),
             imageLinks: z.object({
                 thumbnail: z.string().optional(),
             }).optional(),
@@ -44,6 +45,7 @@ export async function fetchBookByISBN(isbn: string) {
                 title: book.title,
                 author: book.authors?.[0] || "",
                 genre: book.categories?.[0] || "",
+                summary: book.description || "",
                 coverUrl: book.imageLinks?.thumbnail?.replace("http://", "https://") || "",
                 totalPages: book.pageCount || null,
                 publishedDate: book.publishedDate || null,

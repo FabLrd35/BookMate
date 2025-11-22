@@ -225,6 +225,9 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                     genreInput.value = result.book.genre
                 }
             }
+            if (result.book.summary) {
+                setSummary(result.book.summary)
+            }
             toast.dismiss()
             toast.success("Livre trouvé et formulaire pré-rempli !")
         } else {
