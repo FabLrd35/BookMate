@@ -35,50 +35,61 @@ export function BarcodeScanner({ onScanSuccess }: BarcodeScannerProps) {
                 return
             }
 
-            const scanner = new Html5Qrcode("barcode-scanner")
-            scannerRef.current = scanner
-
-            await scanner.start(
-                { facingMode: "environment" }, // Caméra arrière
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 },
-                },
-                (decodedText) => {
-                    // Succès du scan
-                    stopScanner()
-                    onScanSuccess(decodedText)
-                    toast.success("Code-barres scanné !")
-                },
-                (errorMessage) => {
-                    // Erreur silencieuse (scan en cours)
-                }
-            )
-
+            // Show the scanner div first
             setIsScanning(true)
-            setIsLoading(false)
+
+            // Wait for the DOM to update before initializing the scanner
+            setTimeout(async () => {
+                try {
+                    const scanner = new Html5Qrcode("barcode-scanner")
+                    scannerRef.current = scanner
+
+                    await scanner.start(
+                        { facingMode: "environment" }, // Caméra arrière
+                        {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 },
+                        },
+                        (decodedText) => {
+                            // Succès du scan
+                            stopScanner()
+                            onScanSuccess(decodedText)
+                            toast.success("Code-barres scanné !")
+                        },
+                        (errorMessage) => {
+                            // Erreur silencieuse (scan en cours)
+                        }
+                    )
+
+                    setIsLoading(false)
+                } catch (error: any) {
+                    console.error("Error starting scanner:", error)
+
+                    // Provide specific error messages
+                    let errorMessage = "Impossible d'accéder à la caméra"
+
+                    if (error?.name === "NotAllowedError" || error?.name === "PermissionDeniedError") {
+                        errorMessage = "Permission refusée. Autorisez la caméra puis rechargez la page"
+                    } else if (error?.name === "NotFoundError" || error?.name === "DevicesNotFoundError") {
+                        errorMessage = "Aucune caméra trouvée"
+                    } else if (error?.name === "NotReadableError" || error?.name === "TrackStartError") {
+                        errorMessage = "Caméra déjà utilisée par une autre app"
+                    } else if (error?.name === "OverconstrainedError") {
+                        errorMessage = "Impossible d'utiliser la caméra arrière"
+                    } else if (error?.message) {
+                        errorMessage = `Erreur: ${error.message}`
+                    }
+
+                    toast.error(errorMessage, { duration: 5000 })
+                    setIsLoading(false)
+                    setIsScanning(false)
+                }
+            }, 100)
         } catch (error: any) {
-            console.error("Error starting scanner:", error)
-
-            // Provide specific error messages
-            let errorMessage = "Impossible d'accéder à la caméra"
-
-            if (error?.name === "NotAllowedError" || error?.name === "PermissionDeniedError") {
-                errorMessage = "Permission refusée. Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur, puis rechargez la page"
-            } else if (error?.name === "NotFoundError" || error?.name === "DevicesNotFoundError") {
-                errorMessage = "Aucune caméra trouvée sur cet appareil"
-            } else if (error?.name === "NotReadableError" || error?.name === "TrackStartError") {
-                errorMessage = "La caméra est déjà utilisée par une autre application"
-            } else if (error?.name === "OverconstrainedError") {
-                errorMessage = "Impossible d'utiliser la caméra arrière. Essayez de fermer d'autres applications utilisant la caméra"
-            } else if (error?.message) {
-                // Show the actual error message for debugging
-                console.log("Camera error details:", error)
-                errorMessage = `Erreur caméra: ${error.message}`
-            }
-
-            toast.error(errorMessage, { duration: 5000 })
+            console.error("Error in startScanner:", error)
+            toast.error("Erreur lors du démarrage")
             setIsLoading(false)
+            setIsScanning(false)
         }
     }
 
