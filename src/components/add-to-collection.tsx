@@ -52,21 +52,26 @@ export function AddToCollection({ bookId, availableCollections, bookCollections 
 
     async function handleCreateCollection() {
         if (!newCollectionName.trim()) return
-        await createCollection(newCollectionName)
+        await createCollection(newCollectionName, undefined, bookId)
         setNewCollectionName("")
         setIsCreateOpen(false)
-        setSuccessMessage("Collection créée")
+        setSuccessMessage("Collection créée et livre ajouté")
         setTimeout(() => setSuccessMessage(null), 2000)
     }
+
+    const collectionCount = bookCollections.length
 
     return (
         <>
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full">
+                        <Button variant={collectionCount > 0 ? "secondary" : "outline"} className="w-full">
                             <FolderPlus className="mr-2 h-4 w-4" />
-                            Ajouter à une collection
+                            {collectionCount > 0
+                                ? `Dans ${collectionCount} collection${collectionCount > 1 ? 's' : ''}`
+                                : "Ajouter à une collection"
+                            }
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">

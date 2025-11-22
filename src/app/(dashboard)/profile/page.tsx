@@ -38,7 +38,7 @@ export default async function ProfilePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-12">
+        <div className="min-h-screen bg-background pb-12">
             <ProfileHeader user={user} />
 
             {/* Profile Content */}
@@ -56,17 +56,17 @@ export default async function ProfilePage() {
 
                 {/* Stats */}
                 <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
-                    <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-                        <dt className="truncate text-sm font-medium text-gray-500">Livres</dt>
-                        <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{user._count.books}</dd>
+                    <div className="overflow-hidden rounded-lg bg-card px-4 py-5 shadow sm:p-6 border">
+                        <dt className="truncate text-sm font-medium text-muted-foreground">Livres</dt>
+                        <dd className="mt-1 text-3xl font-semibold tracking-tight text-card-foreground">{user._count.books}</dd>
                     </div>
-                    <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-                        <dt className="truncate text-sm font-medium text-gray-500">Mots</dt>
-                        <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{user._count.words}</dd>
+                    <div className="overflow-hidden rounded-lg bg-card px-4 py-5 shadow sm:p-6 border">
+                        <dt className="truncate text-sm font-medium text-muted-foreground">Mots</dt>
+                        <dd className="mt-1 text-3xl font-semibold tracking-tight text-card-foreground">{user._count.words}</dd>
                     </div>
-                    <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-                        <dt className="truncate text-sm font-medium text-gray-500">Citations</dt>
-                        <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{user._count.quotes}</dd>
+                    <div className="overflow-hidden rounded-lg bg-card px-4 py-5 shadow sm:p-6 border">
+                        <dt className="truncate text-sm font-medium text-muted-foreground">Citations</dt>
+                        <dd className="mt-1 text-3xl font-semibold tracking-tight text-card-foreground">{user._count.quotes}</dd>
                     </div>
                 </div>
 

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 
-export async function createCollection(name: string, description?: string) {
+export async function createCollection(name: string, description?: string, bookId?: string) {
     const session = await auth()
     if (!session?.user?.email) return
 
@@ -20,8 +20,15 @@ export async function createCollection(name: string, description?: string) {
             name,
             description,
             userId: user.id,
+            books: bookId ? {
+                connect: { id: bookId }
+            } : undefined
         },
     })
+
+    if (bookId) {
+        revalidatePath(`/books/${bookId}`)
+    }
     revalidatePath("/collections")
 }
 
