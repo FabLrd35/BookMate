@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { BookCard } from "./book-card"
 import { BookOpen, Heart, BookMarked, CheckCircle2, XCircle } from "lucide-react"
 
@@ -31,7 +32,16 @@ interface BookListProps {
 }
 
 export function BookList({ books }: BookListProps) {
-    const [activeTab, setActiveTab] = useState<"TO_READ" | "READING" | "READ" | "ABANDONED" | "FAVORITES">("TO_READ")
+    const searchParams = useSearchParams()
+    const router = useRouter()
+    const tabParam = searchParams.get('tab') as "TO_READ" | "READING" | "READ" | "ABANDONED" | "FAVORITES" | null
+    const activeTab = tabParam || "TO_READ"
+
+    const setActiveTab = (tab: "TO_READ" | "READING" | "READ" | "ABANDONED" | "FAVORITES") => {
+        const params = new URLSearchParams(searchParams.toString())
+        params.set('tab', tab)
+        router.push(`?${params.toString()}`, { scroll: false })
+    }
 
     const toReadBooks = books.filter((book) => book.status === "TO_READ")
     const readingBooks = books.filter((book) => book.status === "READING")
