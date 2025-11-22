@@ -20,9 +20,10 @@ interface UpdateProgressDialogProps {
     bookId: string
     currentProgress: number
     title: string
+    trigger?: React.ReactNode
 }
 
-export function UpdateProgressDialog({ bookId, currentProgress, title }: UpdateProgressDialogProps) {
+export function UpdateProgressDialog({ bookId, currentProgress, title, trigger }: UpdateProgressDialogProps) {
     const [open, setOpen] = useState(false)
     const [page, setPage] = useState(currentProgress)
     const [isSaving, setIsSaving] = useState(false)
@@ -43,15 +44,17 @@ export function UpdateProgressDialog({ bookId, currentProgress, title }: UpdateP
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-2 mt-2"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <BookOpen className="h-3 w-3" />
-                    Mettre à jour la page
-                </Button>
+                {trigger || (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full gap-2 mt-2"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <BookOpen className="h-3 w-3" />
+                        Mettre à jour la page
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent onClick={(e) => e.stopPropagation()}>
                 <DialogHeader>
