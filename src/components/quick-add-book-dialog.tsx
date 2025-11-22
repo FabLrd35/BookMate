@@ -83,7 +83,7 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
             <DialogTrigger asChild>
                 {trigger}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>Ajouter à ma bibliothèque</DialogTitle>
                     <DialogDescription>
@@ -91,161 +91,163 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* Book Preview */}
-                <div className="flex gap-4 py-4 border-b">
-                    <div className="flex-shrink-0 w-20 h-28 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded overflow-hidden relative">
-                        {book.coverUrl ? (
-                            <Image
-                                src={book.coverUrl}
-                                alt={book.title}
-                                fill
-                                className="object-cover"
-                                sizes="80px"
-                            />
-                        ) : (
-                            <div className="flex items-center justify-center h-full">
-                                <BookOpen className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                        )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold line-clamp-2 mb-1">{book.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                            {book.authors.join(", ")}
-                        </p>
-                        {book.pageCount && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                                {book.pageCount} pages
+                <div className="flex-1 overflow-y-auto px-1">
+                    {/* Book Preview */}
+                    <div className="flex gap-4 py-4 border-b">
+                        <div className="flex-shrink-0 w-20 h-28 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded overflow-hidden relative">
+                            {book.coverUrl ? (
+                                <Image
+                                    src={book.coverUrl}
+                                    alt={book.title}
+                                    fill
+                                    className="object-cover"
+                                    sizes="80px"
+                                />
+                            ) : (
+                                <div className="flex items-center justify-center h-full">
+                                    <BookOpen className="h-8 w-8 text-muted-foreground" />
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold line-clamp-2 mb-1">{book.title}</h3>
+                            <p className="text-sm text-muted-foreground">
+                                {book.authors.join(", ")}
                             </p>
-                        )}
+                            {book.pageCount && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    {book.pageCount} pages
+                                </p>
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                {/* Status Selection */}
-                <div className="space-y-3 py-4">
-                    <label className="text-sm font-medium">
-                        Statut de lecture
-                    </label>
-                    <div className="grid grid-cols-3 gap-3">
-                        <label
-                            className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "TO_READ"
-                                ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                                : "border-border hover:border-blue-300"
-                                }`}
-                        >
-                            <input
-                                type="radio"
-                                name="status"
-                                value="TO_READ"
-                                checked={status === "TO_READ"}
-                                onChange={(e) => setStatus(e.target.value as any)}
-                                className="sr-only"
-                            />
-                            <span className="font-medium text-sm text-center">À lire</span>
+                    {/* Status Selection */}
+                    <div className="space-y-3 py-4">
+                        <label className="text-sm font-medium">
+                            Statut de lecture
                         </label>
-                        <label
-                            className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "READING"
-                                ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
-                                : "border-border hover:border-orange-300"
-                                }`}
-                        >
-                            <input
-                                type="radio"
-                                name="status"
-                                value="READING"
-                                checked={status === "READING"}
-                                onChange={(e) => setStatus(e.target.value as any)}
-                                className="sr-only"
-                            />
-                            <span className="font-medium text-sm text-center">En cours</span>
-                        </label>
-                        <label
-                            className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "READ"
-                                ? "border-green-500 bg-green-50 dark:bg-green-950/20"
-                                : "border-border hover:border-green-300"
-                                }`}
-                        >
-                            <input
-                                type="radio"
-                                name="status"
-                                value="READ"
-                                checked={status === "READ"}
-                                onChange={(e) => setStatus(e.target.value as any)}
-                                className="sr-only"
-                            />
-                            <span className="font-medium text-sm text-center">Déjà lu</span>
-                        </label>
+                        <div className="grid grid-cols-3 gap-3">
+                            <label
+                                className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "TO_READ"
+                                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                                    : "border-border hover:border-blue-300"
+                                    }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    value="TO_READ"
+                                    checked={status === "TO_READ"}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium text-sm text-center">À lire</span>
+                            </label>
+                            <label
+                                className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "READING"
+                                    ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
+                                    : "border-border hover:border-orange-300"
+                                    }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    value="READING"
+                                    checked={status === "READING"}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium text-sm text-center">En cours</span>
+                            </label>
+                            <label
+                                className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "READ"
+                                    ? "border-green-500 bg-green-50 dark:bg-green-950/20"
+                                    : "border-border hover:border-green-300"
+                                    }`}
+                            >
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    value="READ"
+                                    checked={status === "READ"}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium text-sm text-center">Déjà lu</span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                {/* Additional Fields for READ status */}
-                {status === "READ" && (
-                    <div className="space-y-4 py-2 border-t">
-                        <div className="space-y-2">
-                            <Label>Votre note</Label>
-                            <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <button
-                                        key={star}
-                                        type="button"
-                                        onClick={() => setRating(star)}
-                                        className="focus:outline-none transition-transform hover:scale-110"
-                                    >
-                                        <Star
+                    {/* Additional Fields for READ status */}
+                    {status === "READ" && (
+                        <div className="space-y-4 py-2 border-t">
+                            <div className="space-y-2">
+                                <Label>Votre note</Label>
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setRating(star)}
+                                            className="focus:outline-none transition-transform hover:scale-110"
+                                        >
+                                            <Star
+                                                className={cn(
+                                                    "h-8 w-8 transition-colors",
+                                                    rating && star <= rating
+                                                        ? "fill-yellow-400 text-yellow-400"
+                                                        : "text-gray-300 dark:text-gray-600"
+                                                )}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="finishDate">Date de lecture</Label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
                                             className={cn(
-                                                "h-8 w-8 transition-colors",
-                                                rating && star <= rating
-                                                    ? "fill-yellow-400 text-yellow-400"
-                                                    : "text-gray-300 dark:text-gray-600"
+                                                "w-full justify-start text-left font-normal",
+                                                !finishDate && "text-muted-foreground"
                                             )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {finishDate ? format(finishDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={finishDate}
+                                            onSelect={(d) => d && setFinishDate(d)}
+                                            initialFocus
+                                            locale={fr}
                                         />
-                                    </button>
-                                ))}
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="comment">Votre avis (optionnel)</Label>
+                                <Textarea
+                                    id="comment"
+                                    placeholder="Qu'avez-vous pensé de ce livre ?"
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    className="min-h-[100px]"
+                                />
                             </div>
                         </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="finishDate">Date de lecture</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !finishDate && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {finishDate ? format(finishDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={finishDate}
-                                        onSelect={(d) => d && setFinishDate(d)}
-                                        initialFocus
-                                        locale={fr}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="comment">Votre avis (optionnel)</Label>
-                            <Textarea
-                                id="comment"
-                                placeholder="Qu'avez-vous pensé de ce livre ?"
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                className="min-h-[100px]"
-                            />
-                        </div>
-                    </div>
-                )}
+                    )}
+                </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-4 border-t mt-auto">
                     <Button
                         variant="outline"
                         onClick={() => setOpen(false)}
