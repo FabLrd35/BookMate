@@ -104,7 +104,7 @@ export function BookListItem({ book }: BookListItemProps) {
                 <h3 className="font-bold text-base sm:text-lg leading-tight line-clamp-2 sm:truncate group-hover:text-primary transition-colors">
                     {book.title}
                 </h3>
-                <p className="text-sm sm:text-base text-muted-foreground truncate">
+                <p className="text-sm sm:text-base text-muted-foreground line-clamp-2 sm:truncate">
                     {book.author.name}
                 </p>
 
@@ -136,8 +136,8 @@ export function BookListItem({ book }: BookListItemProps) {
                         }
 
                         return (
-                            <div className={`flex flex-col w-full gap-2 p-2 rounded-md border ${colors.container}`}>
-                                <div className="flex items-center justify-between text-xs">
+                            <div className={`flex flex-col w-full gap-2 p-2.5 rounded-md border ${colors.container}`}>
+                                <div className="flex items-center justify-between text-xs sm:text-sm">
                                     <span className={`font-bold ${colors.text}`}>
                                         {percentage}%
                                     </span>
@@ -147,7 +147,7 @@ export function BookListItem({ book }: BookListItemProps) {
                                 </div>
                                 <Progress
                                     value={percentage}
-                                    className={`h-1.5 ${colors.track} ${colors.indicator}`}
+                                    className={`h-2 sm:h-1.5 ${colors.track} ${colors.indicator}`}
                                 />
                             </div>
                         )
