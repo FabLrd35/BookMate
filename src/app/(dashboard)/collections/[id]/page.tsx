@@ -100,11 +100,6 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                             collectionId={collection.id}
                             availableBooks={availableBooks}
                             emptyState={true}
-                            trigger={
-                                <Button variant="outline">
-                                    Parcourir ma bibliothèque
-                                </Button>
-                            }
                         />
                     </div>
                 </div>

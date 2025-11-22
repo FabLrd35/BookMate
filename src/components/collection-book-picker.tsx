@@ -77,9 +77,17 @@ export function CollectionBookPicker({ collectionId, availableBooks, trigger, em
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {trigger || (
-                    <Button variant={emptyState ? "default" : "outline"}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Ajouter des livres
+                    <Button variant={emptyState ? "outline" : "outline"}>
+                        {emptyState ? (
+                            <>
+                                Parcourir ma bibliothèque
+                            </>
+                        ) : (
+                            <>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Ajouter des livres
+                            </>
+                        )}
                     </Button>
                 )}
             </DialogTrigger>
