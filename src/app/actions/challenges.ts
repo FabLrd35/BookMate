@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getCurrentStreak } from "./reading-activity"
 import { PREDEFINED_CHALLENGES } from "../../../prisma/predefined-challenges"
+import { auth } from "@/auth"
 
 export async function initializePredefinedChallenges() {
     try {
@@ -71,9 +72,22 @@ export async function getUserChallenges() {
 
 export async function joinChallenge(challengeId: string) {
     try {
+        const session = await auth()
+        if (!session?.user?.email) {
+            return { success: false, error: "Not authenticated" }
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+
+        if (!user) {
+            return { success: false, error: "User not found" }
+        }
+
         // Check if already joined
         const existing = await prisma.userChallenge.findFirst({
-            where: { challengeId },
+            where: { challengeId, userId: user.id },
         })
 
         if (existing) {
@@ -83,6 +97,7 @@ export async function joinChallenge(challengeId: string) {
         const userChallenge = await prisma.userChallenge.create({
             data: {
                 challengeId,
+                userId: user.id,
             },
             include: {
                 challenge: true,
@@ -106,6 +121,19 @@ export async function createCustomChallenge(data: {
     icon?: string
 }) {
     try {
+        const session = await auth()
+        if (!session?.user?.email) {
+            return { success: false, error: "Not authenticated" }
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+
+        if (!user) {
+            return { success: false, error: "User not found" }
+        }
+
         const challenge = await prisma.challenge.create({
             data: {
                 ...data,
@@ -119,6 +147,7 @@ export async function createCustomChallenge(data: {
         const userChallenge = await prisma.userChallenge.create({
             data: {
                 challengeId: challenge.id,
+                userId: user.id,
             },
         })
 
@@ -287,7 +316,7 @@ export async function updateChallengeProgress(userChallengeId: string) {
 
         // Award badges if challenge completed
         if (isCompleted && !userChallenge.isCompleted) {
-            await checkAndAwardBadges()
+            await checkAndAwardBadges(userChallenge.userId)
         }
 
         revalidatePath("/challenges")
@@ -318,7 +347,17 @@ export async function updateAllChallengesProgress() {
 
 export async function getUnlockedBadges() {
     try {
+        const session = await auth()
+        if (!session?.user?.email) return { success: false, badges: [] }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+
+        if (!user) return { success: false, badges: [] }
+
         const badges = await prisma.badge.findMany({
+            where: { userId: user.id },
             orderBy: { unlockedAt: 'desc' },
         })
 
@@ -329,15 +368,15 @@ export async function getUnlockedBadges() {
     }
 }
 
-async function checkAndAwardBadges() {
+async function checkAndAwardBadges(userId: string) {
     try {
         const completedCount = await prisma.userChallenge.count({
-            where: { isCompleted: true },
+            where: { isCompleted: true, userId },
         })
 
         // Badge: Premier Pas (1st challenge)
         if (completedCount >= 1) {
-            await awardBadgeIfNotExists({
+            await awardBadgeIfNotExists(userId, {
                 name: "Premier Pas",
                 description: "Complétez votre premier défi",
                 icon: "🎯",
@@ -347,7 +386,7 @@ async function checkAndAwardBadges() {
 
         // Badge: Défi Relevé (5 challenges)
         if (completedCount >= 5) {
-            await awardBadgeIfNotExists({
+            await awardBadgeIfNotExists(userId, {
                 name: "Défi Relevé",
                 description: "Complétez 5 défis",
                 icon: "🏆",
@@ -363,10 +402,11 @@ async function checkAndAwardBadges() {
             where: {
                 isCompleted: true,
                 challenge: { isPredefined: true },
+                userId,
             },
         })
         if (completedPredefined >= predefinedCount) {
-            await awardBadgeIfNotExists({
+            await awardBadgeIfNotExists(userId, {
                 name: "Maître des Défis",
                 description: "Complétez tous les défis prédéfinis",
                 icon: "👑",
@@ -375,11 +415,14 @@ async function checkAndAwardBadges() {
         }
 
         // Badge: Créateur (1 custom challenge)
-        const customCount = await prisma.challenge.count({
-            where: { isPredefined: false },
+        const customCount = await prisma.userChallenge.count({
+            where: {
+                userId,
+                challenge: { isPredefined: false }
+            },
         })
         if (customCount >= 1) {
-            await awardBadgeIfNotExists({
+            await awardBadgeIfNotExists(userId, {
                 name: "Créateur",
                 description: "Créez votre premier défi personnalisé",
                 icon: "✨",
@@ -394,14 +437,14 @@ async function checkAndAwardBadges() {
     }
 }
 
-async function awardBadgeIfNotExists(badgeData: {
+async function awardBadgeIfNotExists(userId: string, badgeData: {
     name: string
     description: string
     icon: string
     category: string
 }) {
     const existing = await prisma.badge.findFirst({
-        where: { name: badgeData.name },
+        where: { name: badgeData.name, userId },
     })
 
     if (!existing) {
@@ -409,6 +452,7 @@ async function awardBadgeIfNotExists(badgeData: {
             data: {
                 ...badgeData,
                 category: badgeData.category as any,
+                userId,
             },
         })
     }
