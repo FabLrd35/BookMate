@@ -115,6 +115,10 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    /* Contrôle du tap highlight sur mobile - utilise la couleur primaire du thème */
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--primary) 15%, transparent);
+    -webkit-touch-callout: none;
+    /* Désactive le menu contextuel long-press sur iOS */
   }
 
   html,
@@ -125,4 +129,12 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Alternative : désactiver complètement le tap highlight */
+  /* Décommentez ces lignes si vous préférez désactiver l'effet */
+  /*
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  */
 }
