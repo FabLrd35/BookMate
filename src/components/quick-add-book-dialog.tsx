@@ -26,6 +26,7 @@ import { fr } from "date-fns/locale"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { StarRatingSelector } from "@/components/star-rating-selector"
+import { useConfetti } from "@/hooks/use-confetti"
 
 interface QuickAddBookDialogProps {
     book: {
@@ -50,6 +51,7 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
     const [currentPage, setCurrentPage] = useState<number | null>(null)
     const [startDate, setStartDate] = useState<Date | undefined>(new Date())
     const [finishDate, setFinishDate] = useState<Date | undefined>(new Date())
+    const { quickCelebrate } = useConfetti()
 
     async function handleSubmit() {
         setIsSubmitting(true)
@@ -71,6 +73,7 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
 
             if (result.success && result.bookId) {
                 toast.success("Livre ajouté à votre bibliothèque!")
+                quickCelebrate() // 🎊 Confetti!
                 setOpen(false)
                 router.push(`/books/${result.bookId}`)
             } else {

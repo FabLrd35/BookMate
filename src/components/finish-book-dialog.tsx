@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils"
 import { updateBookStatus } from "@/app/actions/books"
 import { toast } from "sonner"
 import { StarRatingSelector } from "@/components/star-rating-selector"
+import { useConfetti } from "@/hooks/use-confetti"
 
 interface FinishBookDialogProps {
     bookId: string
@@ -49,6 +50,7 @@ export function FinishBookDialog({
     const [comment, setComment] = useState(initialComment || "")
     const [date, setDate] = useState<Date>(initialDate ? new Date(initialDate) : new Date())
     const [isPending, startTransition] = useTransition()
+    const { celebrate } = useConfetti()
 
     const isFinishMode = targetStatus === "READ"
 
@@ -68,6 +70,7 @@ export function FinishBookDialog({
 
                 if (isFinishMode) {
                     toast.success(initialRating ? "Critique mise à jour ! 📝" : "Félicitations ! Livre terminé 🎉")
+                    celebrate() // 🎊 Confetti!
                 } else {
                     toast.success("Critique enregistrée ! 📝")
                 }
