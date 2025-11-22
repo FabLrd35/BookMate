@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BookCard } from "./book-card"
 import { BookOpen, Heart, BookMarked, CheckCircle2, XCircle } from "lucide-react"
 
@@ -40,6 +39,79 @@ export function BookList({ books }: BookListProps) {
     const abandonedBooks = books.filter((book) => book.status === "ABANDONED")
     const favoriteBooks = books.filter((book) => book.isFavorite)
 
+    const filters = [
+        {
+            id: "TO_READ" as const,
+            label: "À lire",
+            icon: BookOpen,
+            count: toReadBooks.length,
+            color: "blue",
+            books: toReadBooks,
+        },
+        {
+            id: "READING" as const,
+            label: "En cours",
+            icon: BookMarked,
+            count: readingBooks.length,
+            color: "orange",
+            books: readingBooks,
+        },
+        {
+            id: "READ" as const,
+            label: "Lu",
+            icon: CheckCircle2,
+            count: readBooks.length,
+            color: "green",
+            books: readBooks,
+        },
+        {
+            id: "ABANDONED" as const,
+            label: "Abandonné",
+            icon: XCircle,
+            count: abandonedBooks.length,
+            color: "gray",
+            books: abandonedBooks,
+        },
+        {
+            id: "FAVORITES" as const,
+            label: "Favoris",
+            icon: Heart,
+            count: favoriteBooks.length,
+            color: "red",
+            books: favoriteBooks,
+        },
+    ]
+
+    const activeFilter = filters.find(f => f.id === activeTab)!
+
+    const colorClasses = {
+        blue: {
+            active: "bg-blue-500 text-white shadow-lg shadow-blue-500/30",
+            inactive: "bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-950/30",
+            badge: "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+        },
+        orange: {
+            active: "bg-orange-500 text-white shadow-lg shadow-orange-500/30",
+            inactive: "bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-950/30",
+            badge: "bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300"
+        },
+        green: {
+            active: "bg-green-500 text-white shadow-lg shadow-green-500/30",
+            inactive: "bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-950/30",
+            badge: "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300"
+        },
+        gray: {
+            active: "bg-gray-500 text-white shadow-lg shadow-gray-500/30",
+            inactive: "bg-gray-50 dark:bg-gray-950/20 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-950/30",
+            badge: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+        },
+        red: {
+            active: "bg-red-500 text-white shadow-lg shadow-red-500/30",
+            inactive: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/30",
+            badge: "bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300"
+        },
+    }
+
     const EmptyState = ({ message, icon: Icon = BookOpen }: { message: string, icon?: any }) => (
         <div className="flex flex-col items-center justify-center py-16 text-center">
             <Icon className="h-16 w-16 text-muted-foreground/50 mb-4" />
@@ -48,134 +120,62 @@ export function BookList({ books }: BookListProps) {
     )
 
     return (
-        <div className="w-full space-y-4">
-            {/* Header with Status Tabs and Favorites Toggle */}
-            <div className="flex items-center justify-between gap-4">
-                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="flex-1">
-                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 gap-1 max-w-2xl">
-                        <TabsTrigger value="TO_READ" className="relative flex-shrink-0 px-4 py-2.5 gap-2">
-                            <BookOpen className="h-4 w-4" />
-                            <span className="hidden sm:inline">À lire</span>
-                            <span className="sm:hidden">À lire</span>
-                            {toReadBooks.length > 0 && (
-                                <span className="ml-1 rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300">
-                                    {toReadBooks.length}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                        <TabsTrigger value="READING" className="relative flex-shrink-0 px-4 py-2.5 gap-2">
-                            <BookMarked className="h-4 w-4" />
-                            <span className="hidden sm:inline">En cours</span>
-                            <span className="sm:hidden">En cours</span>
-                            {readingBooks.length > 0 && (
-                                <span className="ml-1 rounded-full bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 text-xs font-medium text-orange-700 dark:text-orange-300">
-                                    {readingBooks.length}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                        <TabsTrigger value="READ" className="relative flex-shrink-0 px-4 py-2.5 gap-2">
-                            <CheckCircle2 className="h-4 w-4" />
-                            <span className="hidden sm:inline">Lu</span>
-                            <span className="sm:hidden">Lu</span>
-                            {readBooks.length > 0 && (
-                                <span className="ml-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">
-                                    {readBooks.length}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                        <TabsTrigger value="ABANDONED" className="relative flex-shrink-0 px-4 py-2.5 gap-2">
-                            <XCircle className="h-4 w-4" />
-                            <span className="hidden sm:inline">Abandonnés</span>
-                            <span className="sm:hidden">Abandon.</span>
-                            {abandonedBooks.length > 0 && (
-                                <span className="ml-1 rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300">
-                                    {abandonedBooks.length}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                    </TabsList>
-                </Tabs>
+        <div className="w-full space-y-6">
+            {/* Filter Pills */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                {filters.map((filter) => {
+                    const Icon = filter.icon
+                    const isActive = activeTab === filter.id
+                    const colors = colorClasses[filter.color]
 
-                {/* Favorites Toggle Button */}
-                <button
-                    onClick={() => setActiveTab("FAVORITES")}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-all ${activeTab === "FAVORITES"
-                            ? "bg-red-50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-300"
-                            : "border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700"
-                        }`}
-                >
-                    <Heart className={`h-4 w-4 ${activeTab === "FAVORITES" ? "fill-current" : ""}`} />
-                    <span className="hidden sm:inline font-medium">Favoris</span>
-                    {favoriteBooks.length > 0 && (
-                        <span className="rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-700 dark:text-red-300">
-                            {favoriteBooks.length}
-                        </span>
-                    )}
-                </button>
+                    return (
+                        <button
+                            key={filter.id}
+                            onClick={() => setActiveTab(filter.id)}
+                            className={`
+                                relative flex items-center justify-between gap-3 px-4 py-3 rounded-xl
+                                transition-all duration-200 font-medium
+                                ${isActive ? colors.active : colors.inactive}
+                            `}
+                        >
+                            <div className="flex items-center gap-2">
+                                <Icon className={`h-5 w-5 ${isActive && filter.id === "FAVORITES" ? "fill-current" : ""}`} />
+                                <span className="text-sm font-semibold">{filter.label}</span>
+                            </div>
+                            {filter.count > 0 && (
+                                <span className={`
+                                    px-2 py-0.5 rounded-full text-xs font-bold
+                                    ${isActive ? "bg-white/20" : colors.badge}
+                                `}>
+                                    {filter.count}
+                                </span>
+                            )}
+                        </button>
+                    )
+                })}
             </div>
 
-            {/* Tab Contents */}
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-                <TabsContent value="TO_READ" className="mt-0">
-                    {toReadBooks.length === 0 ? (
-                        <EmptyState message="Pas encore de livres dans votre liste de lecture. Commencez par en ajouter !" />
-                    ) : (
-                        <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                            {toReadBooks.map((book) => (
-                                <BookCard key={book.id} book={book} />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-
-                <TabsContent value="READING" className="mt-0">
-                    {readingBooks.length === 0 ? (
-                        <EmptyState message="Aucun livre en cours de lecture. Choisissez-en un dans votre liste !" />
-                    ) : (
-                        <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                            {readingBooks.map((book) => (
-                                <BookCard key={book.id} book={book} />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-
-                <TabsContent value="READ" className="mt-0">
-                    {readBooks.length === 0 ? (
-                        <EmptyState message="Pas encore de livres terminés. Continuez à lire !" />
-                    ) : (
-                        <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                            {readBooks.map((book) => (
-                                <BookCard key={book.id} book={book} />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-
-                <TabsContent value="ABANDONED" className="mt-0">
-                    {abandonedBooks.length === 0 ? (
-                        <EmptyState message="Aucun livre abandonné. C'est une bonne chose !" />
-                    ) : (
-                        <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                            {abandonedBooks.map((book) => (
-                                <BookCard key={book.id} book={book} />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-
-                <TabsContent value="FAVORITES" className="mt-0">
-                    {favoriteBooks.length === 0 ? (
-                        <EmptyState message="Aucun livre favori pour le moment. Ajoutez-en un en cliquant sur le cœur !" icon={Heart} />
-                    ) : (
-                        <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                            {favoriteBooks.map((book) => (
-                                <BookCard key={book.id} book={book} />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-            </Tabs>
+            {/* Book Grid */}
+            <div>
+                {activeFilter.books.length === 0 ? (
+                    <EmptyState
+                        message={
+                            activeTab === "TO_READ" ? "Pas encore de livres dans votre liste de lecture." :
+                                activeTab === "READING" ? "Aucun livre en cours de lecture." :
+                                    activeTab === "READ" ? "Pas encore de livres terminés." :
+                                        activeTab === "ABANDONED" ? "Aucun livre abandonné." :
+                                            "Aucun livre favori pour le moment."
+                        }
+                        icon={activeFilter.icon}
+                    />
+                ) : (
+                    <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {activeFilter.books.map((book) => (
+                            <BookCard key={book.id} book={book} />
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
