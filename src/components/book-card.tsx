@@ -13,6 +13,7 @@ import { AbandonBookDialog } from "@/components/abandon-book-dialog"
 import { FinishBookDialog } from "@/components/finish-book-dialog"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { StarRating } from "@/components/star-rating"
 
 type Book = {
     id: string
@@ -171,16 +172,8 @@ export function BookCard({ book }: BookCardProps) {
 
                     {/* Rating */}
                     {book.rating && (
-                        <div className="flex items-center gap-1 pt-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <Star
-                                    key={i}
-                                    className={`h-4 w-4 ${i < book.rating!
-                                        ? "fill-yellow-400 text-yellow-400"
-                                        : "text-gray-300 dark:text-gray-600"
-                                        }`}
-                                />
-                            ))}
+                        <div className="pt-2">
+                            <StarRating rating={book.rating} size="sm" />
                         </div>
                     )}
 

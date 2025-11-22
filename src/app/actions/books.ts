@@ -60,7 +60,7 @@ export async function createBook(formData: FormData) {
             genreId: genre?.id,
             coverUrl: coverUrl || null,
             status,
-            rating: rating ? parseInt(rating) : null,
+            rating: rating ? parseFloat(rating) : null,
             comment: comment || null,
             summary: summary || null,
             startDate: status === "READING" || status === "READ" ? new Date() : null,
@@ -167,7 +167,7 @@ export async function updateBook(id: string, formData: FormData) {
             },
             coverUrl: coverUrl || null,
             status,
-            rating: rating ? parseInt(rating) : null,
+            rating: rating ? parseFloat(rating) : null,
             comment: comment || null,
             summary: summary || null,
             // Update dates based on status changes if needed, or keep existing logic

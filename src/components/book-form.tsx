@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Star, Loader2, Search, BookOpen, CalendarIcon } from "lucide-react"
+import { Loader2, Search, BookOpen, CalendarIcon } from "lucide-react"
 import Image from "next/image"
 import { BarcodeScanner } from "./barcode-scanner"
 import { toast } from "sonner"
@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { cn } from "@/lib/utils"
+import { StarRatingSelector } from "@/components/star-rating-selector"
 
 type Author = {
     id: string
@@ -563,31 +564,20 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                     </div>
                 )}
 
-                {/* Rating (only for completed books) */}
                 {status === "READ" && (
                     <div className="space-y-2">
                         <Label className="text-base font-semibold">Note</Label>
-                        <div className="flex gap-2">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                    key={star}
-                                    type="button"
-                                    onClick={() => setRating(star)}
-                                    className="transition-transform hover:scale-110"
-                                >
-                                    <Star
-                                        className={`h-8 w-8 ${rating && star <= rating
-                                            ? "fill-yellow-400 text-yellow-400"
-                                            : "text-gray-300 dark:text-gray-600"
-                                            }`}
-                                    />
-                                </button>
-                            ))}
+                        <div className="flex items-center gap-4">
+                            <StarRatingSelector
+                                value={rating || 0}
+                                onChange={setRating}
+                                size="md"
+                            />
                             {rating && (
                                 <button
                                     type="button"
                                     onClick={() => setRating(null)}
-                                    className="ml-2 text-sm text-muted-foreground hover:text-foreground"
+                                    className="text-sm text-muted-foreground hover:text-foreground"
                                 >
                                     Effacer
                                 </button>

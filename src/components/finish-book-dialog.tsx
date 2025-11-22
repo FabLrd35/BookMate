@@ -17,10 +17,11 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
-import { CalendarIcon, CheckCircle2, Star } from "lucide-react"
+import { CalendarIcon, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { updateBookStatus } from "@/app/actions/books"
 import { toast } from "sonner"
+import { StarRatingSelector } from "@/components/star-rating-selector"
 
 interface FinishBookDialogProps {
     bookId: string
@@ -107,25 +108,11 @@ export function FinishBookDialog({
                 <div className="grid gap-4 py-4">
                     <div className="space-y-2">
                         <Label>Votre note</Label>
-                        <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                    key={star}
-                                    type="button"
-                                    onClick={() => setRating(star)}
-                                    className="focus:outline-none transition-transform hover:scale-110"
-                                >
-                                    <Star
-                                        className={cn(
-                                            "h-8 w-8 transition-colors",
-                                            star <= rating
-                                                ? "fill-yellow-400 text-yellow-400"
-                                                : "text-gray-300 dark:text-gray-600"
-                                        )}
-                                    />
-                                </button>
-                            ))}
-                        </div>
+                        <StarRatingSelector
+                            value={rating}
+                            onChange={setRating}
+                            size="md"
+                        />
                     </div>
 
                     {isFinishMode && (

@@ -22,8 +22,9 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
-import { CalendarIcon, Star } from "lucide-react"
+import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { StarRatingSelector } from "@/components/star-rating-selector"
 
 interface QuickAddBookDialogProps {
     book: {
@@ -184,25 +185,11 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                         <div className="space-y-4 py-2 border-t">
                             <div className="space-y-2">
                                 <Label>Votre note</Label>
-                                <div className="flex gap-1">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <button
-                                            key={star}
-                                            type="button"
-                                            onClick={() => setRating(star)}
-                                            className="focus:outline-none transition-transform hover:scale-110"
-                                        >
-                                            <Star
-                                                className={cn(
-                                                    "h-8 w-8 transition-colors",
-                                                    rating && star <= rating
-                                                        ? "fill-yellow-400 text-yellow-400"
-                                                        : "text-gray-300 dark:text-gray-600"
-                                                )}
-                                            />
-                                        </button>
-                                    ))}
-                                </div>
+                                <StarRatingSelector
+                                    value={rating || 0}
+                                    onChange={setRating}
+                                    size="md"
+                                />
                             </div>
 
                             <div className="space-y-2">

@@ -6,6 +6,7 @@ import Image from "next/image"
 import { ExpandableText } from "@/components/expandable-text"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
+import { StarRating } from "@/components/star-rating"
 
 export default async function RatingsPage() {
     const session = await auth()
@@ -95,18 +96,7 @@ export default async function RatingsPage() {
 
                                         {/* Rating */}
                                         {book.rating && (
-                                            <div className="flex items-center gap-1">
-                                                {Array.from({ length: 5 }).map((_, i) => (
-                                                    <Star
-                                                        key={i}
-                                                        className={`h-4 w-4 sm:h-5 sm:w-5 ${i < book.rating!
-                                                            ? "fill-yellow-400 text-yellow-400"
-                                                            : "text-muted-foreground"
-                                                            }`}
-                                                    />
-                                                ))}
-                                                <span className="ml-2 text-sm font-medium">{book.rating}/5</span>
-                                            </div>
+                                            <StarRating rating={book.rating} size="md" showValue />
                                         )}
 
                                         {/* Comment if exists */}
