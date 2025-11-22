@@ -45,7 +45,7 @@ export default async function DashboardLayout({
 
     return (
         <html lang="fr" suppressHydrationWarning>
-            <body className={`${inter.className} h-screen overflow-hidden`}>
+            <body className={`${inter.className} overflow-hidden`} style={{ height: '100dvh' }}>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="system"
@@ -59,7 +59,7 @@ export default async function DashboardLayout({
                         <div className="flex flex-1 flex-col min-w-0">
                             <Topbar user={user} />
 
-                            <main className="flex-1 overflow-y-auto bg-background p-4 lg:p-6 [scrollbar-gutter:stable]">
+                            <main className="flex-1 overflow-y-auto bg-background p-4 lg:p-6 [scrollbar-gutter:stable] touch-action-pan-y overscroll-behavior-contain">
                                 {children}
                             </main>
                         </div>
