@@ -2,13 +2,24 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { auth } from "@/auth"
 
 export async function addQuote(bookId: string, content: string, page?: string) {
+    const session = await auth()
+    if (!session?.user?.email) return
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) return
+
     await prisma.quote.create({
         data: {
             content,
             page,
             bookId,
+            userId: user.id,
         },
     })
 
