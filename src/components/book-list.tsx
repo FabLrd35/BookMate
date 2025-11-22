@@ -124,7 +124,7 @@ export function BookList({ books }: BookListProps) {
     return (
         <div className="w-full space-y-6">
             {/* Filter Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div className="flex overflow-x-auto pb-2 gap-3 sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:pb-0 no-scrollbar">
                 {filters.map((filter) => {
                     const Icon = filter.icon
                     const isActive = activeTab === filter.id
@@ -136,17 +136,17 @@ export function BookList({ books }: BookListProps) {
                             onClick={() => setActiveTab(filter.id)}
                             className={`
                                 relative flex items-center justify-between gap-3 px-4 py-3 rounded-xl
-                                transition-all duration-200 font-medium
+                                transition-all duration-200 font-medium whitespace-nowrap flex-shrink-0
                                 ${isActive ? colors.active : colors.inactive}
                             `}
                         >
                             <div className="flex items-center gap-2">
-                                <Icon className={`h-5 w-5 ${isActive && filter.id === "FAVORITES" ? "fill-current" : ""}`} />
+                                <Icon className={`h-5 w-5 ${filter.id === "FAVORITES" ? "fill-current" : ""}`} />
                                 <span className="text-sm font-semibold">{filter.label}</span>
                             </div>
                             {filter.count > 0 && (
                                 <span className={`
-                                    px-2 py-0.5 rounded-full text-xs font-bold
+                                    px-2 py-0.5 rounded-full text-xs font-bold ml-2
                                     ${isActive ? "bg-white/20" : colors.badge}
                                 `}>
                                     {filter.count}
