@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { BookOpen, BarChart3, Target, Quote, Languages, Sparkles } from "lucide-react"
+import { BookOpen, BarChart3, Target, Quote, Languages, Sparkles, LogIn } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function LandingPage() {
@@ -12,17 +12,21 @@ export default function LandingPage() {
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <BookOpen className="h-8 w-8 text-primary" />
-                        <span className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                        <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                             BookMate
                         </span>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         <ThemeToggle />
                         <Link href="/login">
-                            <Button variant="ghost">Se connecter</Button>
+                            <Button variant="ghost" className="hidden sm:inline-flex">Se connecter</Button>
+                            <Button variant="ghost" size="icon" className="sm:hidden" aria-label="Se connecter">
+                                <LogIn className="h-5 w-5" />
+                            </Button>
                         </Link>
                         <Link href="/register">
-                            <Button>S'inscrire gratuitement</Button>
+                            <Button className="hidden sm:inline-flex">S'inscrire gratuitement</Button>
+                            <Button size="sm" className="sm:hidden">S'inscrire</Button>
                         </Link>
                     </div>
                 </div>
