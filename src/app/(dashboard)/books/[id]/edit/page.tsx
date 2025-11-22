@@ -38,6 +38,8 @@ export default async function EditBookPage({ params }: EditBookPageProps) {
         totalPages: book.totalPages,
         rating: book.rating,
         comment: book.comment,
+        startDate: book.startDate,
+        finishDate: book.finishDate,
     }
 
     return (
