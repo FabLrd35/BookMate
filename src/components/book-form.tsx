@@ -8,10 +8,15 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Star, Loader2, Search, BookOpen } from "lucide-react"
+import { Star, Loader2, Search, BookOpen, CalendarIcon } from "lucide-react"
 import Image from "next/image"
 import { BarcodeScanner } from "./barcode-scanner"
 import { toast } from "sonner"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
+import { fr } from "date-fns/locale"
+import { cn } from "@/lib/utils"
 
 type Author = {
     id: string
@@ -48,6 +53,7 @@ interface BookFormProps {
         totalPages: number | null
         rating: number | null
         comment: string | null
+        finishDate?: Date | null
     }
     prefillData?: {
         title: string
@@ -67,6 +73,7 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
     const [title, setTitle] = useState((prefillData?.title || initialData?.title) ?? "")
     const [author, setAuthor] = useState((prefillData?.author || initialData?.author.name) ?? "")
     const [summary, setSummary] = useState((prefillData?.summary || initialData?.summary) ?? "")
+    const [finishDate, setFinishDate] = useState<Date | undefined>(initialData?.finishDate ? new Date(initialData.finishDate) : (status === "READ" ? new Date() : undefined))
 
     // Autocomplete state
     const [searchQuery, setSearchQuery] = useState("")
@@ -604,6 +611,39 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                             className="text-base resize-none"
                             defaultValue={initialData?.comment || ""}
                         />
+                    </div>
+                )}
+
+                {/* Finish Date (only for completed books) */}
+                {status === "READ" && (
+                    <div className="space-y-2">
+                        <Label htmlFor="finishDate" className="text-base font-semibold">
+                            Date de lecture
+                        </Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !finishDate && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {finishDate ? format(finishDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                    mode="single"
+                                    selected={finishDate}
+                                    onSelect={(d) => d && setFinishDate(d)}
+                                    initialFocus
+                                    locale={fr}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <input type="hidden" name="finishDate" value={finishDate ? finishDate.toISOString() : ""} />
                     </div>
                 )}
 

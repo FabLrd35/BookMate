@@ -16,6 +16,15 @@ import { BookOpen, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
 
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
+import { fr } from "date-fns/locale"
+import { CalendarIcon, Star } from "lucide-react"
+import { cn } from "@/lib/utils"
+
 interface QuickAddBookDialogProps {
     book: {
         id: string
@@ -34,6 +43,9 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
     const [open, setOpen] = useState(false)
     const [status, setStatus] = useState<"TO_READ" | "READING" | "READ">("TO_READ")
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [rating, setRating] = useState<number | null>(null)
+    const [comment, setComment] = useState("")
+    const [finishDate, setFinishDate] = useState<Date | undefined>(new Date())
 
     async function handleSubmit() {
         setIsSubmitting(true)
@@ -46,6 +58,9 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                 pageCount: book.pageCount,
                 categories: book.categories,
                 status,
+                rating: status === "READ" ? rating : null,
+                comment: status === "READ" ? comment : null,
+                finishDate: status === "READ" ? finishDate : null,
             })
 
             if (result.success && result.bookId) {
@@ -114,8 +129,8 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                     <div className="grid grid-cols-3 gap-3">
                         <label
                             className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "TO_READ"
-                                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                                    : "border-border hover:border-blue-300"
+                                ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                                : "border-border hover:border-blue-300"
                                 }`}
                         >
                             <input
@@ -130,8 +145,8 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                         </label>
                         <label
                             className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "READING"
-                                    ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
-                                    : "border-border hover:border-orange-300"
+                                ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20"
+                                : "border-border hover:border-orange-300"
                                 }`}
                         >
                             <input
@@ -146,8 +161,8 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                         </label>
                         <label
                             className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${status === "READ"
-                                    ? "border-green-500 bg-green-50 dark:bg-green-950/20"
-                                    : "border-border hover:border-green-300"
+                                ? "border-green-500 bg-green-50 dark:bg-green-950/20"
+                                : "border-border hover:border-green-300"
                                 }`}
                         >
                             <input
@@ -162,6 +177,72 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                         </label>
                     </div>
                 </div>
+
+                {/* Additional Fields for READ status */}
+                {status === "READ" && (
+                    <div className="space-y-4 py-2 border-t">
+                        <div className="space-y-2">
+                            <Label>Votre note</Label>
+                            <div className="flex gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onClick={() => setRating(star)}
+                                        className="focus:outline-none transition-transform hover:scale-110"
+                                    >
+                                        <Star
+                                            className={cn(
+                                                "h-8 w-8 transition-colors",
+                                                rating && star <= rating
+                                                    ? "fill-yellow-400 text-yellow-400"
+                                                    : "text-gray-300 dark:text-gray-600"
+                                            )}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="finishDate">Date de lecture</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !finishDate && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {finishDate ? format(finishDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={finishDate}
+                                        onSelect={(d) => d && setFinishDate(d)}
+                                        initialFocus
+                                        locale={fr}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="comment">Votre avis (optionnel)</Label>
+                            <Textarea
+                                id="comment"
+                                placeholder="Qu'avez-vous pensé de ce livre ?"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                className="min-h-[100px]"
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-3 pt-4">

@@ -150,6 +150,7 @@ export function FinishBookDialog({
                                         selected={date}
                                         onSelect={(d) => d && setDate(d)}
                                         initialFocus
+                                        locale={fr}
                                     />
                                 </PopoverContent>
                             </Popover>

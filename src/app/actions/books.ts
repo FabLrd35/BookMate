@@ -64,7 +64,7 @@ export async function createBook(formData: FormData) {
             comment: comment || null,
             summary: summary || null,
             startDate: status === "READING" || status === "READ" ? new Date() : null,
-            finishDate: status === "READ" ? new Date() : null,
+            finishDate: status === "READ" ? (formData.get("finishDate") ? new Date(formData.get("finishDate") as string) : new Date()) : null,
             userId: user.id,
         },
     })
@@ -182,13 +182,9 @@ export async function updateBook(id: string, formData: FormData) {
             // Actually, let's fetch the book first to be smart about dates?
             // Or just let the user edit dates? The form doesn't have date pickers yet.
             // Let's stick to the create logic for now:
-            startDate: (status === "READING" || status === "READ") ? new Date() : undefined, // This might reset start date on every edit. Bad.
-            // Better: don't touch dates for now unless we add fields for them.
-            // Wait, if I change status to READ, I want finishDate to be set.
-            // If I change to TO_READ, I might want to clear dates.
-            // Let's leave dates alone for now to avoid resetting them, except maybe setting finishDate if becoming READ?
-            // Let's keep it simple and NOT update dates automatically on edit for now to avoid data loss,
-            // or maybe just update finishDate if it's READ.
+            // Update dates based on status changes if needed
+            startDate: (status === "READING" || status === "READ") ? undefined : undefined, // Don't reset start date
+            finishDate: status === "READ" ? (formData.get("finishDate") ? new Date(formData.get("finishDate") as string) : undefined) : null,
         },
     })
 
@@ -535,6 +531,9 @@ export async function quickAddBook(bookData: {
     pageCount: number | null
     categories: string[]
     status: "TO_READ" | "READING" | "READ" | "ABANDONED"
+    rating?: number | null
+    comment?: string | null
+    finishDate?: Date | null
 }) {
     try {
         const session = await auth()
@@ -586,9 +585,9 @@ export async function quickAddBook(bookData: {
                 totalPages: bookData.pageCount,
                 status: bookData.status,
                 startDate: (bookData.status === "READING" || bookData.status === "READ") ? new Date() : null,
-                finishDate: bookData.status === "READ" ? new Date() : null,
-                rating: null,
-                comment: null,
+                finishDate: bookData.status === "READ" ? (bookData.finishDate || new Date()) : null,
+                rating: bookData.rating || null,
+                comment: bookData.comment || null,
                 currentPage: null,
                 userId: user.id,
             },
@@ -608,7 +607,7 @@ export async function quickAddBook(bookData: {
         if (bookData.status === "READ") {
             await prisma.readingActivity.create({
                 data: {
-                    date: now,
+                    date: bookData.finishDate || now,
                     bookId: book.id,
                     activityType: "FINISHED",
                 },
