@@ -52,6 +52,36 @@ export async function addBookToCollection(collectionId: string, bookId: string) 
     revalidatePath(`/collections/${collectionId}`)
 }
 
+export async function addMultipleBooksToCollection(collectionId: string, bookIds: string[]) {
+    const session = await auth()
+    if (!session?.user?.email) return
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) return
+
+    // Verify ownership
+    const collection = await prisma.collection.findUnique({
+        where: { id: collectionId },
+    })
+
+    if (!collection || collection.userId !== user.id) return
+
+    await prisma.collection.update({
+        where: { id: collectionId },
+        data: {
+            books: {
+                connect: bookIds.map(id => ({ id })),
+            },
+        },
+    })
+
+    revalidatePath(`/collections/${collectionId}`)
+    bookIds.forEach(id => revalidatePath(`/books/${id}`))
+}
+
 export async function removeBookFromCollection(collectionId: string, bookId: string) {
     await prisma.collection.update({
         where: { id: collectionId },
