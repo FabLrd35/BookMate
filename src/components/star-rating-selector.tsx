@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Star } from "lucide-react"
+import { Star, StarHalf } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface StarRatingSelectorProps {
@@ -62,28 +62,33 @@ export function StarRatingSelector({ value, onChange, size = "lg", className }: 
                         onMouseLeave={handleMouseLeave}
                         className="focus:outline-none transition-transform hover:scale-110 relative"
                     >
-                        <Star
-                            className={cn(
-                                iconSize,
-                                "transition-colors",
-                                isFilled || isHalfFilled
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-gray-300 dark:text-gray-600"
-                            )}
-                        />
-                        {/* Visual indicator for half-star on hover */}
-                        {isHalfFilled && (
-                            <div
-                                className="absolute top-0 left-0 w-1/2 h-full overflow-hidden"
-                                style={{ pointerEvents: 'none' }}
-                            >
+                        {isHalfFilled ? (
+                            <>
+                                {/* Background empty star */}
                                 <Star
                                     className={cn(
                                         iconSize,
-                                        "fill-yellow-400 text-yellow-400"
+                                        "text-gray-300 dark:text-gray-600"
                                     )}
                                 />
-                            </div>
+                                {/* Foreground half star */}
+                                <StarHalf
+                                    className={cn(
+                                        iconSize,
+                                        "absolute top-0 left-0 fill-yellow-400 text-yellow-400"
+                                    )}
+                                />
+                            </>
+                        ) : (
+                            <Star
+                                className={cn(
+                                    iconSize,
+                                    "transition-colors",
+                                    isFilled
+                                        ? "fill-yellow-400 text-yellow-400"
+                                        : "text-gray-300 dark:text-gray-600"
+                                )}
+                            />
                         )}
                     </button>
                 )
