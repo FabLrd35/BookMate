@@ -123,12 +123,6 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
 
                         {/* Action Buttons */}
                         <div className="flex flex-col gap-2">
-
-
-                            // ... existing imports
-
-                            // ... inside BookDetailsPage
-
                             <BookStatusActions
                                 bookId={book.id}
                                 status={book.status}
