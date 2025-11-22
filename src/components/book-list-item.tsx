@@ -1,9 +1,10 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Star, Calendar, BookOpen, Play, CheckCircle2, MoreVertical } from "lucide-react"
+import { Star, Calendar, BookOpen, Play, CheckCircle2, MoreVertical, Trash2, XCircle } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { DeleteBookDialog } from "@/components/delete-book-dialog"
 import { StarRating } from "@/components/star-rating"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -161,62 +162,100 @@ export function BookListItem({ book }: BookListItemProps) {
                             <AbandonBookDialog bookId={book.id} title={book.title} />
                         </>
                     )}
+                    {book.status === "ABANDONED" && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2"
+                            onClick={(e) => handleStatusChange(e, "READING")}
+                            disabled={isPending}
+                        >
+                            <Play className="h-3 w-3" /> Reprendre
+                        </Button>
+                    )}
+
+                    {/* Delete button in dropdown for desktop too to save space, or just icon */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <DeleteBookDialog
+                                    bookId={book.id}
+                                    title={book.title}
+                                    trigger={<span className="w-full text-red-600 flex items-center gap-2"><Trash2 className="h-4 w-4" /> Supprimer</span>}
+                                />
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
 
                 {/* Mobile Menu (Dropdown) */}
                 <div className="sm:hidden">
-                    {book.status === "READING" && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <UpdateProgressDialog
-                                        bookId={book.id}
-                                        currentProgress={book.currentPage || 0}
-                                        title={book.title}
-                                        trigger={<span className="w-full">Mettre à jour</span>}
-                                    />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {book.status === "TO_READ" && (
+                                <DropdownMenuItem onClick={(e) => handleStatusChange(e, "READING")}>
+                                    <Play className="mr-2 h-4 w-4" /> Commencer
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <FinishBookDialog
-                                        bookId={book.id}
-                                        title={book.title}
-                                        trigger={<span className="w-full">Terminer</span>}
-                                    />
+                            )}
+                            {book.status === "READING" && (
+                                <>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <UpdateProgressDialog
+                                            bookId={book.id}
+                                            currentProgress={book.currentPage || 0}
+                                            title={book.title}
+                                            trigger={<span className="w-full flex items-center gap-2"><BookOpen className="h-4 w-4" /> Mettre à jour</span>}
+                                        />
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <FinishBookDialog
+                                            bookId={book.id}
+                                            title={book.title}
+                                            trigger={<span className="w-full flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> Terminer</span>}
+                                        />
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <AbandonBookDialog
+                                            bookId={book.id}
+                                            title={book.title}
+                                            trigger={<span className="w-full text-red-600 flex items-center gap-2"><XCircle className="h-4 w-4" /> Abandonner</span>}
+                                        />
+                                    </DropdownMenuItem>
+                                </>
+                            )}
+                            {book.status === "ABANDONED" && (
+                                <DropdownMenuItem onClick={(e) => handleStatusChange(e, "READING")}>
+                                    <Play className="mr-2 h-4 w-4" /> Reprendre
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <AbandonBookDialog
-                                        bookId={book.id}
-                                        title={book.title}
-                                        trigger={<span className="w-full text-red-600">Abandonner</span>}
-                                    />
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
-                    {book.status === "TO_READ" && (
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => handleStatusChange(e, "READING")}
-                            disabled={isPending}
-                        >
-                            <Play className="h-4 w-4" />
-                        </Button>
-                    )}
+                            )}
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <DeleteBookDialog
+                                    bookId={book.id}
+                                    title={book.title}
+                                    trigger={<span className="w-full text-red-600 flex items-center gap-2"><Trash2 className="h-4 w-4" /> Supprimer</span>}
+                                />
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
 
                 {/* Status & Date */}
                 <div className="flex flex-col items-end justify-center gap-1 min-w-[100px] text-right">
-                    <span className="text-base font-medium text-muted-foreground">
+                    <span className="text-base font-medium text-muted-foreground whitespace-nowrap">
                         {statusLabels[book.status]}
                     </span>
                     {displayDate && (
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">
                             {formatDate(displayDate)}
                         </span>
                     )}
