@@ -110,12 +110,19 @@ export function BookListItem({ book }: BookListItemProps) {
 
                 <div className="flex items-center gap-2 mt-1 w-full">
                     {book.status === "READING" ? (
-                        <div className="flex flex-col w-full gap-1">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                <span>{Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)}%</span>
-                                <span>{book.currentPage}/{book.totalPages}</span>
+                        <div className="flex flex-col w-full gap-2 p-2 bg-orange-50 dark:bg-orange-950/20 rounded-md border border-orange-200 dark:border-orange-800">
+                            <div className="flex items-center justify-between text-xs">
+                                <span className="font-bold text-orange-600 dark:text-orange-400">
+                                    {Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)}%
+                                </span>
+                                <span className="text-muted-foreground">
+                                    {book.currentPage}/{book.totalPages} p.
+                                </span>
                             </div>
-                            <Progress value={Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)} className="h-1.5" />
+                            <Progress
+                                value={Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)}
+                                className="h-1.5 bg-orange-200 dark:bg-orange-900/50 [&>*]:bg-orange-500"
+                            />
                         </div>
                     ) : book.rating ? (
                         <div className="flex items-center gap-2">
