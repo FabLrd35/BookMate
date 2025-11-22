@@ -109,22 +109,49 @@ export function BookListItem({ book }: BookListItemProps) {
                 </p>
 
                 <div className="flex items-center gap-2 mt-1 w-full">
-                    {book.status === "READING" ? (
-                        <div className="flex flex-col w-full gap-2 p-2 bg-orange-50 dark:bg-orange-950/20 rounded-md border border-orange-200 dark:border-orange-800">
-                            <div className="flex items-center justify-between text-xs">
-                                <span className="font-bold text-orange-600 dark:text-orange-400">
-                                    {Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)}%
-                                </span>
-                                <span className="text-muted-foreground">
-                                    {book.currentPage}/{book.totalPages} p.
-                                </span>
+                    {book.status === "READING" ? (() => {
+                        const percentage = Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)
+
+                        let colors = {
+                            container: "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800",
+                            text: "text-green-600 dark:text-green-400",
+                            track: "bg-green-200 dark:bg-green-900/50",
+                            indicator: "[&>*]:bg-green-500"
+                        }
+
+                        if (percentage < 30) {
+                            colors = {
+                                container: "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800",
+                                text: "text-red-600 dark:text-red-400",
+                                track: "bg-red-200 dark:bg-red-900/50",
+                                indicator: "[&>*]:bg-red-500"
+                            }
+                        } else if (percentage < 70) {
+                            colors = {
+                                container: "bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800",
+                                text: "text-orange-600 dark:text-orange-400",
+                                track: "bg-orange-200 dark:bg-orange-900/50",
+                                indicator: "[&>*]:bg-orange-500"
+                            }
+                        }
+
+                        return (
+                            <div className={`flex flex-col w-full gap-2 p-2 rounded-md border ${colors.container}`}>
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className={`font-bold ${colors.text}`}>
+                                        {percentage}%
+                                    </span>
+                                    <span className="text-muted-foreground">
+                                        {book.currentPage}/{book.totalPages} p.
+                                    </span>
+                                </div>
+                                <Progress
+                                    value={percentage}
+                                    className={`h-1.5 ${colors.track} ${colors.indicator}`}
+                                />
                             </div>
-                            <Progress
-                                value={Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)}
-                                className="h-1.5 bg-orange-200 dark:bg-orange-900/50 [&>*]:bg-orange-500"
-                            />
-                        </div>
-                    ) : book.rating ? (
+                        )
+                    })() : book.rating ? (
                         <div className="flex items-center gap-2">
                             <StarRating rating={book.rating} size="sm" showValue />
                         </div>
