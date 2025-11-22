@@ -4,7 +4,7 @@ import { useState, useCallback } from "react"
 import Cropper from "react-easy-crop"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import getCroppedImg from "@/lib/canvasUtils"
 import { Loader2 } from "lucide-react"
 
@@ -56,6 +56,9 @@ export function ImageCropper({ imageSrc, open, onOpenChange, onCropComplete, asp
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle>Recadrer l'image</DialogTitle>
+                    <DialogDescription>
+                        Ajustez la zone de recadrage pour obtenir le meilleur résultat.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="relative h-[400px] w-full bg-black rounded-md overflow-hidden">
                     {imageSrc && (

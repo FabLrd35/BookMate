@@ -2,8 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
+import { put } from "@vercel/blob"
 
 export async function updateUserImage(userId: string, formData: FormData, type: 'avatar' | 'banner') {
     try {
@@ -13,35 +12,30 @@ export async function updateUserImage(userId: string, formData: FormData, type: 
             return { success: false, error: "No file provided" }
         }
 
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-
         // Create unique filename
         const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
-        const filename = `user-${userId}-${type}-${uniqueSuffix}.jpg` // Force jpg extension for simplicity or keep original
+        const filename = `user-${userId}-${type}-${uniqueSuffix}.jpg`
 
-        // Ensure uploads directory exists
-        const uploadDir = join(process.cwd(), "public", "uploads", "users")
-        await mkdir(uploadDir, { recursive: true })
-
-        // Save file
-        const filepath = join(uploadDir, filename)
-        await writeFile(filepath, buffer)
-
-        const imageUrl = `/uploads/users/${filename}`
+        // Upload to Vercel Blob
+        const blob = await put(filename, file, {
+            access: 'public',
+        })
 
         // Update user in database
         await prisma.user.update({
             where: { id: userId },
             data: {
-                [type === 'avatar' ? 'image' : 'bannerUrl']: imageUrl
+                [type === 'avatar' ? 'image' : 'bannerUrl']: blob.url
             }
         })
 
         revalidatePath("/profile")
-        return { success: true, imageUrl }
+        return { success: true, imageUrl: blob.url }
     } catch (error) {
         console.error(`Error updating user ${type}:`, error)
-        return { success: false, error: `Failed to update ${type}` }
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : `Failed to update ${type}`
+        }
     }
 }

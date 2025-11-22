@@ -51,10 +51,12 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             if (result.success) {
                 toast.success("Image mise à jour avec succès")
             } else {
-                toast.error("Erreur lors de la mise à jour de l'image")
+                toast.error(result.error || "Erreur lors de la mise à jour de l'image")
+                console.error("Upload error:", result.error)
             }
         } catch (error) {
-            toast.error("Une erreur est survenue")
+            console.error("Client upload error:", error)
+            toast.error("Une erreur est survenue lors de l'envoi")
         } finally {
             setIsUploading(false)
             setCropType(null)
