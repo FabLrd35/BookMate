@@ -194,7 +194,7 @@ export async function discoverAuthorBooks(authorName: string, authorId: string) 
 
         // Search Google Books API for this author
         const query = `inauthor:${encodeURIComponent(authorName)}`
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=20&orderBy=relevance&langRestrict=fr&hl=fr`
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=20&orderBy=relevance&langRestrict=fr&hl=fr&country=FR`
 
         const response = await fetch(url)
         const data = await response.json()

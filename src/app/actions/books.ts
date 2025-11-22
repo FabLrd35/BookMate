@@ -229,7 +229,7 @@ export async function fetchBookCover(title: string, author: string) {
     try {
         // Construct Google Books API query
         const query = `intitle:${encodeURIComponent(title)}+inauthor:${encodeURIComponent(author)}`
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=fr&hl=fr`
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=fr&hl=fr&country=FR`
 
         const response = await fetch(url)
         const data = await response.json()
@@ -269,7 +269,7 @@ export async function fetchBookCover(title: string, author: string) {
 
 export async function fetchGoogleBook(id: string) {
     try {
-        const url = `https://www.googleapis.com/books/v1/volumes/${id}?langRestrict=fr&hl=fr`
+        const url = `https://www.googleapis.com/books/v1/volumes/${id}?langRestrict=fr&hl=fr&country=FR`
         const response = await fetch(url)
 
         if (!response.ok) {
@@ -321,7 +321,7 @@ export async function searchBooks(query: string) {
         }
 
         const searchQuery = encodeURIComponent(query)
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&maxResults=10&langRestrict=fr&hl=fr`
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&maxResults=10&langRestrict=fr&hl=fr&country=FR`
 
         const response = await fetch(url)
         const data = await response.json()
