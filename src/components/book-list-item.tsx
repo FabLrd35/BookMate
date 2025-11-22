@@ -158,6 +158,7 @@ export function BookListItem({ book }: BookListItemProps) {
                                     </Button>
                                 }
                             />
+                            <AbandonBookDialog bookId={book.id} title={book.title} />
                         </>
                     )}
                 </div>
@@ -185,6 +186,13 @@ export function BookListItem({ book }: BookListItemProps) {
                                         bookId={book.id}
                                         title={book.title}
                                         trigger={<span className="w-full">Terminer</span>}
+                                    />
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <AbandonBookDialog
+                                        bookId={book.id}
+                                        title={book.title}
+                                        trigger={<span className="w-full text-red-600">Abandonner</span>}
                                     />
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
