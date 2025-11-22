@@ -33,7 +33,7 @@ export function FavoriteButton({ bookId, isFavorite: initialIsFavorite }: Favori
     return (
         <Button
             variant="outline"
-            className="w-full justify-start"
+            className="w-full"
             onClick={handleToggleFavorite}
             disabled={isPending}
         >

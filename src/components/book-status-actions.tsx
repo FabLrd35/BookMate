@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Play, CheckCircle2, Star } from "lucide-react"
+import { Play, CheckCircle2, Star, XCircle } from "lucide-react"
 import { updateBookStatus } from "@/app/actions/books"
 import { useTransition } from "react"
 import { FinishBookDialog } from "@/components/finish-book-dialog"
@@ -59,7 +59,18 @@ export function BookStatusActions({
                         </Button>
                     }
                 />
-                <AbandonBookDialog bookId={bookId} title={title} />
+                <AbandonBookDialog
+                    bookId={bookId}
+                    title={title}
+                    trigger={
+                        <Button
+                            variant="outline"
+                            className="w-full gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20"
+                        >
+                            <XCircle className="h-4 w-4" /> Abandonner
+                        </Button>
+                    }
+                />
             </div>
         )
     }
