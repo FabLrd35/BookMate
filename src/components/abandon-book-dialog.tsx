@@ -19,9 +19,10 @@ import { XCircle } from "lucide-react"
 interface AbandonBookDialogProps {
     bookId: string
     title: string
+    trigger?: React.ReactNode
 }
 
-export function AbandonBookDialog({ bookId, title }: AbandonBookDialogProps) {
+export function AbandonBookDialog({ bookId, title, trigger }: AbandonBookDialogProps) {
     const [open, setOpen] = useState(false)
     const [reason, setReason] = useState("")
     const [isPending, startTransition] = useTransition()
@@ -38,13 +39,15 @@ export function AbandonBookDialog({ bookId, title }: AbandonBookDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20"
-                >
-                    <XCircle className="h-3 w-3" /> Abandonner
-                </Button>
+                {trigger || (
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20"
+                    >
+                        <XCircle className="h-3 w-3" /> Abandonner
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
