@@ -39,6 +39,16 @@ export async function fetchBookByISBN(isbn: string) {
 
         const book = parsed.data.items[0].volumeInfo
 
+        // Log what we got for debugging
+        console.log('ISBN scan result:', {
+            title: book.title,
+            hasAuthor: !!book.authors?.[0],
+            hasGenre: !!book.categories?.[0],
+            hasPages: !!book.pageCount,
+            hasSummary: !!book.description,
+            hasCover: !!book.imageLinks?.thumbnail,
+        })
+
         return {
             success: true,
             book: {
