@@ -22,6 +22,7 @@ function RegisterButton() {
 }
 
 import { ThemeToggle } from '@/components/theme-toggle'
+import { ArrowLeft } from 'lucide-react'
 
 export default function RegisterPage() {
     const router = useRouter()
@@ -35,6 +36,14 @@ export default function RegisterPage() {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors duration-300">
+            <div className="absolute top-4 left-4">
+                <Link href="/">
+                    <Button variant="ghost" size="sm" className="gap-2">
+                        <ArrowLeft className="h-4 w-4" />
+                        Retour
+                    </Button>
+                </Link>
+            </div>
             <div className="absolute top-4 right-4">
                 <ThemeToggle />
             </div>
