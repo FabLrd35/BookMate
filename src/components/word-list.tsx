@@ -8,6 +8,7 @@ import { Trash2, BookOpen } from 'lucide-react'
 import { deleteWord } from '@/app/actions/words'
 import { toast } from "sonner"
 import Link from 'next/link'
+import { WordDetailsDialog } from './word-details-dialog'
 
 interface Word {
     id: string
@@ -53,6 +54,14 @@ export function WordList({ initialWords }: WordListProps) {
         }
     }
 
+    const [selectedWord, setSelectedWord] = useState<Word | null>(null)
+    const [detailsOpen, setDetailsOpen] = useState(false)
+
+    const handleCardClick = (word: Word) => {
+        setSelectedWord(word)
+        setDetailsOpen(true)
+    }
+
     return (
         <div className="space-y-6">
             <div className="relative">
@@ -66,22 +75,29 @@ export function WordList({ initialWords }: WordListProps) {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredWords.map((word) => (
-                    <Card key={word.id} className="relative group">
+                    <Card
+                        key={word.id}
+                        className="relative group cursor-pointer hover:border-primary/50 transition-colors"
+                        onClick={() => handleCardClick(word)}
+                    >
                         <CardHeader className="pb-2">
                             <div className="flex justify-between items-start">
                                 <CardTitle className="text-xl capitalize">{word.text}</CardTitle>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity h-8 w-8 text-destructive hover:text-destructive/90"
-                                    onClick={() => handleDelete(word.id)}
+                                    className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity h-8 w-8 text-destructive hover:text-destructive/90 z-10"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDelete(word.id)
+                                    }}
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground text-sm mb-4 min-h-[3rem]">
+                            <p className="text-muted-foreground text-sm mb-4 min-h-[3rem] line-clamp-3">
                                 {word.definition || 'Pas de définition'}
                             </p>
                             {word.book && (
@@ -100,6 +116,12 @@ export function WordList({ initialWords }: WordListProps) {
                     Aucun mot trouvé.
                 </div>
             )}
+
+            <WordDetailsDialog
+                word={selectedWord}
+                open={detailsOpen}
+                onOpenChange={setDetailsOpen}
+            />
         </div>
     )
 }
