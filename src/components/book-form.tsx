@@ -588,154 +588,142 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                                         mode="single"
                                         selected={startDate}
                                         onSelect={setStartDate}
-                                        initialFocus
-                                        locale={fr}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <input type="hidden" name="startDate" value={startDate ? startDate.toISOString() : ""} />
-                        </div>
-                    </>
-                )}
-
-                {status === "READ" && (
-                    <div className="space-y-2">
                         <Label className="text-base font-semibold">Note</Label>
-                        <div className="flex items-center gap-4">
-                            <StarRatingSelector
-                                value={rating || 0}
-                                onChange={setRating}
-                                size="md"
-                            />
-                            {rating && (
-                                <button
-                                    type="button"
-                                    onClick={() => setRating(null)}
-                                    className="text-sm text-muted-foreground hover:text-foreground"
-                                >
-                                    Effacer
-                                </button>
-                            )}
-                        </div>
-                        <input type="hidden" name="rating" value={rating || ""} />
-                    </div>
-                )}
-
-                {/* Comment (only for completed books) */}
-                {status === "READ" && (
-                    <div className="space-y-2">
-                        <Label htmlFor="comment" className="text-base font-semibold">
-                            Critique / Commentaire
-                        </Label>
-                        <Textarea
-                            id="comment"
-                            name="comment"
-                            placeholder="Partagez vos pensées sur ce livre..."
-                            rows={4}
-                            className="text-base resize-none"
-                            defaultValue={initialData?.comment || ""}
-                        />
-                    </div>
-                )}
-
-                {/* Reading Dates (only for completed books) */}
-                {status === "READ" && (
-                    <>
-                        <div className="space-y-2">
-                            <Label htmlFor="startDate" className="text-base font-semibold">
-                                Date de début
-                            </Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !startDate && "text-muted-foreground"
+                                    <div className="flex items-center gap-4">
+                                        <StarRatingSelector
+                                            value={rating || 0}
+                                            onChange={setRating}
+                                            size="md"
+                                        />
+                                        {rating && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setRating(null)}
+                                                className="text-sm text-muted-foreground hover:text-foreground"
+                                            >
+                                                Effacer
+                                            </button>
                                         )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {startDate ? format(startDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={startDate}
-                                        onSelect={setStartDate}
-                                        initialFocus
-                                        locale={fr}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <input type="hidden" name="startDate" value={startDate ? startDate.toISOString().split('T')[0] : ""} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="finishDate" className="text-base font-semibold">
-                                Date de fin
-                            </Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !finishDate && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {finishDate ? format(finishDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={finishDate}
-                                        onSelect={(d) => d && setFinishDate(d)}
-                                        initialFocus
-                                        locale={fr}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <input type="hidden" name="finishDate" value={finishDate ? finishDate.toISOString().split('T')[0] : ""} />
-                        </div>
-                    </>
+                                    </div>
+                                    <input type="hidden" name="rating" value={rating || ""} />
+                                </div>
                 )}
 
-                {/* Submit Button - Sticky on mobile */}
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t lg:relative lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 lg:pt-4 z-10">
-                    <div className="flex gap-4 max-w-2xl mx-auto">
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="flex-1"
-                            size="lg"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    {initialData ? "Enregistrement..." : "Ajout en cours..."}
-                                </>
-                            ) : (
-                                initialData ? "Enregistrer les modifications" : "Ajouter le livre"
-                            )}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="lg"
-                            onClick={() => window.history.back()}
-                            disabled={isSubmitting}
-                        >
-                            Annuler
-                        </Button>
-                    </div>
-                </div>
+                                {/* Comment (only for completed books) */}
+                                {status === "READ" && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="comment" className="text-base font-semibold">
+                                            Critique / Commentaire
+                                        </Label>
+                                        <Textarea
+                                            id="comment"
+                                            name="comment"
+                                            placeholder="Partagez vos pensées sur ce livre..."
+                                            rows={4}
+                                            className="text-base resize-none"
+                                            defaultValue={initialData?.comment || ""}
+                                        />
+                                    </div>
+                                )}
 
-                {/* Spacer for fixed buttons on mobile */}
-                <div className="h-32 lg:hidden" />
-            </form>
-        </Card>
-    )
+                                {/* Reading Dates (only for completed books) */}
+                                {status === "READ" && (
+                                    <>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="startDate" className="text-base font-semibold">
+                                                Date de début
+                                            </Label>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant={"outline"}
+                                                        className={cn(
+                                                            "w-full justify-start text-left font-normal",
+                                                            !startDate && "text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {startDate ? format(startDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={startDate}
+                                                        onSelect={setStartDate}
+                                                        initialFocus
+                                                        locale={fr}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <input type="hidden" name="startDate" value={startDate ? format(startDate, "yyyy-MM-dd") : ""} />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="finishDate" className="text-base font-semibold">
+                                                Date de fin
+                                            </Label>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant={"outline"}
+                                                        className={cn(
+                                                            "w-full justify-start text-left font-normal",
+                                                            !finishDate && "text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                        {finishDate ? format(finishDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={finishDate}
+                                                        onSelect={(d) => d && setFinishDate(d)}
+                                                        initialFocus
+                                                        locale={fr}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <input type="hidden" name="finishDate" value={finishDate ? format(finishDate, "yyyy-MM-dd") : ""} />
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* Submit Button - Sticky on mobile */}
+                                <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t lg:relative lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 lg:pt-4 z-10">
+                                    <div className="flex gap-4 max-w-2xl mx-auto">
+                                        <Button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className="flex-1"
+                                            size="lg"
+                                        >
+                                            {isSubmitting ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    {initialData ? "Enregistrement..." : "Ajout en cours..."}
+                                                </>
+                                            ) : (
+                                                initialData ? "Enregistrer les modifications" : "Ajouter le livre"
+                                            )}
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="lg"
+                                            onClick={() => window.history.back()}
+                                            disabled={isSubmitting}
+                                        >
+                                            Annuler
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {/* Spacer for fixed buttons on mobile */}
+                                <div className="h-32 lg:hidden" />
+                            </form>
+                        </Card>
+                        )
 }
