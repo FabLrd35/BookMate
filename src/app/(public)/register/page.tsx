@@ -21,6 +21,8 @@ function RegisterButton() {
     )
 }
 
+import { ThemeToggle } from '@/components/theme-toggle'
+
 export default function RegisterPage() {
     const router = useRouter()
     const [state, dispatch] = useActionState(register, undefined)
@@ -32,8 +34,11 @@ export default function RegisterPage() {
     }, [state, router])
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <Card className="w-full max-w-md">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors duration-300">
+            <div className="absolute top-4 right-4">
+                <ThemeToggle />
+            </div>
+            <Card className="w-full max-w-md border-muted/40 bg-card/50 backdrop-blur-sm">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold">Inscription</CardTitle>
                     <CardDescription>
@@ -50,9 +55,10 @@ export default function RegisterPage() {
                                 type="text"
                                 placeholder="Jean Dupont"
                                 required
+                                className="bg-background/50"
                             />
                             {state?.errors?.name && (
-                                <p className="text-sm text-red-600">{state.errors.name[0]}</p>
+                                <p className="text-sm text-red-600 dark:text-red-400">{state.errors.name[0]}</p>
                             )}
                         </div>
                         <div className="space-y-2">
@@ -63,9 +69,10 @@ export default function RegisterPage() {
                                 type="email"
                                 placeholder="nom@exemple.com"
                                 required
+                                className="bg-background/50"
                             />
                             {state?.errors?.email && (
-                                <p className="text-sm text-red-600">{state.errors.email[0]}</p>
+                                <p className="text-sm text-red-600 dark:text-red-400">{state.errors.email[0]}</p>
                             )}
                         </div>
                         <div className="space-y-2">
@@ -77,22 +84,23 @@ export default function RegisterPage() {
                                 placeholder="••••••••"
                                 required
                                 minLength={6}
+                                className="bg-background/50"
                             />
                             {state?.errors?.password && (
-                                <p className="text-sm text-red-600">{state.errors.password[0]}</p>
+                                <p className="text-sm text-red-600 dark:text-red-400">{state.errors.password[0]}</p>
                             )}
                         </div>
                         {state?.message && state.message !== 'success' && (
-                            <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+                            <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-800 dark:text-red-300">
                                 {state.message}
                             </div>
                         )}
                     </CardContent>
-                    <CardFooter className="flex flex-col space-y-4">
+                    <CardFooter className="flex flex-col space-y-4 pt-6">
                         <RegisterButton />
-                        <p className="text-center text-sm text-gray-600">
+                        <p className="text-center text-sm text-muted-foreground">
                             Vous avez déjà un compte ?{' '}
-                            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                            <Link href="/login" className="font-medium text-primary hover:underline">
                                 Se connecter
                             </Link>
                         </p>

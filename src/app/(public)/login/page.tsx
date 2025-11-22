@@ -19,12 +19,17 @@ function LoginButton() {
     )
 }
 
+import { ThemeToggle } from '@/components/theme-toggle'
+
 export default function LoginPage() {
     const [errorMessage, dispatch] = useActionState(authenticate, undefined)
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <Card className="w-full max-w-md">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors duration-300">
+            <div className="absolute top-4 right-4">
+                <ThemeToggle />
+            </div>
+            <Card className="w-full max-w-md border-muted/40 bg-card/50 backdrop-blur-sm">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
                     <CardDescription>
@@ -41,6 +46,7 @@ export default function LoginPage() {
                                 type="email"
                                 placeholder="nom@exemple.com"
                                 required
+                                className="bg-background/50"
                             />
                         </div>
                         <div className="space-y-2">
@@ -52,19 +58,20 @@ export default function LoginPage() {
                                 placeholder="••••••••"
                                 required
                                 minLength={6}
+                                className="bg-background/50"
                             />
                         </div>
                         {errorMessage && (
-                            <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+                            <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-800 dark:text-red-300">
                                 {errorMessage}
                             </div>
                         )}
                     </CardContent>
-                    <CardFooter className="flex flex-col space-y-4">
+                    <CardFooter className="flex flex-col space-y-4 pt-6">
                         <LoginButton />
-                        <p className="text-center text-sm text-gray-600">
+                        <p className="text-center text-sm text-muted-foreground">
                             Pas encore de compte ?{' '}
-                            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+                            <Link href="/register" className="font-medium text-primary hover:underline">
                                 S'inscrire
                             </Link>
                         </p>
