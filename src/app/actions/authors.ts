@@ -196,7 +196,7 @@ export async function discoverAuthorBooks(authorName: string, authorId: string) 
         const query = `inauthor:${encodeURIComponent(authorName)}`
         const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=20&orderBy=relevance&langRestrict=fr&hl=fr&country=FR`
 
-        const response = await fetch(url)
+        const response = await fetch(url, { cache: 'no-store' })
         const data = await response.json()
 
         if (!data.items || data.items.length === 0) {

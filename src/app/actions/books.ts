@@ -231,7 +231,7 @@ export async function fetchBookCover(title: string, author: string) {
         const query = `intitle:${encodeURIComponent(title)}+inauthor:${encodeURIComponent(author)}`
         const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=fr&hl=fr&country=FR`
 
-        const response = await fetch(url)
+        const response = await fetch(url, { cache: 'no-store' })
         const data = await response.json()
 
         // Check if we got results
@@ -270,7 +270,7 @@ export async function fetchBookCover(title: string, author: string) {
 export async function fetchGoogleBook(id: string) {
     try {
         const url = `https://www.googleapis.com/books/v1/volumes/${id}?langRestrict=fr&hl=fr&country=FR`
-        const response = await fetch(url)
+        const response = await fetch(url, { cache: 'no-store' })
 
         if (!response.ok) {
             return { success: false, error: "Livre non trouvé" }
@@ -323,7 +323,7 @@ export async function searchBooks(query: string) {
         const searchQuery = encodeURIComponent(query)
         const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&maxResults=10&langRestrict=fr&hl=fr&country=FR`
 
-        const response = await fetch(url)
+        const response = await fetch(url, { cache: 'no-store' })
         const data = await response.json()
 
         if (!data.items || data.items.length === 0) {
