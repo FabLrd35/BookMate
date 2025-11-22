@@ -1,10 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BookOpen, Plus } from "lucide-react"
+import { QuickAddBookDialog } from "@/components/quick-add-book-dialog"
 
 interface DiscoveredBook {
     id: string
@@ -12,6 +12,8 @@ interface DiscoveredBook {
     authors: string[]
     coverUrl: string | null
     description: string | null
+    pageCount?: number | null
+    categories?: string[]
 }
 
 interface DiscoveredBookCardProps {
@@ -21,8 +23,16 @@ interface DiscoveredBookCardProps {
 }
 
 export function DiscoveredBookCard({ book, authorName, hideAddButton }: DiscoveredBookCardProps) {
-    // Create URL params for pre-filling the add book form
-    const addBookUrl = `/books/add?title=${encodeURIComponent(book.title)}&author=${encodeURIComponent(authorName)}&cover=${encodeURIComponent(book.coverUrl || '')}`
+    // Format book data for QuickAddBookDialog
+    const bookData = {
+        id: book.id,
+        title: book.title,
+        authors: book.authors,
+        coverUrl: book.coverUrl,
+        description: book.description,
+        pageCount: book.pageCount || null,
+        categories: book.categories || []
+    }
 
     return (
         <Card className="flex flex-col h-full hover:shadow-lg transition-all duration-300">
@@ -54,12 +64,15 @@ export function DiscoveredBookCard({ book, authorName, hideAddButton }: Discover
             </CardContent>
             {!hideAddButton && (
                 <CardFooter className="p-4 pt-0">
-                    <Button asChild size="sm" className="w-full">
-                        <Link href={addBookUrl}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Ajouter
-                        </Link>
-                    </Button>
+                    <QuickAddBookDialog
+                        book={bookData}
+                        trigger={
+                            <Button size="sm" className="w-full">
+                                <Plus className="h-4 w-4 mr-2" />
+                                Ajouter
+                            </Button>
+                        }
+                    />
                 </CardFooter>
             )}
         </Card>
