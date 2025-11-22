@@ -101,7 +101,7 @@ export function BookCard({ book }: BookCardProps) {
             <div className="relative aspect-[2/3] bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20">
                 <button
                     onClick={handleToggleFavorite}
-                    className="absolute top-2 left-2 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 text-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="absolute top-2 left-2 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 text-white transition-all sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
                 >
                     <Heart className={`h-5 w-5 ${isFavorite ? "fill-red-500 text-red-500" : "text-white"}`} />
                 </button>

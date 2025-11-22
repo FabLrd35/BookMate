@@ -140,7 +140,7 @@ export function QuoteList({ bookId, quotes }: QuoteListProps) {
                                     <span>
                                         {quote.page ? `Page ${quote.page}` : "Emplacement non spécifié"}
                                     </span>
-                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                         <span className="text-xs mr-2">
                                             {new Date(quote.createdAt).toLocaleDateString("fr-FR")}
                                         </span>

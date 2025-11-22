@@ -190,7 +190,7 @@ export function BookGallery({ bookId, images }: BookGalleryProps) {
                             <Button
                                 size="icon"
                                 variant="destructive"
-                                className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute top-2 right-2 h-8 w-8 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleDeleteImage(image.id)
@@ -199,7 +199,7 @@ export function BookGallery({ bookId, images }: BookGalleryProps) {
                                 <Trash2 className="h-4 w-4" />
                             </Button>
                             {image.caption && (
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 text-xs text-white truncate opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 text-xs text-white truncate sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                     {image.caption}
                                 </div>
                             )}

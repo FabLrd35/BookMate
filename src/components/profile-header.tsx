@@ -83,7 +83,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
                 )}
 
                 {/* Banner Upload Button */}
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-4 right-4 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <label htmlFor="banner-upload" className="cursor-pointer">
                         <div className="bg-background/80 backdrop-blur-sm hover:bg-background text-foreground p-2 rounded-full shadow-sm border transition-colors">
                             <Camera className="h-5 w-5" />
@@ -119,7 +119,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
                     </div>
 
                     {/* Avatar Upload Button */}
-                    <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute bottom-0 right-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <label htmlFor="avatar-upload" className="cursor-pointer">
                             <div className="bg-background/80 backdrop-blur-sm hover:bg-background text-foreground p-2 rounded-full shadow-sm border transition-colors">
                                 <Camera className="h-4 w-4" />
