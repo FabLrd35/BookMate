@@ -454,7 +454,11 @@ export async function updateBookStatus(
 
     // Add rating and comment if provided
     if (additionalData?.rating !== undefined) {
-        data.rating = additionalData.rating
+        // Ensure rating is a proper number and within valid range (0-5)
+        const ratingValue = Number(additionalData.rating)
+        if (!isNaN(ratingValue) && ratingValue >= 0 && ratingValue <= 5) {
+            data.rating = ratingValue
+        }
     }
     if (additionalData?.comment !== undefined) {
         data.comment = additionalData.comment
