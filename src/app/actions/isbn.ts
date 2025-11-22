@@ -21,7 +21,7 @@ export async function fetchBookByISBN(isbn: string) {
     try {
         const cleanISBN = isbn.replace(/[-\s]/g, '')
         const response = await fetch(
-            `https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanISBN}&langRestrict=fr`
+            `https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanISBN}&langRestrict=fr&hl=fr`
         )
 
         if (!response.ok) {

@@ -2,8 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
+import { put } from "@vercel/blob"
 
 export async function addBookImage(formData: FormData) {
     try {
@@ -20,22 +19,16 @@ export async function addBookImage(formData: FormData) {
 
         // Handle file upload if present
         if (file && file.size > 0) {
-            const bytes = await file.arrayBuffer()
-            const buffer = Buffer.from(bytes)
-
             // Create unique filename
             const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
-            const filename = `${bookId}-${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "")}`
+            const filename = `book-${bookId}-${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "")}`
 
-            // Ensure uploads directory exists
-            const uploadDir = join(process.cwd(), "public", "uploads")
-            await mkdir(uploadDir, { recursive: true })
+            // Upload to Vercel Blob
+            const blob = await put(filename, file, {
+                access: 'public',
+            })
 
-            // Save file
-            const filepath = join(uploadDir, filename)
-            await writeFile(filepath, buffer)
-
-            imageUrl = `/uploads/${filename}`
+            imageUrl = blob.url
         }
 
         if (!imageUrl) {
