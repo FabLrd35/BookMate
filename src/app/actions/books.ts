@@ -531,6 +531,8 @@ export async function quickAddBook(bookData: {
     pageCount: number | null
     categories: string[]
     status: "TO_READ" | "READING" | "READ" | "ABANDONED"
+    currentPage?: number | null
+    startDate?: Date | null
     rating?: number | null
     comment?: string | null
     finishDate?: Date | null
@@ -584,11 +586,12 @@ export async function quickAddBook(bookData: {
                 summary: bookData.description,
                 totalPages: bookData.pageCount,
                 status: bookData.status,
-                startDate: (bookData.status === "READING" || bookData.status === "READ") ? new Date() : null,
+                currentPage: bookData.currentPage || null,
+                startDate: bookData.status === "READ" && bookData.startDate ? bookData.startDate :
+                    (bookData.status === "READING" || bookData.status === "READ") ? new Date() : null,
                 finishDate: bookData.status === "READ" ? (bookData.finishDate || new Date()) : null,
                 rating: bookData.rating || null,
                 comment: bookData.comment || null,
-                currentPage: null,
                 userId: user.id,
             },
         })

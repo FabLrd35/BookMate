@@ -17,6 +17,7 @@ import Image from "next/image"
 import { toast } from "sonner"
 
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -46,6 +47,8 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [rating, setRating] = useState<number | null>(null)
     const [comment, setComment] = useState("")
+    const [currentPage, setCurrentPage] = useState<number | null>(null)
+    const [startDate, setStartDate] = useState<Date | undefined>(new Date())
     const [finishDate, setFinishDate] = useState<Date | undefined>(new Date())
 
     async function handleSubmit() {
@@ -59,6 +62,8 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                 pageCount: book.pageCount,
                 categories: book.categories,
                 status,
+                currentPage: status === "READING" ? currentPage : null,
+                startDate: status === "READ" ? startDate : null,
                 rating: status === "READ" ? rating : null,
                 comment: status === "READ" ? comment : null,
                 finishDate: status === "READ" ? finishDate : null,
@@ -180,6 +185,24 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                         </div>
                     </div>
 
+                    {/* Additional Fields for READING status */}
+                    {status === "READING" && (
+                        <div className="space-y-4 py-2 border-t">
+                            <div className="space-y-2">
+                                <Label htmlFor="currentPage">Page actuelle (optionnel)</Label>
+                                <Input
+                                    id="currentPage"
+                                    type="number"
+                                    min="0"
+                                    max={book.pageCount || undefined}
+                                    placeholder={book.pageCount ? `Sur ${book.pageCount} pages` : "Numéro de page"}
+                                    value={currentPage || ""}
+                                    onChange={(e) => setCurrentPage(e.target.value ? parseInt(e.target.value) : null)}
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     {/* Additional Fields for READ status */}
                     {status === "READ" && (
                         <div className="space-y-4 py-2 border-t">
@@ -193,7 +216,34 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="finishDate">Date de lecture</Label>
+                                <Label htmlFor="startDate">Date de début</Label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal",
+                                                !startDate && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {startDate ? format(startDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={startDate}
+                                            onSelect={(d) => d && setStartDate(d)}
+                                            initialFocus
+                                            locale={fr}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="finishDate">Date de fin</Label>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
