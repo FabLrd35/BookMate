@@ -28,6 +28,7 @@ import {
 import { AddWordDialog } from "@/components/add-word-dialog"
 import { BookGallery } from "@/components/book-gallery"
 import { FavoriteButton } from "@/components/favorite-button"
+import { BackButton } from "@/components/back-button"
 
 interface BookDetailsPageProps {
     params: Promise<{ id: string }>
@@ -90,12 +91,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
         <div className="max-w-6xl mx-auto space-y-6">
             {/* Header with Back Button */}
             <div className="flex items-center gap-4">
-                <Link href="/books">
-                    <Button variant="outline" size="sm">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Retour aux livres
-                    </Button>
-                </Link>
+                <BackButton />
             </div>
 
             {/* Main Content */}
