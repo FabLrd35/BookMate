@@ -1,15 +1,15 @@
 import { prisma } from "@/lib/prisma"
 import { Card, CardContent } from "@/components/ui/card"
-import { MessageSquare, Star } from "lucide-react"
+import { Star } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { ExpandableText } from "@/components/expandable-text"
 
-export default async function ReviewsPage() {
-    const reviews = await prisma.book.findMany({
+export default async function RatingsPage() {
+    const ratings = await prisma.book.findMany({
         where: {
             status: "READ",
-            comment: { not: null },
+            rating: { not: null },
         },
         include: {
             author: true,
@@ -20,29 +20,28 @@ export default async function ReviewsPage() {
         },
     })
 
-
     return (
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Mes Critiques</h1>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Mes Notations</h1>
                 <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-                    Vos avis et notes sur les livres que vous avez lus.
+                    Vos notes sur les livres que vous avez lus.
                 </p>
             </div>
 
-            {/* Reviews List */}
-            {reviews.length === 0 ? (
+            {/* Ratings List */}
+            {ratings.length === 0 ? (
                 <Card className="p-8 sm:p-12">
                     <div className="text-center text-muted-foreground">
-                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-sm sm:text-base">Aucune critique enregistrée pour le moment.</p>
-                        <p className="text-xs sm:text-sm mt-2">Ajoutez des notes et commentaires à vos livres lus !</p>
+                        <Star className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-sm sm:text-base">Aucune notation enregistrée pour le moment.</p>
+                        <p className="text-xs sm:text-sm mt-2">Ajoutez des notes à vos livres lus !</p>
                     </div>
                 </Card>
             ) : (
                 <div className="grid gap-4 sm:gap-6">
-                    {reviews.map((book) => (
+                    {ratings.map((book) => (
                         <Card key={book.id} className="hover:shadow-lg transition-shadow">
                             <CardContent className="pt-4 sm:pt-6">
                                 <div className="flex gap-3 sm:gap-6">
@@ -58,12 +57,12 @@ export default async function ReviewsPage() {
                                             />
                                         ) : (
                                             <div className="w-[80px] h-[120px] sm:w-[120px] sm:h-[180px] rounded-lg bg-muted flex items-center justify-center">
-                                                <MessageSquare className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground" />
+                                                <Star className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground" />
                                             </div>
                                         )}
                                     </Link>
 
-                                    {/* Review Content */}
+                                    {/* Rating Content */}
                                     <div className="flex-1 min-w-0 space-y-2 sm:space-y-3">
                                         <div>
                                             <Link
@@ -90,10 +89,11 @@ export default async function ReviewsPage() {
                                                             }`}
                                                     />
                                                 ))}
+                                                <span className="ml-2 text-sm font-medium">{book.rating}/5</span>
                                             </div>
                                         )}
 
-                                        {/* Comment */}
+                                        {/* Comment if exists */}
                                         {book.comment && (
                                             <ExpandableText text={book.comment} />
                                         )}
