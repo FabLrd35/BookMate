@@ -20,6 +20,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Progress } from "@/components/ui/progress"
 
 type Book = {
     id: string
@@ -107,8 +108,16 @@ export function BookListItem({ book }: BookListItemProps) {
                     {book.author.name}
                 </p>
 
-                <div className="flex items-center gap-2 mt-1">
-                    {book.rating ? (
+                <div className="flex items-center gap-2 mt-1 w-full">
+                    {book.status === "READING" ? (
+                        <div className="flex flex-col w-full gap-1">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                <span>{Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)}%</span>
+                                <span>{book.currentPage}/{book.totalPages}</span>
+                            </div>
+                            <Progress value={Math.round(((book.currentPage || 0) / (book.totalPages || 1)) * 100)} className="h-1.5" />
+                        </div>
+                    ) : book.rating ? (
                         <div className="flex items-center gap-2">
                             <StarRating rating={book.rating} size="sm" showValue />
                         </div>
