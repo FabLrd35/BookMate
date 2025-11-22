@@ -604,33 +604,38 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                     </div>
                 )}
 
-                {/* Submit Button */}
-                <div className="flex gap-4 pt-4">
-                    <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="flex-1"
-                        size="lg"
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                {initialData ? "Enregistrement..." : "Ajout en cours..."}
-                            </>
-                        ) : (
-                            initialData ? "Enregistrer les modifications" : "Ajouter le livre"
-                        )}
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="lg"
-                        onClick={() => window.history.back()}
-                        disabled={isSubmitting}
-                    >
-                        Annuler
-                    </Button>
+                {/* Submit Button - Sticky on mobile */}
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t lg:relative lg:border-t-0 lg:bg-transparent lg:backdrop-blur-none lg:p-0 lg:pt-4 z-10">
+                    <div className="flex gap-4 max-w-2xl mx-auto">
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="flex-1"
+                            size="lg"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    {initialData ? "Enregistrement..." : "Ajout en cours..."}
+                                </>
+                            ) : (
+                                initialData ? "Enregistrer les modifications" : "Ajouter le livre"
+                            )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={() => window.history.back()}
+                            disabled={isSubmitting}
+                        >
+                            Annuler
+                        </Button>
+                    </div>
                 </div>
+
+                {/* Spacer for fixed buttons on mobile */}
+                <div className="h-20 lg:hidden" />
             </form>
         </Card>
     )
