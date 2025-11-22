@@ -1,4 +1,3 @@
-```
 "use client"
 
 import { Card } from "@/components/ui/card"
@@ -52,7 +51,7 @@ export function BookListItem({ book }: BookListItemProps) {
     const [isPending, startTransition] = useTransition()
 
     const handleCardClick = () => {
-        router.push(`/ books / ${ book.id } `)
+        router.push(`/books/${book.id}`)
     }
 
     const handleStatusChange = (e: React.MouseEvent, newStatus: "READING" | "READ" | "ABANDONED") => {
@@ -191,7 +190,7 @@ export function BookListItem({ book }: BookListItemProps) {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     )}
-                     {book.status === "TO_READ" && (
+                    {book.status === "TO_READ" && (
                         <Button
                             size="sm"
                             variant="ghost"
@@ -218,4 +217,3 @@ export function BookListItem({ book }: BookListItemProps) {
         </div>
     )
 }
-```
