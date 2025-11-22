@@ -54,6 +54,7 @@ interface BookFormProps {
         totalPages: number | null
         rating: number | null
         comment: string | null
+        startDate?: Date | null
         finishDate?: Date | null
     }
     prefillData?: {
@@ -74,6 +75,7 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
     const [title, setTitle] = useState((prefillData?.title || initialData?.title) ?? "")
     const [author, setAuthor] = useState((prefillData?.author || initialData?.author.name) ?? "")
     const [summary, setSummary] = useState((prefillData?.summary || initialData?.summary) ?? "")
+    const [startDate, setStartDate] = useState<Date | undefined>(initialData?.startDate ? new Date(initialData.startDate) : (status === "READ" ? new Date() : undefined))
     const [finishDate, setFinishDate] = useState<Date | undefined>(initialData?.finishDate ? new Date(initialData.finishDate) : (status === "READ" ? new Date() : undefined))
 
     // Autocomplete state
@@ -604,37 +606,69 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                     </div>
                 )}
 
-                {/* Finish Date (only for completed books) */}
+                {/* Reading Dates (only for completed books) */}
                 {status === "READ" && (
-                    <div className="space-y-2">
-                        <Label htmlFor="finishDate" className="text-base font-semibold">
-                            Date de lecture
-                        </Label>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                        "w-full justify-start text-left font-normal",
-                                        !finishDate && "text-muted-foreground"
-                                    )}
-                                >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {finishDate ? format(finishDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                    mode="single"
-                                    selected={finishDate}
-                                    onSelect={(d) => d && setFinishDate(d)}
-                                    initialFocus
-                                    locale={fr}
-                                />
-                            </PopoverContent>
-                        </Popover>
-                        <input type="hidden" name="finishDate" value={finishDate ? finishDate.toISOString() : ""} />
-                    </div>
+                    <>
+                        <div className="space-y-2">
+                            <Label htmlFor="startDate" className="text-base font-semibold">
+                                Date de début
+                            </Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !startDate && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {startDate ? format(startDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={startDate}
+                                        onSelect={setStartDate}
+                                        initialFocus
+                                        locale={fr}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <input type="hidden" name="startDate" value={startDate ? startDate.toISOString() : ""} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="finishDate" className="text-base font-semibold">
+                                Date de fin
+                            </Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !finishDate && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {finishDate ? format(finishDate, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={finishDate}
+                                        onSelect={(d) => d && setFinishDate(d)}
+                                        initialFocus
+                                        locale={fr}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <input type="hidden" name="finishDate" value={finishDate ? finishDate.toISOString() : ""} />
+                        </div>
+                    </>
                 )}
 
                 {/* Submit Button - Sticky on mobile */}
