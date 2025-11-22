@@ -63,7 +63,7 @@ export async function createBook(formData: FormData) {
             rating: rating ? parseFloat(rating) : null,
             comment: comment || null,
             summary: summary || null,
-            startDate: status === "READING" || status === "READ" ? new Date() : null,
+            startDate: status === "READING" || status === "READ" ? (formData.get("startDate") ? new Date(formData.get("startDate") as string) : new Date()) : null,
             finishDate: status === "READ" ? (formData.get("finishDate") ? new Date(formData.get("finishDate") as string) : new Date()) : null,
             userId: user.id,
         },
