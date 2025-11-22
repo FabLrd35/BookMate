@@ -39,13 +39,15 @@ export function BookList({ books }: BookListProps) {
     const abandonedBooks = books.filter((book) => book.status === "ABANDONED")
     const favoriteBooks = books.filter((book) => book.isFavorite)
 
+    type ColorKey = "blue" | "orange" | "green" | "gray" | "red"
+
     const filters = [
         {
             id: "TO_READ" as const,
             label: "À lire",
             icon: BookOpen,
             count: toReadBooks.length,
-            color: "blue",
+            color: "blue" as ColorKey,
             books: toReadBooks,
         },
         {
@@ -53,7 +55,7 @@ export function BookList({ books }: BookListProps) {
             label: "En cours",
             icon: BookMarked,
             count: readingBooks.length,
-            color: "orange",
+            color: "orange" as ColorKey,
             books: readingBooks,
         },
         {
@@ -61,7 +63,7 @@ export function BookList({ books }: BookListProps) {
             label: "Lu",
             icon: CheckCircle2,
             count: readBooks.length,
-            color: "green",
+            color: "green" as ColorKey,
             books: readBooks,
         },
         {
@@ -69,7 +71,7 @@ export function BookList({ books }: BookListProps) {
             label: "Abandonné",
             icon: XCircle,
             count: abandonedBooks.length,
-            color: "gray",
+            color: "gray" as ColorKey,
             books: abandonedBooks,
         },
         {
@@ -77,7 +79,7 @@ export function BookList({ books }: BookListProps) {
             label: "Favoris",
             icon: Heart,
             count: favoriteBooks.length,
-            color: "red",
+            color: "red" as ColorKey,
             books: favoriteBooks,
         },
     ]
