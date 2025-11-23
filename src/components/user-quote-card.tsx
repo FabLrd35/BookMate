@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 interface Quote {
     id: string
     content: string
-    page: number | null
+    page: string | null
     createdAt: Date
     book: {
         id: string
