@@ -111,7 +111,13 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
                 ) : (
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {author.books.map((book) => (
-                            <BookCard key={book.id} book={book} />
+                            <BookCard
+                                key={book.id}
+                                book={{
+                                    ...book,
+                                    rating: book.rating ? Number(book.rating) : null
+                                }}
+                            />
                         ))}
                     </div>
                 )}
