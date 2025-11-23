@@ -7,6 +7,7 @@ import { BookCard } from "./book-card";
 import { BookListItem } from "./book-list-item";
 import { BookOpen, Heart, BookMarked, CheckCircle2, XCircle, Library, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Pagination } from "@/components/ui/pagination";
 import {
     Select,
     SelectContent,
@@ -57,11 +58,14 @@ export function BookList({ books, showTabs = true }: BookListProps) {
     const [sortOrder, setSortOrder] = useState<
         "date-desc" | "date-asc" | "rating-desc" | "rating-asc"
     >("date-desc");
+    const [currentPage, setCurrentPage] = useState(1);
+    const BOOKS_PER_PAGE = 20;
 
     const setActiveTab = (tab: "TO_READ" | "READING" | "READ" | "ABANDONED" | "FAVORITES" | "ALL") => {
         const params = new URLSearchParams(searchParams.toString());
         params.set("tab", tab);
         router.push(`?${params.toString()}`, { scroll: false });
+        setCurrentPage(1); // Reset to page 1 when changing tabs
     };
 
     // Basic book groups
@@ -98,6 +102,18 @@ export function BookList({ books, showTabs = true }: BookListProps) {
 
     const allFilteredBooks = processBooks(books);
 
+    // Pagination helper
+    const paginateBooks = (booksList: Book[]) => {
+        const totalPages = Math.ceil(booksList.length / BOOKS_PER_PAGE);
+        const startIndex = (currentPage - 1) * BOOKS_PER_PAGE;
+        const endIndex = startIndex + BOOKS_PER_PAGE;
+        return {
+            books: booksList.slice(startIndex, endIndex),
+            totalPages,
+            totalBooks: booksList.length
+        };
+    };
+
     type ColorKey = "blue" | "orange" | "green" | "gray" | "red" | "purple";
 
     const filters = [
@@ -107,7 +123,8 @@ export function BookList({ books, showTabs = true }: BookListProps) {
             icon: Library,
             count: books.length,
             color: "purple" as ColorKey,
-            books: allFilteredBooks,
+            allBooks: allFilteredBooks,
+            ...paginateBooks(allFilteredBooks),
         },
         {
             id: "TO_READ" as const,
@@ -115,7 +132,8 @@ export function BookList({ books, showTabs = true }: BookListProps) {
             icon: BookOpen,
             count: toReadBooks.length,
             color: "blue" as ColorKey,
-            books: processBooks(toReadBooks),
+            allBooks: processBooks(toReadBooks),
+            ...paginateBooks(processBooks(toReadBooks)),
         },
         {
             id: "READING" as const,
@@ -123,7 +141,8 @@ export function BookList({ books, showTabs = true }: BookListProps) {
             icon: BookMarked,
             count: readingBooks.length,
             color: "orange" as ColorKey,
-            books: processBooks(readingBooks),
+            allBooks: processBooks(readingBooks),
+            ...paginateBooks(processBooks(readingBooks)),
         },
         {
             id: "READ" as const,
@@ -131,7 +150,8 @@ export function BookList({ books, showTabs = true }: BookListProps) {
             icon: CheckCircle2,
             count: readBooks.length,
             color: "green" as ColorKey,
-            books: processBooks(readBooks),
+            allBooks: processBooks(readBooks),
+            ...paginateBooks(processBooks(readBooks)),
         },
         {
             id: "ABANDONED" as const,
@@ -139,7 +159,8 @@ export function BookList({ books, showTabs = true }: BookListProps) {
             icon: XCircle,
             count: abandonedBooks.length,
             color: "gray" as ColorKey,
-            books: processBooks(abandonedBooks),
+            allBooks: processBooks(abandonedBooks),
+            ...paginateBooks(processBooks(abandonedBooks)),
         },
         {
             id: "FAVORITES" as const,
@@ -147,7 +168,8 @@ export function BookList({ books, showTabs = true }: BookListProps) {
             icon: Heart,
             count: favoriteBooks.length,
             color: "red" as ColorKey,
-            books: processBooks(favoriteBooks),
+            allBooks: processBooks(favoriteBooks),
+            ...paginateBooks(processBooks(favoriteBooks)),
         },
     ];
 
@@ -253,7 +275,7 @@ export function BookList({ books, showTabs = true }: BookListProps) {
 
             {/* Book Grid */}
             <div>
-                {activeFilter.books.length === 0 ? (
+                {activeFilter.totalBooks === 0 ? (
                     <EmptyState
                         message={
                             searchQuery
@@ -273,11 +295,28 @@ export function BookList({ books, showTabs = true }: BookListProps) {
                         icon={activeFilter.icon}
                     />
                 ) : (
-                    <div className="flex flex-col bg-card rounded-lg border shadow-sm">
-                        {activeFilter.books.map((book) => (
-                            <BookListItem key={book.id} book={book} />
-                        ))}
-                    </div>
+                    <>
+                        <div className="flex flex-col bg-card rounded-lg border shadow-sm">
+                            {activeFilter.books.map((book) => (
+                                <BookListItem key={book.id} book={book} />
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={activeFilter.totalPages}
+                            onPageChange={(page) => {
+                                setCurrentPage(page);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                        />
+
+                        {/* Results info */}
+                        <p className="text-center text-sm text-muted-foreground mt-4">
+                            Affichage de {((currentPage - 1) * BOOKS_PER_PAGE) + 1} à {Math.min(currentPage * BOOKS_PER_PAGE, activeFilter.totalBooks)} sur {activeFilter.totalBooks} livre{activeFilter.totalBooks > 1 ? 's' : ''}
+                        </p>
+                    </>
                 )}
             </div>
         </div>

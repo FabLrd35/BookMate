@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { BookOpen, BarChart3, Target, Quote, Languages, Sparkles, LogIn } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { SnowfallEffect } from "@/components/snowfall-effect"
 
 export default function LandingPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950 transition-colors duration-300">
+            <SnowfallEffect />
             {/* Header */}
             <header className="border-b bg-white/80 dark:bg-gray-950/80 backdrop-blur-sm sticky top-0 z-50 dark:border-gray-800">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">

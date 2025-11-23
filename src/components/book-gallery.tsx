@@ -124,11 +124,23 @@ export function BookGallery({ bookId, images }: BookGalleryProps) {
                                             onChange={(e) => setFile(e.target.files?.[0] || null)}
                                             required={activeTab === "upload"}
                                         />
-                                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                                         {file ? (
-                                            <p className="text-sm font-medium text-primary">{file.name}</p>
+                                            <div className="flex flex-col items-center gap-3">
+                                                <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-primary">
+                                                    <Image
+                                                        src={URL.createObjectURL(file)}
+                                                        alt="Aperçu"
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+                                                <p className="text-sm font-medium text-primary truncate max-w-full">{file.name}</p>
+                                            </div>
                                         ) : (
-                                            <p className="text-sm text-muted-foreground">Cliquez ou glissez une image ici</p>
+                                            <>
+                                                <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                                                <p className="text-sm text-muted-foreground">Cliquez ou glissez une image ici</p>
+                                            </>
                                         )}
                                     </div>
                                 </TabsContent>

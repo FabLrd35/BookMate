@@ -6,6 +6,7 @@ import Image from "next/image"
 import { getDashboardStats, getRecentBooks } from "@/app/actions/statistics"
 import { getReadingGoal } from "@/app/actions/goals"
 import { GoalCard } from "@/components/goal-card"
+import { SnowfallEffect } from "@/components/snowfall-effect"
 
 export default async function Home() {
   const stats = await getDashboardStats()
@@ -34,6 +35,7 @@ export default async function Home() {
 
   return (
     <div className="space-y-8">
+      <SnowfallEffect />
       {/* Header */}
       <div>
         <h1 className="text-4xl font-bold tracking-tight">Tableau de bord</h1>
