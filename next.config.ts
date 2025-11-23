@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    unoptimized: true, // Disable Vercel image optimization to avoid quota limits
     remotePatterns: [
       {
         protocol: 'http',
