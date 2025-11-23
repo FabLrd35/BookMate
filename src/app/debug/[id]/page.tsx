@@ -10,16 +10,27 @@ export default async function DebugBookPage({ params }: { params: Promise<{ id: 
 
     async function forceUpdateRating(formData: FormData) {
         "use server"
-        const rating = formData.get("rating")
-        const ratingNum = rating ? parseFloat(rating.toString()) : null
-        console.log("FORCE UPDATE RATING:", rating, "->", ratingNum)
+        const bookId = formData.get("bookId") as string
+        const ratingInput = formData.get("rating")
+        const ratingNum = ratingInput ? parseFloat(ratingInput.toString()) : null
 
-        await prisma.book.update({
-            where: { id },
-            data: { rating: ratingNum }
-        })
-        revalidatePath(`/debug/${id}`)
-        revalidatePath(`/books/${id}`)
+        console.log(`[DEBUG] Force Update for Book ID: ${bookId}`)
+        console.log(`[DEBUG] Input Rating: "${ratingInput}"`)
+        console.log(`[DEBUG] Parsed Rating: ${ratingNum} (Type: ${typeof ratingNum})`)
+
+        try {
+            const result = await prisma.book.update({
+                where: { id: bookId },
+                data: { rating: ratingNum },
+                select: { id: true, rating: true }
+            })
+            console.log(`[DEBUG] Update Result:`, result)
+        } catch (error) {
+            console.error(`[DEBUG] Update FAILED:`, error)
+        }
+
+        revalidatePath(`/debug/${bookId}`)
+        revalidatePath(`/books/${bookId}`)
     }
 
     return (
@@ -33,19 +44,10 @@ export default async function DebugBookPage({ params }: { params: Promise<{ id: 
                 </pre>
             </div>
 
-            <div className="bg-yellow-50 p-4 rounded border border-yellow-200">
-                <h2 className="font-bold mb-2">Rating Analysis</h2>
-                <ul className="list-disc pl-5">
-                    <li>Value: <code>{String(book.rating)}</code></li>
-                    <li>Type: <code>{typeof book.rating}</code></li>
-                    <li>Is Number?: <code>{typeof book.rating === 'number' ? 'YES' : 'NO'}</code></li>
-                    <li>Is Null?: <code>{book.rating === null ? 'YES' : 'NO'}</code></li>
-                </ul>
-            </div>
-
             <div className="bg-red-50 p-4 rounded border border-red-200">
                 <h2 className="font-bold mb-2">NUCLEAR OPTION: Force Update</h2>
                 <form action={forceUpdateRating} className="flex gap-4 items-end">
+                    <input type="hidden" name="bookId" value={book.id} />
                     <label className="block">
                         <span className="block text-sm font-bold mb-1">New Rating (ex: 3.5)</span>
                         <input
