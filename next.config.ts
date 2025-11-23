@@ -5,11 +5,19 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'books.google.com',
+        hostname: '**.googleusercontent.com',
       },
       {
         protocol: 'https',
-        hostname: 'books.google.com',
+        hostname: '**.googleusercontent.com',
+      },
+      {
+        protocol: 'http',
+        hostname: '**.google.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.google.com',
       },
       {
         protocol: 'https',
