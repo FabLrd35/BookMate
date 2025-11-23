@@ -110,7 +110,7 @@ export default async function CollectionsPage() {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                        className="text-muted-foreground hover:text-destructive opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>

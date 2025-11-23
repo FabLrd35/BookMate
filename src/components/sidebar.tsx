@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, LayoutDashboard, Library, BarChart3, Settings, Folder, Quote, MessageSquare, Users, Calendar, Sparkles, Languages, Menu, X, Star } from "lucide-react"
+import { BookOpen, LayoutDashboard, Library, BarChart3, Settings, Folder, Quote, MessageSquare, Users, Calendar, Sparkles, Languages, Menu, X, Star, Image as ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -20,6 +20,7 @@ const navigation = [
     { name: "Calendrier", href: "/calendar", icon: Calendar },
     { name: "Motivation", href: "/motivation", icon: Sparkles },
     { name: "Statistiques", href: "/statistics", icon: BarChart3 },
+    { name: "Ma Galerie", href: "/gallery", icon: ImageIcon },
     { name: "Paramètres", href: "/settings", icon: Settings },
 ]
 
