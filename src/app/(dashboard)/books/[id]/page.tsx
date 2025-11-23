@@ -17,6 +17,7 @@ import { BookGallery } from "@/components/book-gallery"
 import { FavoriteButton } from "@/components/favorite-button"
 import { BackButton } from "@/components/back-button"
 import { DeleteBookDialog } from "@/components/delete-book-dialog"
+import { StarRating } from "@/components/star-rating"
 
 interface BookDetailsPageProps {
     params: Promise<{ id: string }>
@@ -228,17 +229,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
                                     Ma note
                                 </h2>
                                 <div className="flex items-center gap-2">
-                                    <div className="flex items-center gap-1">
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`h-6 w-6 ${i < book.rating!
-                                                    ? "fill-yellow-400 text-yellow-400"
-                                                    : "text-gray-300 dark:text-gray-600"
-                                                    }`}
-                                            />
-                                        ))}
-                                    </div>
+                                    <StarRating rating={book.rating} size="lg" />
                                     <span className="text-lg font-semibold">
                                         {book.rating}/5
                                     </span>
