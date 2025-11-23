@@ -12,8 +12,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Folder, Plus, Trash2 } from "lucide-react"
-import { BookshelfPreview } from "@/components/bookshelf-preview"
+import { Folder, Plus, Trash2, ChevronRight } from "lucide-react"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -85,39 +84,34 @@ export default async function CollectionsPage() {
                 </Dialog>
             </div>
 
-            <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-3">
                 {collections.map((collection) => (
-                    <Card key={collection.id} className="flex flex-col justify-between hover:shadow-md transition-shadow">
-                        <CardHeader className="pb-3">
-                            <div className="flex items-start justify-between">
-                                <div className="space-y-1 min-w-0 flex-1">
-                                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                                        <Folder className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                                        <Link href={`/collections/${collection.id}`} className="hover:underline truncate">
-                                            {collection.name}
-                                        </Link>
-                                    </CardTitle>
-                                    <CardDescription className="text-xs sm:text-sm">
-                                        {collection._count.books} livre{collection._count.books > 1 ? "s" : ""}
-                                    </CardDescription>
-                                </div>
+                    <div
+                        key={collection.id}
+                        className="group flex items-center justify-between p-4 bg-card hover:bg-accent/50 border rounded-lg transition-all"
+                    >
+                        <Link href={`/collections/${collection.id}`} className="flex items-center gap-4 flex-1 min-w-0">
+                            <div className="p-2.5 bg-primary/10 rounded-full text-primary">
+                                <Folder className="h-5 w-5" />
                             </div>
-                        </CardHeader>
-                        <CardContent className="pt-2">
-                            <BookshelfPreview
-                                books={collection.books}
-                                totalCount={collection._count.books}
-                            />
-                        </CardContent>
-                        <CardFooter className="border-t pt-3 sm:pt-4 flex justify-between">
-                            <Button variant="ghost" size="sm" asChild>
-                                <Link href={`/collections/${collection.id}`}>
-                                    Ouvrir
-                                </Link>
-                            </Button>
+                            <div className="flex flex-col min-w-0">
+                                <span className="font-semibold truncate text-base">
+                                    {collection.name}
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                    {collection._count.books} livre{collection._count.books > 1 ? "s" : ""}
+                                </span>
+                            </div>
+                        </Link>
+
+                        <div className="flex items-center gap-2">
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </AlertDialogTrigger>
@@ -139,11 +133,16 @@ export default async function CollectionsPage() {
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
-                        </CardFooter>
-                    </Card>
+                            <Button variant="ghost" size="icon" asChild className="text-muted-foreground">
+                                <Link href={`/collections/${collection.id}`}>
+                                    <ChevronRight className="h-5 w-5" />
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
                 ))}
                 {collections.length === 0 && (
-                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-lg">
+                    <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-lg">
                         <Folder className="h-12 w-12 text-muted-foreground mb-4" />
                         <h3 className="text-lg font-semibold">Aucune collection</h3>
                         <p className="text-muted-foreground mb-4 text-sm sm:text-base">
