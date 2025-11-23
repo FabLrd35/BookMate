@@ -56,117 +56,105 @@ export function FinishBookDialog({
 
     const handleOpenChange = (newOpen: boolean) => {
         setOpen(newOpen)
-        onOpenChange?.(newOpen)
+        if (isFinishMode) {
+            toast.success(initialRating ? "Critique mise à jour ! 📝" : "Félicitations ! Livre terminé 🎉")
+            celebrate() // 🎊 Confetti!
+        } else {
+            toast.success("Critique enregistrée ! 📝")
+        }
+
+        setOpen(false)
+    } catch (error) {
+        toast.error("Une erreur est survenue")
+        console.error(error)
+    }
+})
     }
 
-    const handleSubmit = () => {
-        startTransition(async () => {
-            try {
-                await updateBookStatus(bookId, targetStatus, {
-                    rating: rating > 0 ? rating : undefined,
-                    comment: comment.trim() || undefined,
-                    finishDate: isFinishMode && date ? date.toISOString() : undefined,
-                })
-
-                if (isFinishMode) {
-                    toast.success(initialRating ? "Critique mise à jour ! 📝" : "Félicitations ! Livre terminé 🎉")
-                    celebrate() // 🎊 Confetti!
-                } else {
-                    toast.success("Critique enregistrée ! 📝")
-                }
-
-                setOpen(false)
-            } catch (error) {
-                toast.error("Une erreur est survenue")
-                console.error(error)
-            }
-        })
-    }
-
-    return (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>
-                {trigger || (
-                    <Button
-                        variant="outline"
-                        className="w-full gap-2 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
-                    >
-                        <CheckCircle2 className="h-4 w-4" /> Terminer
-                    </Button>
-                )}
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>
-                        {isFinishMode
-                            ? "Bravo ! Vous avez terminé ce livre"
-                            : "Noter ce livre"}
-                    </DialogTitle>
-                    <DialogDescription>
-                        {isFinishMode
-                            ? "Prenez un moment pour noter votre lecture et ajouter un commentaire."
-                            : "Partagez votre avis sur votre lecture en cours."}
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="space-y-2">
-                        <Label>Votre note</Label>
-                        <StarRatingSelector
-                            value={rating}
-                            onChange={setRating}
-                            size="md"
-                        />
-                    </div>
-
-                    {isFinishMode && (
-                        <div className="space-y-2">
-                            <Label htmlFor="date">Date de fin</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !date && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {date ? format(date, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={date}
-                                        onSelect={(d) => d && setDate(d)}
-                                        initialFocus
-                                        locale={fr}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    )}
-
-                    <div className="space-y-2">
-                        <Label htmlFor="comment">Votre avis (optionnel)</Label>
-                        <Textarea
-                            id="comment"
-                            placeholder={isFinishMode ? "Qu'avez-vous pensé de ce livre ?" : "Vos impressions jusqu'ici..."}
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            className="min-h-[100px]"
-                        />
-                    </div>
+return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogTrigger asChild>
+            {trigger || (
+                <Button
+                    variant="outline"
+                    className="w-full gap-2 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+                >
+                    <CheckCircle2 className="h-4 w-4" /> Terminer
+                </Button>
+            )}
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+                <DialogTitle>
+                    {isFinishMode
+                        ? "Bravo ! Vous avez terminé ce livre"
+                        : "Noter ce livre"}
+                </DialogTitle>
+                <DialogDescription>
+                    {isFinishMode
+                        ? "Prenez un moment pour noter votre lecture et ajouter un commentaire."
+                        : "Partagez votre avis sur votre lecture en cours."}
+                </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                    <Label>Votre note</Label>
+                    <StarRatingSelector
+                        value={rating}
+                        onChange={setRating}
+                        size="md"
+                    />
                 </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
-                        Annuler
-                    </Button>
-                    <Button onClick={handleSubmit} disabled={isPending} className="bg-green-600 hover:bg-green-700 text-white">
-                        {isPending ? "Enregistrement..." : (isFinishMode ? "Terminer le livre" : "Enregistrer")}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    )
+
+                {isFinishMode && (
+                    <div className="space-y-2">
+                        <Label htmlFor="date">Date de fin</Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !date && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {date ? format(date, "d MMMM yyyy", { locale: fr }) : <span>Choisir une date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={(d) => d && setDate(d)}
+                                    initialFocus
+                                    locale={fr}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                )}
+
+                <div className="space-y-2">
+                    <Label htmlFor="comment">Votre avis (optionnel)</Label>
+                    <Textarea
+                        id="comment"
+                        placeholder={isFinishMode ? "Qu'avez-vous pensé de ce livre ?" : "Vos impressions jusqu'ici..."}
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        className="min-h-[100px]"
+                    />
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
+                    Annuler
+                </Button>
+                <Button onClick={handleSubmit} disabled={isPending} className="bg-green-600 hover:bg-green-700 text-white">
+                    {isPending ? "Enregistrement..." : (isFinishMode ? "Terminer le livre" : "Enregistrer")}
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+)
 }
