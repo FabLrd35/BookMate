@@ -5,6 +5,7 @@ interface AddBookPageProps {
     searchParams: Promise<{ title?: string; author?: string; coverUrl?: string; totalPages?: string }>
 }
 
+// Force rebuild
 export default async function AddBookPage({ searchParams }: AddBookPageProps) {
     const authors = await getAuthors()
     const genres = await getGenres()

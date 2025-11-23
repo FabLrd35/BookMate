@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, User, BookOpen, BookCheck, Star, Sparkles } from "lucide-react"
 import { BookCard } from "@/components/book-card"
 import { DiscoveredBookCard } from "@/components/discovered-book-card"
+import { BooksCarousel } from "@/components/books-carousel"
+import { LibraryBooksCarousel } from "@/components/library-books-carousel"
 
 interface AuthorPageProps {
     params: Promise<{ id: string }>
@@ -55,7 +57,9 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
                             />
                         </div>
                     ) : (
-                        <User className="h-8 w-8 text-primary" />
+                        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                            <User className="h-8 w-8 text-primary" />
+                        </div>
                     )}
                 </div>
                 <div className="flex-1">
@@ -109,17 +113,12 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
                         <p className="text-muted-foreground text-lg">Aucun livre pour cet auteur.</p>
                     </div>
                 ) : (
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {author.books.map((book) => (
-                            <BookCard
-                                key={book.id}
-                                book={{
-                                    ...book,
-                                    rating: book.rating ? Number(book.rating) : null
-                                }}
-                            />
-                        ))}
-                    </div>
+                    <LibraryBooksCarousel
+                        books={author.books.map(book => ({
+                            ...book,
+                            rating: book.rating ? Number(book.rating) : null
+                        }))}
+                    />
                 )}
             </div>
 
@@ -133,11 +132,7 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
                     <p className="text-muted-foreground mb-6">
                         Ces livres ne sont pas encore dans votre bibliothèque. Ajoutez-les facilement !
                     </p>
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                        {discoveredBooks.map((book: any) => (
-                            <DiscoveredBookCard key={book.id} book={book} authorName={author.name} />
-                        ))}
-                    </div>
+                    <BooksCarousel books={discoveredBooks} authorName={author.name} />
                 </div>
             )}
         </div>

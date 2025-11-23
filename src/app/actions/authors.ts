@@ -268,7 +268,7 @@ export async function discoverAuthorBooks(authorName: string, authorId: string) 
             // Filter out books already in library (case-insensitive comparison)
             .filter((book: any) => !existingTitles.has(book.title.toLowerCase().trim()))
             // Limit to 6 suggestions
-            .slice(0, 6)
+            .slice(0, 20)
 
         return { success: true, books: discoveredBooks }
     } catch (error) {

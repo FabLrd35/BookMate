@@ -97,15 +97,34 @@ export function BookStatusActions({
 
     if (status === "ABANDONED") {
         return (
-            <Button
-                size="sm"
-                variant="outline"
-                className="w-full gap-2"
-                onClick={() => handleStatusChange("READING")}
-                disabled={isPending}
-            >
-                <Play className="h-3 w-3" /> Reprendre
-            </Button>
+            <div className="space-y-2 w-full">
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={() => handleStatusChange("READING")}
+                    disabled={isPending}
+                >
+                    <Play className="h-3 w-3" /> Reprendre
+                </Button>
+                <AbandonBookDialog
+                    bookId={bookId}
+                    title={title}
+                    initialRating={currentRating}
+                    initialComment={currentComment}
+                    isEditing={true}
+                    trigger={
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full gap-2"
+                            disabled={isPending}
+                        >
+                            <Star className="h-3 w-3" /> {currentRating ? "Modifier ma critique" : "Ajouter une critique"}
+                        </Button>
+                    }
+                />
+            </div>
         )
     }
 

@@ -75,7 +75,7 @@ export default async function DashboardLayout({
                         <div className="flex flex-1 flex-col min-w-0">
                             <Topbar user={user} />
 
-                            <main className="flex-1 overflow-y-auto bg-background p-4 lg:p-6 [scrollbar-gutter:stable] touch-action-pan-y overscroll-behavior-contain">
+                            <main className="flex-1 overflow-y-auto bg-background p-4 lg:p-6 touch-action-pan-y overscroll-behavior-contain">
                                 {children}
                             </main>
                         </div>

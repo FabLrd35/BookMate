@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
+import { uploadCoverImage } from "@/lib/storage"
 
 export async function createBook(formData: FormData) {
     const session = await auth()
@@ -21,7 +22,16 @@ export async function createBook(formData: FormData) {
     const title = formData.get("title") as string
     const authorName = formData.get("author") as string
     const genreName = formData.get("genre") as string | null
-    const coverUrl = formData.get("coverUrl") as string | null
+    let coverUrl = formData.get("coverUrl") as string | null
+    const coverFile = formData.get("coverFile") as File | null
+
+    // Handle file upload if present
+    if (coverFile && coverFile.size > 0) {
+        const uploadedUrl = await uploadCoverImage(coverFile)
+        if (uploadedUrl) {
+            coverUrl = uploadedUrl
+        }
+    }
     const status = formData.get("status") as "TO_READ" | "READING" | "READ" | "ABANDONED"
     const rating = formData.get("rating") as string | null
     const comment = formData.get("comment") as string | null
@@ -111,7 +121,16 @@ export async function updateBook(id: string, formData: FormData) {
     const title = formData.get("title") as string
     const authorName = formData.get("author") as string
     const genreName = formData.get("genre") as string | null
-    const coverUrl = formData.get("coverUrl") as string | null
+    let coverUrl = formData.get("coverUrl") as string | null
+    const coverFile = formData.get("coverFile") as File | null
+
+    // Handle file upload if present
+    if (coverFile && coverFile.size > 0) {
+        const uploadedUrl = await uploadCoverImage(coverFile)
+        if (uploadedUrl) {
+            coverUrl = uploadedUrl
+        }
+    }
     const status = formData.get("status") as "TO_READ" | "READING" | "READ" | "ABANDONED"
     const rating = formData.get("rating") as string | null
     const comment = formData.get("comment") as string | null
@@ -186,7 +205,7 @@ export async function updateBook(id: string, formData: FormData) {
 
     revalidatePath("/books")
     revalidatePath(`/books/${id}`)
-    redirect(`/books/${id}`)
+    return { success: true }
 }
 
 export async function getAuthors() {
@@ -294,20 +313,20 @@ export async function fetchGoogleBook(id: string) {
     }
 }
 
-export async function searchBooks(query: string) {
+export async function searchBooks(query: string, startIndex: number = 0) {
     try {
         if (!query || query.trim().length < 2) {
-            return { success: true, books: [] }
+            return { success: true, books: [], totalItems: 0 }
         }
 
         const searchQuery = encodeURIComponent(query)
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&maxResults=10&langRestrict=fr&hl=fr&country=FR`
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery}&startIndex=${startIndex}&maxResults=20&langRestrict=fr&hl=fr&country=FR`
 
         const response = await fetch(url, { cache: 'no-store' })
         const data = await response.json()
 
         if (!data.items || data.items.length === 0) {
-            return { success: true, books: [] }
+            return { success: true, books: [], totalItems: 0 }
         }
 
         const books = data.items.map((item: any) => {
@@ -335,7 +354,7 @@ export async function searchBooks(query: string) {
             }
         })
 
-        return { success: true, books }
+        return { success: true, books, totalItems: data.totalItems || 0 }
     } catch (error) {
         console.error("Error searching books:", error)
         return { success: false, books: [], error: "Échec de la recherche" }

@@ -18,6 +18,7 @@ import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { StarRatingSelector } from "@/components/star-rating-selector"
+import { useRouter } from "next/navigation"
 
 type Author = {
     id: string
@@ -67,6 +68,7 @@ interface BookFormProps {
 }
 
 export function BookForm({ authors, genres, initialData, prefillData }: BookFormProps) {
+    const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isFetchingCover, setIsFetchingCover] = useState(false)
     const [rating, setRating] = useState<number | null>(initialData?.rating ?? null)
@@ -101,10 +103,16 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
 
             if (initialData) {
                 await updateBook(initialData.id, formData)
+                router.refresh()
+                router.back()
             } else {
                 await createBook(formData)
             }
         } catch (error) {
+            // Ignore redirect errors
+            if (error instanceof Error && (error.message === "NEXT_REDIRECT" || error.message.includes("NEXT_REDIRECT"))) {
+                return
+            }
             console.error("Error saving book:", error)
             setIsSubmitting(false)
         }
@@ -407,42 +415,83 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                     </datalist>
                 </div>
 
-                {/* Cover URL */}
-                <div className="space-y-2">
-                    <Label htmlFor="coverUrl" className="text-base font-semibold">
-                        URL de l'image de couverture
+                {/* Cover Image */}
+                <div className="space-y-4">
+                    <Label className="text-base font-semibold">
+                        Image de couverture
                     </Label>
-                    <div className="flex gap-2">
-                        <Input
-                            id="coverUrl"
-                            name="coverUrl"
-                            type="url"
-                            placeholder="https://exemple.com/cover.jpg (optionnel)"
-                            className="text-base flex-1"
-                            value={coverUrl}
-                            onChange={(e) => setCoverUrl(e.target.value)}
-                        />
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleFetchCover}
-                            disabled={isFetchingCover || !title || !author}
-                        >
-                            {isFetchingCover ? (
-                                <>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                </>
-                            ) : (
-                                <>
-                                    <Search className="h-4 w-4 mr-2" />
-                                    Récupérer
-                                </>
-                            )}
-                        </Button>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {/* Option 1: URL */}
+                        <div className="space-y-2">
+                            <Label htmlFor="coverUrl" className="text-xs text-muted-foreground">
+                                Via URL
+                            </Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    id="coverUrl"
+                                    name="coverUrl"
+                                    type="url"
+                                    placeholder="https://exemple.com/cover.jpg"
+                                    className="text-base flex-1"
+                                    value={coverUrl}
+                                    onChange={(e) => setCoverUrl(e.target.value)}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={handleFetchCover}
+                                    disabled={isFetchingCover || !title || !author}
+                                    title="Rechercher automatiquement"
+                                >
+                                    {isFetchingCover ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Search className="h-4 w-4" />
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Option 2: Upload */}
+                        <div className="space-y-2">
+                            <Label htmlFor="coverFile" className="text-xs text-muted-foreground">
+                                Ou téléverser une image
+                            </Label>
+                            <Input
+                                id="coverFile"
+                                name="coverFile"
+                                type="file"
+                                accept="image/*"
+                                className="text-base cursor-pointer"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) {
+                                        // Create a fake URL for preview
+                                        const objectUrl = URL.createObjectURL(file)
+                                        setCoverUrl(objectUrl)
+                                    }
+                                }}
+                            />
+                        </div>
                     </div>
-                    {!initialData && (
+
+                    {/* Preview */}
+                    {coverUrl && (
+                        <div className="relative w-32 h-48 rounded-md overflow-hidden border bg-muted mx-auto sm:mx-0">
+                            <Image
+                                src={coverUrl}
+                                alt="Aperçu de la couverture"
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                    )}
+
+                    {!initialData && !coverUrl && (
                         <p className="text-xs text-muted-foreground">
-                            Entrez le titre et l'auteur, puis cliquez sur "Récupérer" pour trouver automatiquement la couverture
+                            Entrez le titre et l'auteur, puis cliquez sur la loupe pour trouver automatiquement la couverture, ou téléversez votre propre image.
                         </p>
                     )}
                 </div>
@@ -608,7 +657,7 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                     </>
                 )}
 
-                {status === "READ" && (
+                {(status === "READ" || status === "ABANDONED") && (
                     <div className="space-y-2">
                         <Label className="text-base font-semibold">Note</Label>
                         <div className="flex items-center gap-4">
@@ -631,8 +680,8 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
                     </div>
                 )}
 
-                {/* Comment (only for completed books) */}
-                {status === "READ" && (
+                {/* Comment (only for completed or abandoned books) */}
+                {(status === "READ" || status === "ABANDONED") && (
                     <div className="space-y-2">
                         <Label htmlFor="comment" className="text-base font-semibold">
                             Critique / Commentaire
