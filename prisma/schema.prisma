@@ -31,7 +31,7 @@ model Book {
   author      Author            @relation(fields: [authorId], references: [id])
   authorId    String
   coverUrl    String?
-  rating      Float?
+  rating      Decimal?
   comment     String?
   summary     String?
   status      ReadingStatus     @default(TO_READ)
