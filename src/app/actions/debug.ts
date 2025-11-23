@@ -25,7 +25,7 @@ export async function debugParseFloat() {
     })
 
     const environment = {
-        runtime: typeof EdgeRuntime !== 'undefined' ? 'edge' : 'nodejs',
+        runtime: typeof (globalThis as any).EdgeRuntime !== 'undefined' ? 'edge' : 'nodejs',
         nodeVersion: process.version || 'unknown',
         platform: process.platform || 'unknown',
         vercelRegion: process.env.VERCEL_REGION || 'local',
