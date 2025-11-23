@@ -65,7 +65,7 @@ export function FinishBookDialog({
                 await updateBookStatus(bookId, targetStatus, {
                     rating: rating > 0 ? rating : undefined,
                     comment: comment.trim() || undefined,
-                    finishDate: isFinishMode ? date : undefined,
+                    finishDate: isFinishMode && date ? date.toISOString() : undefined,
                 })
 
                 if (isFinishMode) {

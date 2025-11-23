@@ -407,7 +407,7 @@ export async function updateBookStatus(
     additionalData?: {
         rating?: number
         comment?: string
-        finishDate?: Date
+        finishDate?: string
     }
 ) {
     const session = await auth()
@@ -446,7 +446,7 @@ export async function updateBookStatus(
         // Use provided finish date or default to now
         // Only update finishDate if moving to READ and it wasn't already set, or if status changed, or if explicitly provided
         if (additionalData?.finishDate) {
-            data.finishDate = additionalData.finishDate
+            data.finishDate = new Date(additionalData.finishDate)
         } else if (currentBook.status !== "READ" || !currentBook.finishDate) {
             data.finishDate = now
         }
@@ -482,7 +482,7 @@ export async function updateBookStatus(
         } else if (newStatus === "READ") {
             await prisma.readingActivity.create({
                 data: {
-                    date: additionalData?.finishDate || now,
+                    date: additionalData?.finishDate ? new Date(additionalData.finishDate) : now,
                     bookId,
                     activityType: "FINISHED",
                 },
