@@ -5,7 +5,9 @@ import { useEffect, useState } from "react"
 interface Snowflake {
     id: number
     left: number
+    startY: number
     animationDuration: number
+    animationDelay: number
     opacity: number
     size: number
 }
@@ -15,11 +17,13 @@ export function SnowfallEffect() {
     const [isVisible, setIsVisible] = useState(false)
 
     useEffect(() => {
-        // Générer une seule salve de flocons à chaque visite
+        // Générer une seule salve de flocons avec positions de départ variées
         const flakes: Snowflake[] = Array.from({ length: 30 }, (_, i) => ({
             id: i,
             left: Math.random() * 100,
-            animationDuration: 4 + Math.random() * 2, // 4-6 secondes
+            startY: -20 - Math.random() * 20, // Démarrage entre -20vh et -40vh
+            animationDuration: 5 + Math.random() * 3, // 5-8 secondes
+            animationDelay: Math.random() * 0.5, // Délai aléatoire de 0-0.5s
             opacity: 0.4 + Math.random() * 0.6,
             size: 3 + Math.random() * 3, // 3-6px
         }))
@@ -27,10 +31,10 @@ export function SnowfallEffect() {
         setSnowflakes(flakes)
         setIsVisible(true)
 
-        // Masquer après 6 secondes
+        // Masquer après que tous les flocons soient tombés (durée max + délai)
         const timer = setTimeout(() => {
             setIsVisible(false)
-        }, 6000)
+        }, 8500)
 
         return () => clearTimeout(timer)
     }, [])
@@ -42,13 +46,15 @@ export function SnowfallEffect() {
             {snowflakes.map((flake) => (
                 <div
                     key={flake.id}
-                    className="snowflake absolute animate-fall"
+                    className="snowflake absolute"
                     style={{
                         left: `${flake.left}%`,
+                        top: `${flake.startY}vh`,
                         opacity: flake.opacity,
                         width: `${flake.size}px`,
                         height: `${flake.size}px`,
                         animationDuration: `${flake.animationDuration}s`,
+                        animationDelay: `${flake.animationDelay}s`,
                     }}
                 >
                     ❄
@@ -57,10 +63,15 @@ export function SnowfallEffect() {
             <style jsx>{`
                 @keyframes fall {
                     0% {
-                        transform: translateY(-10vh) rotate(0deg);
+                        transform: translateY(0) rotate(0deg);
+                        opacity: 1;
+                    }
+                    85% {
+                        opacity: 1;
                     }
                     100% {
-                        transform: translateY(110vh) rotate(360deg);
+                        transform: translateY(120vh) rotate(360deg);
+                        opacity: 0;
                     }
                 }
                 
@@ -71,6 +82,7 @@ export function SnowfallEffect() {
                     animation-name: fall;
                     animation-timing-function: linear;
                     animation-iteration-count: 1;
+                    animation-fill-mode: forwards;
                 }
             `}</style>
         </div>

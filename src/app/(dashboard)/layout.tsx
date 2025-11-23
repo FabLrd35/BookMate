@@ -12,7 +12,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
     title: "BookMate - Suivez votre parcours de lecture",
     description: "Une belle application pour suivre, noter et gérer votre collection de livres",
-    manifest: "/manifest.json",
     viewport: {
         width: "device-width",
         initialScale: 1,
