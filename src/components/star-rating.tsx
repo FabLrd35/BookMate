@@ -2,15 +2,18 @@
 
 import { Star, StarHalf } from "lucide-react"
 import { cn } from "@/lib/utils"
+import type { Decimal } from "@prisma/client/runtime/library"
 
 interface StarRatingProps {
-    rating: number
+    rating: number | Decimal
     size?: "sm" | "md" | "lg"
     showValue?: boolean
     className?: string
 }
 
 export function StarRating({ rating, size = "md", showValue = false, className }: StarRatingProps) {
+    // Convert Decimal to number if needed
+    const numericRating = typeof rating === 'number' ? rating : Number(rating)
     const sizeClasses = {
         sm: "h-4 w-4",
         md: "h-5 w-5",
@@ -22,8 +25,8 @@ export function StarRating({ rating, size = "md", showValue = false, className }
     // Generate array of 5 stars
     const stars = Array.from({ length: 5 }, (_, index) => {
         const starValue = index + 1
-        const filled = rating >= starValue
-        const halfFilled = rating >= starValue - 0.5 && rating < starValue
+        const filled = numericRating >= starValue
+        const halfFilled = numericRating >= starValue - 0.5 && numericRating < starValue
 
         return (
             <span key={index} className="relative inline-block">
@@ -55,7 +58,7 @@ export function StarRating({ rating, size = "md", showValue = false, className }
             {stars}
             {showValue && (
                 <span className="ml-2 text-sm font-medium text-muted-foreground">
-                    {rating.toFixed(1)}/5
+                    {numericRating.toFixed(1)}/5
                 </span>
             )}
         </div>
