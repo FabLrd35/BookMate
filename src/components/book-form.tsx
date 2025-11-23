@@ -89,6 +89,16 @@ export function BookForm({ authors, genres, initialData, prefillData }: BookForm
     async function handleSubmit(formData: FormData) {
         setIsSubmitting(true)
         try {
+            // Manually append controlled fields to ensure they are correct
+            if (rating) formData.set("rating", rating.toString())
+            if (status) formData.set("status", status)
+            if (startDate) formData.set("startDate", startDate.toISOString())
+            if (finishDate) formData.set("finishDate", finishDate.toISOString())
+
+            // Also ensure numeric fields are clean
+            const pageCount = formData.get("totalPages")
+            if (pageCount) formData.set("totalPages", pageCount.toString())
+
             if (initialData) {
                 await updateBook(initialData.id, formData)
             } else {
