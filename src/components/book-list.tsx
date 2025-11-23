@@ -34,6 +34,7 @@ type Book = {
         id: string
         name: string
     } | null
+    createdAt: Date
 }
 
 interface BookListProps {
@@ -45,11 +46,12 @@ export function BookList({ books, showTabs = true }: BookListProps) {
     const searchParams = useSearchParams()
     const router = useRouter()
     const tabParam = searchParams.get('tab') as "TO_READ" | "READING" | "READ" | "ABANDONED" | "FAVORITES" | "ALL" | null
-    const activeTab = showTabs ? (tabParam || "TO_READ") : "ALL"
+    const activeTab = showTabs ? (tabParam || "ALL") : "ALL"
 
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedGenre, setSelectedGenre] = useState<string>("ALL")
     const [selectedAuthor, setSelectedAuthor] = useState<string>("ALL")
+    const [sortOrder, setSortOrder] = useState<"date-desc" | "date-asc" | "rating-desc" | "rating-asc">("date-desc")
 
     const setActiveTab = (tab: "TO_READ" | "READING" | "READ" | "ABANDONED" | "FAVORITES" | "ALL") => {
         const params = new URLSearchParams(searchParams.toString())
@@ -67,61 +69,42 @@ export function BookList({ books, showTabs = true }: BookListProps) {
     const abandonedBooks = books.filter((book) => book.status === "ABANDONED")
     const favoriteBooks = books.filter((book) => book.isFavorite)
 
-    // Filter logic for "ALL" tab
-    const allFilteredBooks = books.filter(book => {
-        const matchesSearch = (
-            book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            book.author.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-        const matchesGenre = selectedGenre === "ALL" || book.genre?.name === selectedGenre
-        const matchesAuthor = selectedAuthor === "ALL" || book.author.name === selectedAuthor
+    // Helper to process books with search, filter, and sort
+    const processBooks = (bookList: Book[]) => {
+        let filtered = bookList.filter(book => {
+            const matchesSearch = (
+                book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                book.author.name.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            const matchesGenre = selectedGenre === "ALL" || book.genre?.name === selectedGenre
+            const matchesAuthor = selectedAuthor === "ALL" || book.author.name === selectedAuthor
 
-        return matchesSearch && matchesGenre && matchesAuthor
-    })
+            return matchesSearch && matchesGenre && matchesAuthor
+        })
+
+        return filtered.sort((a, b) => {
+            if (sortOrder === "date-desc") {
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            }
+            if (sortOrder === "date-asc") {
+                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            }
+            if (sortOrder === "rating-desc") {
+                return (b.rating || 0) - (a.rating || 0)
+            }
+            if (sortOrder === "rating-asc") {
+                return (a.rating || 0) - (b.rating || 0)
+            }
+            return 0
+        })
+    }
+
+    // Filter logic for "ALL" tab (and others now use the same processor)
+    const allFilteredBooks = processBooks(books)
 
     type ColorKey = "blue" | "orange" | "green" | "gray" | "red" | "purple"
 
     const filters = [
-        {
-            id: "TO_READ" as const,
-            label: "À lire",
-            icon: BookOpen,
-            count: toReadBooks.length,
-            color: "blue" as ColorKey,
-            books: toReadBooks,
-        },
-        {
-            id: "READING" as const,
-            label: "En cours",
-            icon: BookMarked,
-            count: readingBooks.length,
-            color: "orange" as ColorKey,
-            books: readingBooks,
-        },
-        {
-            id: "READ" as const,
-            label: "Lu",
-            icon: CheckCircle2,
-            count: readBooks.length,
-            color: "green" as ColorKey,
-            books: readBooks,
-        },
-        {
-            id: "ABANDONED" as const,
-            label: "Abandonné",
-            icon: XCircle,
-            count: abandonedBooks.length,
-            color: "gray" as ColorKey,
-            books: abandonedBooks,
-        },
-        {
-            id: "FAVORITES" as const,
-            label: "Favoris",
-            icon: Heart,
-            count: favoriteBooks.length,
-            color: "red" as ColorKey,
-            books: favoriteBooks,
-        },
         {
             id: "ALL" as const,
             label: "Tous",
@@ -129,6 +112,46 @@ export function BookList({ books, showTabs = true }: BookListProps) {
             count: books.length,
             color: "purple" as ColorKey,
             books: allFilteredBooks,
+        },
+        {
+            id: "TO_READ" as const,
+            label: "À lire",
+            icon: BookOpen,
+            count: toReadBooks.length,
+            color: "blue" as ColorKey,
+            books: processBooks(toReadBooks),
+        },
+        {
+            id: "READING" as const,
+            label: "En cours",
+            icon: BookMarked,
+            count: readingBooks.length,
+            color: "orange" as ColorKey,
+            books: processBooks(readingBooks),
+        },
+        {
+            id: "READ" as const,
+            label: "Lu",
+            icon: CheckCircle2,
+            count: readBooks.length,
+            color: "green" as ColorKey,
+            books: processBooks(readBooks),
+        },
+        {
+            id: "ABANDONED" as const,
+            label: "Abandonné",
+            icon: XCircle,
+            count: abandonedBooks.length,
+            color: "gray" as ColorKey,
+            books: processBooks(abandonedBooks),
+        },
+        {
+            id: "FAVORITES" as const,
+            label: "Favoris",
+            icon: Heart,
+            count: favoriteBooks.length,
+            color: "red" as ColorKey,
+            books: processBooks(favoriteBooks),
         },
     ]
 
@@ -212,54 +235,65 @@ export function BookList({ books, showTabs = true }: BookListProps) {
                 </div>
             )}
 
-            {/* Search & Filters (Only visible on ALL tab) */}
-            {activeTab === "ALL" && (
-                <div className="grid gap-4 md:grid-cols-3 bg-card p-4 rounded-lg border shadow-sm">
-                    <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Rechercher un livre..."
-                            className="pl-9"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                    <Select value={selectedGenre} onValueChange={setSelectedGenre}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Genre" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">Tous les genres</SelectItem>
-                            {genres.map(genre => (
-                                <SelectItem key={genre} value={genre}>{genre}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Auteur" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">Tous les auteurs</SelectItem>
-                            {authors.map(author => (
-                                <SelectItem key={author} value={author}>{author}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+            {/* Search & Filters (Always visible) */}
+            <div className="grid gap-4 md:grid-cols-4 bg-card p-4 rounded-lg border shadow-sm">
+                <div className="relative md:col-span-1">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Rechercher..."
+                        className="pl-9"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-            )}
+                <Select value={selectedGenre} onValueChange={setSelectedGenre}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Genre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ALL">Tous les genres</SelectItem>
+                        {genres.map(genre => (
+                            <SelectItem key={genre} value={genre}>{genre}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Auteur" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ALL">Tous les auteurs</SelectItem>
+                        {authors.map(author => (
+                            <SelectItem key={author} value={author}>{author}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={sortOrder} onValueChange={(v: any) => setSortOrder(v)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Trier par" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="date-desc">Plus récents</SelectItem>
+                        <SelectItem value="date-asc">Plus anciens</SelectItem>
+                        <SelectItem value="rating-desc">Meilleure note</SelectItem>
+                        <SelectItem value="rating-asc">Moins bonne note</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
 
             {/* Book Grid */}
             <div>
                 {activeFilter.books.length === 0 ? (
                     <EmptyState
                         message={
-                            activeTab === "TO_READ" ? "Pas encore de livres dans votre liste de lecture." :
-                                activeTab === "READING" ? "Aucun livre en cours de lecture." :
-                                    activeTab === "READ" ? "Pas encore de livres terminés." :
-                                        activeTab === "ABANDONED" ? "Aucun livre abandonné." :
-                                            activeTab === "FAVORITES" ? "Aucun livre favori pour le moment." :
-                                                "Aucun livre ne correspond à votre recherche."
+                            searchQuery || selectedGenre !== "ALL" || selectedAuthor !== "ALL"
+                                ? "Aucun livre ne correspond à votre recherche."
+                                : activeTab === "TO_READ" ? "Pas encore de livres dans votre liste de lecture."
+                                    : activeTab === "READING" ? "Aucun livre en cours de lecture."
+                                        : activeTab === "READ" ? "Pas encore de livres terminés."
+                                            : activeTab === "ABANDONED" ? "Aucun livre abandonné."
+                                                : activeTab === "FAVORITES" ? "Aucun livre favori pour le moment."
+                                                    : "Aucun livre trouvé."
                         }
                         icon={activeFilter.icon}
                     />
