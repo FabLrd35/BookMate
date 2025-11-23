@@ -1,6 +1,6 @@
 "use client"
 
-import { Star, StarHalf } from "lucide-react"
+import { Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Decimal } from "@prisma/client/runtime/library"
 
@@ -31,14 +31,14 @@ export function StarRating({ rating, size = "md", showValue = false, className }
         return (
             <span key={index} className="relative inline-block">
                 {halfFilled ? (
-                    <>
+                    <div className="relative">
                         {/* Background empty star */}
                         <Star className={cn(iconSize, "text-gray-300 dark:text-gray-600")} />
-                        {/* Foreground half star */}
-                        <StarHalf
-                            className={cn(iconSize, "absolute top-0 left-0 fill-yellow-400 text-yellow-400")}
-                        />
-                    </>
+                        {/* Foreground half star (clipped) */}
+                        <div className="absolute top-0 left-0 h-full w-1/2 overflow-hidden">
+                            <Star className={cn(iconSize, "fill-yellow-400 text-yellow-400")} />
+                        </div>
+                    </div>
                 ) : (
                     <Star
                         className={cn(

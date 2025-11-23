@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Star, StarHalf } from "lucide-react"
+import { Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface StarRatingSelectorProps {
@@ -63,7 +63,7 @@ export function StarRatingSelector({ value, onChange, size = "lg", className }: 
                         className="focus:outline-none transition-transform hover:scale-110 relative"
                     >
                         {isHalfFilled ? (
-                            <>
+                            <div className="relative">
                                 {/* Background empty star */}
                                 <Star
                                     className={cn(
@@ -71,14 +71,16 @@ export function StarRatingSelector({ value, onChange, size = "lg", className }: 
                                         "text-gray-300 dark:text-gray-600"
                                     )}
                                 />
-                                {/* Foreground half star */}
-                                <StarHalf
-                                    className={cn(
-                                        iconSize,
-                                        "absolute top-0 left-0 fill-yellow-400 text-yellow-400"
-                                    )}
-                                />
-                            </>
+                                {/* Foreground half star (clipped) */}
+                                <div className="absolute top-0 left-0 h-full w-1/2 overflow-hidden pointer-events-none">
+                                    <Star
+                                        className={cn(
+                                            iconSize,
+                                            "fill-yellow-400 text-yellow-400"
+                                        )}
+                                    />
+                                </div>
+                            </div>
                         ) : (
                             <Star
                                 className={cn(
