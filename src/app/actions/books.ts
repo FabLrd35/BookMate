@@ -460,6 +460,10 @@ export async function updateBookStatus(
     // Add rating and comment if provided
     // Add rating and comment if provided
     if (additionalData?.rating !== undefined && additionalData.rating !== null) {
+        // 🔍 DEBUG LOGGING - Track rating input
+        console.log("🔍 [updateBookStatus] RAW rating input:", additionalData.rating)
+        console.log("🔍 [updateBookStatus] typeof rating:", typeof additionalData.rating)
+
         // Handle rating - it should already be a number from the component
         let ratingValue: number
         if (typeof additionalData.rating === 'number') {
@@ -468,9 +472,20 @@ export async function updateBookStatus(
             ratingValue = parseFloat(String(additionalData.rating))
         }
 
+        // 🔍 DEBUG LOGGING - Track parsed rating
+        console.log("🔍 [updateBookStatus] PARSED ratingValue:", ratingValue)
+        console.log("🔍 [updateBookStatus] typeof ratingValue:", typeof ratingValue)
+        console.log("🔍 [updateBookStatus] isNaN(ratingValue):", isNaN(ratingValue))
+        console.log("🔍 [updateBookStatus] ratingValue >= 0 && <= 5:", ratingValue >= 0 && ratingValue <= 5)
+        console.log("🔍 [updateBookStatus] Number.MIN_VALUE:", Number.MIN_VALUE)
+        console.log("🔍 [updateBookStatus] ratingValue === Number.MIN_VALUE:", ratingValue === Number.MIN_VALUE)
+
         // Only set rating if it's a valid number between 0 and 5
         if (!isNaN(ratingValue) && ratingValue >= 0 && ratingValue <= 5) {
             data.rating = ratingValue
+            console.log("🔍 [updateBookStatus] FINAL data.rating:", data.rating)
+        } else {
+            console.log("🔍 [updateBookStatus] ❌ Rating REJECTED (out of range or NaN)")
         }
     }
     if (additionalData?.comment !== undefined) {
@@ -523,6 +538,11 @@ export async function quickAddBook(formData: FormData) {
     const ratingStr = formData.get("rating") as string | null
     const comment = formData.get("comment") as string | null
     const finishDateStr = formData.get("finishDate") as string | null
+
+    // 🔍 DEBUG LOGGING - Track rating transformation
+    console.log("🔍 [quickAddBook] RAW FormData rating:", ratingStr)
+    console.log("🔍 [quickAddBook] typeof ratingStr:", typeof ratingStr)
+    console.log("🔍 [quickAddBook] ratingStr === null:", ratingStr === null)
     try {
         const session = await auth()
         if (!session?.user?.email) {
@@ -563,6 +583,16 @@ export async function quickAddBook(formData: FormData) {
         }
 
         // Create book with appropriate dates based on status
+        const parsedRating = ratingStr ? parseFloat(ratingStr) : null
+
+        // 🔍 DEBUG LOGGING - Track parsed rating before DB write
+        console.log("🔍 [quickAddBook] PARSED rating:", parsedRating)
+        console.log("🔍 [quickAddBook] typeof parsedRating:", typeof parsedRating)
+        console.log("🔍 [quickAddBook] parsedRating === null:", parsedRating === null)
+        console.log("🔍 [quickAddBook] isNaN(parsedRating):", parsedRating !== null && isNaN(parsedRating))
+        console.log("🔍 [quickAddBook] Number.MIN_VALUE:", Number.MIN_VALUE)
+        console.log("🔍 [quickAddBook] parsedRating === Number.MIN_VALUE:", parsedRating === Number.MIN_VALUE)
+
         const book = await prisma.book.create({
             data: {
                 title,
@@ -576,11 +606,15 @@ export async function quickAddBook(formData: FormData) {
                 startDate: status === "READ" && startDateStr ? new Date(startDateStr) :
                     (status === "READING" || status === "READ") ? new Date() : null,
                 finishDate: status === "READ" ? (finishDateStr ? new Date(finishDateStr) : new Date()) : null,
-                rating: ratingStr ? parseFloat(ratingStr) : null,
+                rating: parsedRating,
                 comment: comment || null,
                 userId: user.id,
             },
         })
+
+        // 🔍 DEBUG LOGGING - Check what was actually created
+        console.log("🔍 [quickAddBook] CREATED book.rating:", book.rating)
+        console.log("🔍 [quickAddBook] typeof book.rating:", typeof book.rating)
 
         // Create reading activities automatically
         const now = new Date()
