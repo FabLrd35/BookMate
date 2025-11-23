@@ -360,6 +360,11 @@ export async function deleteBook(id: string) {
         throw new Error("Livre non trouvé ou accès non autorisé")
     }
 
+    // Delete related reading activities first
+    await prisma.readingActivity.deleteMany({
+        where: { bookId: id }
+    })
+
     await prisma.book.delete({
         where: { id },
     })
@@ -515,9 +520,9 @@ export async function quickAddBook(bookData: {
     status: "TO_READ" | "READING" | "READ" | "ABANDONED"
     currentPage?: number | null
     startDate?: Date | null
-    rating?: number | null
+    rating?: number | string | null
     comment?: string | null
-    finishDate?: Date | null
+    finishDate?: Date | string | null
 }) {
     try {
         const session = await auth()
@@ -571,8 +576,8 @@ export async function quickAddBook(bookData: {
                 currentPage: bookData.currentPage || null,
                 startDate: bookData.status === "READ" && bookData.startDate ? bookData.startDate :
                     (bookData.status === "READING" || bookData.status === "READ") ? new Date() : null,
-                finishDate: bookData.status === "READ" ? (bookData.finishDate || new Date()) : null,
-                rating: bookData.rating || null,
+                finishDate: bookData.status === "READ" ? (bookData.finishDate ? new Date(bookData.finishDate) : new Date()) : null,
+                rating: bookData.rating ? parseFloat(String(bookData.rating)) : null,
                 comment: bookData.comment || null,
                 userId: user.id,
             },

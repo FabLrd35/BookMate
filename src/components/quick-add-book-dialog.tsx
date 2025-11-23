@@ -66,9 +66,9 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
                 status,
                 currentPage: status === "READING" ? currentPage : null,
                 startDate: status === "READING" ? startDate : (status === "READ" ? startDate : null),
-                rating: status === "READ" ? rating : null,
+                rating: status === "READ" && rating ? rating.toString() : null,
                 comment: status === "READ" ? comment : null,
-                finishDate: status === "READ" ? finishDate : null,
+                finishDate: status === "READ" && finishDate ? finishDate.toISOString() : null,
             })
 
             if (result.success && result.bookId) {
