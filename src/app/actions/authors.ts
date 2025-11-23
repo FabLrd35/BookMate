@@ -253,6 +253,8 @@ export async function discoverAuthorBooks(authorName: string, authorId: string) 
                 if (coverUrl) {
                     coverUrl = coverUrl.replace('&edge=curl', '')
                     coverUrl = coverUrl.replace('zoom=1', 'zoom=0')
+                    // Force HTTPS to avoid Vercel image optimization errors
+                    coverUrl = coverUrl.replace('http://', 'https://')
                 }
 
                 return {

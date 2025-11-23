@@ -226,6 +226,8 @@ export async function fetchBookCover(title: string, author: string) {
                     // Remove edge curl effect and increase size
                     coverUrl = coverUrl.replace('&edge=curl', '')
                     coverUrl = coverUrl.replace('zoom=1', 'zoom=0')
+                    // Force HTTPS to avoid Vercel image optimization errors
+                    coverUrl = coverUrl.replace('http://', 'https://')
                     return { success: true, coverUrl, pageCount, description }
                 }
             }
@@ -266,6 +268,8 @@ export async function fetchGoogleBook(id: string) {
         if (coverUrl) {
             coverUrl = coverUrl.replace('&edge=curl', '')
             coverUrl = coverUrl.replace('zoom=1', 'zoom=0')
+            // Force HTTPS to avoid Vercel image optimization errors
+            coverUrl = coverUrl.replace('http://', 'https://')
         }
 
         const book = {
@@ -314,6 +318,8 @@ export async function searchBooks(query: string) {
             if (coverUrl) {
                 coverUrl = coverUrl.replace('&edge=curl', '')
                 coverUrl = coverUrl.replace('zoom=1', 'zoom=0')
+                // Force HTTPS to avoid Vercel image optimization errors
+                coverUrl = coverUrl.replace('http://', 'https://')
             }
 
             return {
