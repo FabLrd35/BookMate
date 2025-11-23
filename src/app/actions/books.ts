@@ -405,7 +405,7 @@ export async function updateBookStatus(
     bookId: string,
     newStatus: "READING" | "READ" | "ABANDONED",
     additionalData?: {
-        rating?: number
+        rating?: number | string
         comment?: string
         finishDate?: string
     }
@@ -453,9 +453,17 @@ export async function updateBookStatus(
     }
 
     // Add rating and comment if provided
-    if (additionalData?.rating !== undefined) {
-        // Ensure rating is a proper number and within valid range (0-5)
-        const ratingValue = Number(additionalData.rating)
+    // Add rating and comment if provided
+    if (additionalData?.rating !== undefined && additionalData.rating !== null) {
+        // Handle rating - it should already be a number from the component
+        let ratingValue: number
+        if (typeof additionalData.rating === 'number') {
+            ratingValue = additionalData.rating
+        } else {
+            ratingValue = parseFloat(String(additionalData.rating))
+        }
+
+        // Only set rating if it's a valid number between 0 and 5
         if (!isNaN(ratingValue) && ratingValue >= 0 && ratingValue <= 5) {
             data.rating = ratingValue
         }

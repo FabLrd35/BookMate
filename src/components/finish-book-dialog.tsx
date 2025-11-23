@@ -63,7 +63,7 @@ export function FinishBookDialog({
         startTransition(async () => {
             try {
                 await updateBookStatus(bookId, targetStatus, {
-                    rating: rating > 0 ? rating : undefined,
+                    rating: rating > 0 ? rating.toString() : undefined,
                     comment: comment.trim() || undefined,
                     finishDate: isFinishMode && date ? date.toISOString() : undefined,
                 })
