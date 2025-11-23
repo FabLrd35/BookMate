@@ -510,20 +510,19 @@ export async function updateBookStatus(
     return { success: true }
 }
 
-export async function quickAddBook(bookData: {
-    title: string
-    author: string
-    coverUrl: string | null
-    description: string | null
-    pageCount: number | null
-    categories: string[]
-    status: "TO_READ" | "READING" | "READ" | "ABANDONED"
-    currentPage?: number | null
-    startDate?: Date | null
-    rating?: number | string | null
-    comment?: string | null
-    finishDate?: Date | string | null
-}) {
+export async function quickAddBook(formData: FormData) {
+    const title = formData.get("title") as string
+    const authorName = formData.get("author") as string
+    const coverUrl = formData.get("coverUrl") as string | null
+    const description = formData.get("description") as string | null
+    const pageCount = formData.get("pageCount") ? parseInt(formData.get("pageCount") as string) : null
+    const categories = JSON.parse(formData.get("categories") as string || "[]")
+    const status = formData.get("status") as "TO_READ" | "READING" | "READ" | "ABANDONED"
+    const currentPage = formData.get("currentPage") ? parseInt(formData.get("currentPage") as string) : null
+    const startDateStr = formData.get("startDate") as string | null
+    const ratingStr = formData.get("rating") as string | null
+    const comment = formData.get("comment") as string | null
+    const finishDateStr = formData.get("finishDate") as string | null
     try {
         const session = await auth()
         if (!session?.user?.email) {
@@ -539,19 +538,19 @@ export async function quickAddBook(bookData: {
         }
         // Find or create author
         let author = await prisma.author.findUnique({
-            where: { name: bookData.author },
+            where: { name: authorName },
         })
 
         if (!author) {
             author = await prisma.author.create({
-                data: { name: bookData.author },
+                data: { name: authorName },
             })
         }
 
         // Find or create genre from first category if available
         let genre = null
-        if (bookData.categories && bookData.categories.length > 0) {
-            const genreName = bookData.categories[0]
+        if (categories && categories.length > 0) {
+            const genreName = categories[0]
             genre = await prisma.genre.findUnique({
                 where: { name: genreName },
             })
@@ -566,26 +565,26 @@ export async function quickAddBook(bookData: {
         // Create book with appropriate dates based on status
         const book = await prisma.book.create({
             data: {
-                title: bookData.title,
+                title,
                 authorId: author.id,
                 genreId: genre?.id,
-                coverUrl: bookData.coverUrl,
-                summary: bookData.description,
-                totalPages: bookData.pageCount,
-                status: bookData.status,
-                currentPage: bookData.currentPage || null,
-                startDate: bookData.status === "READ" && bookData.startDate ? bookData.startDate :
-                    (bookData.status === "READING" || bookData.status === "READ") ? new Date() : null,
-                finishDate: bookData.status === "READ" ? (bookData.finishDate ? new Date(bookData.finishDate) : new Date()) : null,
-                rating: bookData.rating ? parseFloat(String(bookData.rating)) : null,
-                comment: bookData.comment || null,
+                coverUrl,
+                summary: description,
+                totalPages: pageCount,
+                status,
+                currentPage: currentPage || null,
+                startDate: status === "READ" && startDateStr ? new Date(startDateStr) :
+                    (status === "READING" || status === "READ") ? new Date() : null,
+                finishDate: status === "READ" ? (finishDateStr ? new Date(finishDateStr) : new Date()) : null,
+                rating: ratingStr ? parseFloat(ratingStr) : null,
+                comment: comment || null,
                 userId: user.id,
             },
         })
 
         // Create reading activities automatically
         const now = new Date()
-        if (bookData.status === "READING" || bookData.status === "READ") {
+        if (status === "READING" || status === "READ") {
             await prisma.readingActivity.create({
                 data: {
                     date: now,
@@ -594,10 +593,10 @@ export async function quickAddBook(bookData: {
                 },
             }).catch(() => { }) // Ignore duplicates
         }
-        if (bookData.status === "READ") {
+        if (status === "READ") {
             await prisma.readingActivity.create({
                 data: {
-                    date: bookData.finishDate || now,
+                    date: finishDateStr ? new Date(finishDateStr) : now,
                     bookId: book.id,
                     activityType: "FINISHED",
                 },

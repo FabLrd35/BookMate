@@ -56,20 +56,30 @@ export function QuickAddBookDialog({ book, trigger }: QuickAddBookDialogProps) {
     async function handleSubmit() {
         setIsSubmitting(true)
         try {
-            const result = await quickAddBook({
-                title: book.title,
-                author: book.authors[0] || "Auteur inconnu",
-                coverUrl: book.coverUrl,
-                description: book.description,
-                pageCount: book.pageCount,
-                categories: book.categories,
-                status,
-                currentPage: status === "READING" ? currentPage : null,
-                startDate: status === "READING" ? startDate : (status === "READ" ? startDate : null),
-                rating: status === "READ" && rating ? rating.toString() : null,
-                comment: status === "READ" ? comment : null,
-                finishDate: status === "READ" && finishDate ? finishDate.toISOString() : null,
-            })
+            const formData = new FormData()
+            formData.append("title", book.title)
+            formData.append("author", book.authors[0] || "Auteur inconnu")
+            if (book.coverUrl) formData.append("coverUrl", book.coverUrl)
+            if (book.description) formData.append("description", book.description)
+            if (book.pageCount) formData.append("pageCount", book.pageCount.toString())
+            formData.append("categories", JSON.stringify(book.categories))
+            formData.append("status", status)
+
+            if (status === "READING" && currentPage) {
+                formData.append("currentPage", currentPage.toString())
+            }
+
+            if (startDate) {
+                formData.append("startDate", startDate.toISOString())
+            }
+
+            if (status === "READ") {
+                if (rating) formData.append("rating", rating.toString())
+                if (comment) formData.append("comment", comment)
+                if (finishDate) formData.append("finishDate", finishDate.toISOString())
+            }
+
+            const result = await quickAddBook(formData)
 
             if (result.success && result.bookId) {
                 toast.success("Livre ajouté à votre bibliothèque!")
