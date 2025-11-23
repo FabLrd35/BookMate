@@ -121,10 +121,10 @@ export async function debugDatabaseRating(testRating: number = 3) {
             value: readBook?.rating,
             type: typeof readBook?.rating,
         },
-        isCorrupted: book.rating !== testRating || readBook?.rating !== testRating,
+        isCorrupted: Number(book.rating) !== testRating || (readBook?.rating ? Number(readBook.rating) !== testRating : false),
         corruptionPoint:
-            book.rating !== testRating ? "database_write" :
-                readBook?.rating !== testRating ? "database_read" :
+            Number(book.rating) !== testRating ? "database_write" :
+                (readBook?.rating && Number(readBook.rating) !== testRating) ? "database_read" :
                     "none",
     }
 }
