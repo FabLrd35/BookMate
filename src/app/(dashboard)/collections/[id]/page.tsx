@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, FolderOpen } from "lucide-react"
-import { BookCard } from "@/components/book-card"
+import { BookList } from "@/components/book-list"
 import { auth } from "@/auth"
 import { CollectionBookPicker } from "@/components/collection-book-picker"
 
@@ -104,17 +104,12 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                     </div>
                 </div>
             ) : (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {collection.books.map((book) => (
-                        <BookCard
-                            key={book.id}
-                            book={{
-                                ...book,
-                                rating: book.rating ? Number(book.rating) : null
-                            }}
-                        />
-                    ))}
-                </div>
+                <BookList
+                    books={collection.books.map(book => ({
+                        ...book,
+                        rating: book.rating ? Number(book.rating) : null
+                    }))}
+                />
             )}
         </div>
     )
