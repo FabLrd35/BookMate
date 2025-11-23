@@ -6,29 +6,17 @@ import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Star, Calendar, ArrowLeft, Trash2, Edit } from "lucide-react"
-import { deleteBook } from "@/app/actions/books"
 import { QuoteList } from "@/components/quote-list"
 import { AddToCollection } from "@/components/add-to-collection"
 import { CurrentPageUpdater } from "@/components/current-page-updater"
 import { getCollections } from "@/app/actions/collections"
 import { ExpandableText } from "@/components/expandable-text"
 import { BookStatusActions } from "@/components/book-status-actions"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-
 import { AddWordDialog } from "@/components/add-word-dialog"
 import { BookGallery } from "@/components/book-gallery"
 import { FavoriteButton } from "@/components/favorite-button"
 import { BackButton } from "@/components/back-button"
+import { DeleteBookDialog } from "@/components/delete-book-dialog"
 
 interface BookDetailsPageProps {
     params: Promise<{ id: string }>
@@ -143,8 +131,10 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
                                     Modifier le livre
                                 </Button>
                             </Link>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
+                            <DeleteBookDialog
+                                bookId={book.id}
+                                title={book.title}
+                                trigger={
                                     <Button
                                         variant="destructive"
                                         className="w-full"
@@ -152,25 +142,8 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
                                         <Trash2 className="h-4 w-4 mr-2" />
                                         Supprimer le livre
                                     </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Cette action est irréversible. Cela supprimera définitivement le livre
-                                            "{book.title}" de votre collection.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                        <form action={deleteBook.bind(null, book.id)}>
-                                            <AlertDialogAction type="submit" className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                                Supprimer
-                                            </AlertDialogAction>
-                                        </form>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                                }
+                            />
                         </div>
                     </div>
 
