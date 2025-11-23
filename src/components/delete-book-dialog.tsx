@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -24,13 +25,19 @@ interface DeleteBookDialogProps {
 export function DeleteBookDialog({ bookId, title, trigger }: DeleteBookDialogProps) {
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
+    const router = useRouter()
 
     const handleDelete = () => {
         startTransition(async () => {
             try {
-                await deleteBook(bookId)
-                toast.success("Livre supprimé")
-                setOpen(false)
+                const result = await deleteBook(bookId)
+                if (result.success) {
+                    toast.success("Livre supprimé")
+                    setOpen(false)
+                    router.push("/books")
+                } else {
+                    toast.error(result.error || "Erreur lors de la suppression")
+                }
             } catch (error) {
                 toast.error("Erreur lors de la suppression")
                 console.error(error)

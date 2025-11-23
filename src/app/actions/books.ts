@@ -340,76 +340,34 @@ export async function searchBooks(query: string) {
         console.error("Error searching books:", error)
         return { success: false, books: [], error: "Échec de la recherche" }
     }
+    return { success: false, error: "Non authentifié" }
 }
 
-export async function deleteBook(id: string) {
-    const session = await auth()
-    if (!session?.user?.email) {
-        throw new Error("Non authentifié")
-    }
+const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+})
 
-    const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
-    })
-
-    if (!user) {
-        throw new Error("Utilisateur non trouvé")
-    }
-
-    // Verify ownership
-    const book = await prisma.book.findUnique({
-        where: { id },
-        select: { userId: true }
-    })
-
-    if (!book || book.userId !== user.id) {
-        throw new Error("Livre non trouvé ou accès non autorisé")
-    }
-
-    // Delete related reading activities first
-    await prisma.readingActivity.deleteMany({
-        where: { bookId: id }
-    })
-
-    await prisma.book.delete({
-        where: { id },
-    })
-
-    revalidatePath("/books")
-    redirect("/books")
+if (!user) {
+    return { success: false, error: "Utilisateur non trouvé" }
 }
 
-export async function updateCurrentPage(bookId: string, currentPage: number) {
-    const session = await auth()
-    if (!session?.user?.email) {
-        return { success: false, error: "Non authentifié" }
-    }
+// Verify ownership
+const book = await prisma.book.findUnique({
+    where: { id: bookId },
+    select: { userId: true }
+})
 
-    const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
-    })
+if (!book || book.userId !== user.id) {
+    return { success: false, error: "Livre non trouvé ou accès non autorisé" }
+}
 
-    if (!user) {
-        return { success: false, error: "Utilisateur non trouvé" }
-    }
+await prisma.book.update({
+    where: { id: bookId },
+    data: { currentPage },
+})
 
-    // Verify ownership
-    const book = await prisma.book.findUnique({
-        where: { id: bookId },
-        select: { userId: true }
-    })
-
-    if (!book || book.userId !== user.id) {
-        return { success: false, error: "Livre non trouvé ou accès non autorisé" }
-    }
-
-    await prisma.book.update({
-        where: { id: bookId },
-        data: { currentPage },
-    })
-
-    revalidatePath(`/books/${bookId}`)
-    return { success: true }
+revalidatePath(`/books/${bookId}`)
+return { success: true }
 }
 
 export async function updateBookStatus(
