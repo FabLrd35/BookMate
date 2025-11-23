@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import Image from "next/image"
-import { Plus, Trash2, Image as ImageIcon, X, Upload } from "lucide-react"
+import { Plus, Trash2, Image as ImageIcon, X, Upload, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -232,6 +232,8 @@ export function BookGallery({ bookId, images }: BookGalleryProps) {
                                     fill
                                     className="object-contain"
                                 />
+
+                                {/* Close button */}
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -240,6 +242,44 @@ export function BookGallery({ bookId, images }: BookGalleryProps) {
                                 >
                                     <X className="h-6 w-6" />
                                 </Button>
+
+                                {/* Previous button */}
+                                {images.length > 1 && (
+                                    <>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
+                                            onClick={() => {
+                                                const currentIndex = images.findIndex(img => img.id === selectedImage.id)
+                                                const prevIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1
+                                                setSelectedImage(images[prevIndex])
+                                            }}
+                                        >
+                                            <ChevronLeft className="h-8 w-8" />
+                                        </Button>
+
+                                        {/* Next button */}
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
+                                            onClick={() => {
+                                                const currentIndex = images.findIndex(img => img.id === selectedImage.id)
+                                                const nextIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1
+                                                setSelectedImage(images[nextIndex])
+                                            }}
+                                        >
+                                            <ChevronRight className="h-8 w-8" />
+                                        </Button>
+
+                                        {/* Image counter */}
+                                        <div className="absolute top-4 left-4 text-white bg-black/50 px-3 py-1 rounded-full text-sm">
+                                            {images.findIndex(img => img.id === selectedImage.id) + 1} / {images.length}
+                                        </div>
+                                    </>
+                                )}
+
                                 {selectedImage.caption && (
                                     <div className="absolute bottom-4 left-0 right-0 text-center text-white p-4 bg-black/50">
                                         {selectedImage.caption}
