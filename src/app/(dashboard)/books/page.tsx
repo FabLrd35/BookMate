@@ -30,7 +30,10 @@ export default async function BooksPage() {
         orderBy: {
             updatedAt: 'desc',
         },
-    })
+    }).then(books => books.map(book => ({
+        ...book,
+        rating: book.rating === null ? null : Number(book.rating)
+    })))
 
     return (
         <div className="space-y-6">

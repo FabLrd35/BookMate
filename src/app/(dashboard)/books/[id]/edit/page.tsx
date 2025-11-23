@@ -16,7 +16,10 @@ export default async function EditBookPage({ params }: EditBookPageProps) {
             author: true,
             genre: true,
         },
-    })
+    }).then(b => b ? ({
+        ...b,
+        rating: b.rating === null ? null : Number(b.rating)
+    }) : null)
 
     if (!book) {
         notFound()

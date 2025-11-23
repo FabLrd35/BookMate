@@ -60,7 +60,10 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
                 },
                 collections: true,
             },
-        }),
+        }).then(b => b ? ({
+            ...b,
+            rating: b.rating === null ? null : Number(b.rating)
+        }) : null),
         getCollections(),
     ])
 
