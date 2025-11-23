@@ -121,8 +121,8 @@ export async function getDetailedStats() {
     }))
 
     readBooks.forEach(book => {
-        if (book.rating && book.rating >= 1 && book.rating <= 5) {
-            ratingDistribution[book.rating - 1].value++
+        if (book.rating && Number(book.rating) >= 1 && Number(book.rating) <= 5) {
+            ratingDistribution[Math.floor(Number(book.rating)) - 1].value++
         }
     })
 
@@ -264,7 +264,7 @@ export async function getReadingMoodAnalysis() {
             if (!monthlyMood[key]) {
                 monthlyMood[key] = { total: 0, count: 0, date: book.finishDate }
             }
-            monthlyMood[key].total += book.rating
+            monthlyMood[key].total += Number(book.rating)
             monthlyMood[key].count++
         }
     })

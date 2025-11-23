@@ -43,7 +43,7 @@ export async function getAuthorsWithStats() {
 
         // Calculate average rating
         const ratingsSum = readBooks.reduce((sum, book) => {
-            return sum + (book.rating || 0)
+            return sum + (book.rating ? Number(book.rating) : 0)
         }, 0)
         const averageRating = booksRead > 0 ? ratingsSum / booksRead : 0
 

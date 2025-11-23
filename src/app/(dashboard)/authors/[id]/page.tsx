@@ -24,7 +24,7 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
     const totalBooks = author.books.length
     const readBooks = author.books.filter(book => book.status === "READ")
     const booksRead = readBooks.length
-    const ratingsSum = readBooks.reduce((sum, book) => sum + (book.rating || 0), 0)
+    const ratingsSum = readBooks.reduce((sum, book) => sum + (book.rating ? Number(book.rating) : 0), 0)
     const averageRating = booksRead > 0 ? ratingsSum / booksRead : 0
 
     // Discover other books by this author
