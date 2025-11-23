@@ -38,13 +38,14 @@ type Book = {
 
 interface BookListProps {
     books: Book[]
+    showTabs?: boolean
 }
 
-export function BookList({ books }: BookListProps) {
+export function BookList({ books, showTabs = true }: BookListProps) {
     const searchParams = useSearchParams()
     const router = useRouter()
     const tabParam = searchParams.get('tab') as "TO_READ" | "READING" | "READ" | "ABANDONED" | "FAVORITES" | "ALL" | null
-    const activeTab = tabParam || "TO_READ"
+    const activeTab = showTabs ? (tabParam || "TO_READ") : "ALL"
 
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedGenre, setSelectedGenre] = useState<string>("ALL")
@@ -176,38 +177,40 @@ export function BookList({ books }: BookListProps) {
     return (
         <div className="w-full space-y-6">
             {/* Filter Pills */}
-            <div className="flex overflow-x-auto pb-2 gap-3 sm:grid sm:grid-cols-3 lg:grid-cols-6 sm:pb-0 no-scrollbar">
-                {filters.map((filter) => {
-                    const Icon = filter.icon
-                    const isActive = activeTab === filter.id
-                    const colors = colorClasses[filter.color]
+            {showTabs && (
+                <div className="flex overflow-x-auto pb-2 gap-3 sm:grid sm:grid-cols-3 lg:grid-cols-6 sm:pb-0 no-scrollbar">
+                    {filters.map((filter) => {
+                        const Icon = filter.icon
+                        const isActive = activeTab === filter.id
+                        const colors = colorClasses[filter.color]
 
-                    return (
-                        <button
-                            key={filter.id}
-                            onClick={() => setActiveTab(filter.id)}
-                            className={`
+                        return (
+                            <button
+                                key={filter.id}
+                                onClick={() => setActiveTab(filter.id)}
+                                className={`
                                 relative flex items-center justify-between gap-3 px-4 py-3 rounded-xl
                                 transition-all duration-200 font-medium whitespace-nowrap flex-shrink-0
                                 ${isActive ? colors.active : colors.inactive}
                             `}
-                        >
-                            <div className="flex items-center gap-2">
-                                <Icon className={`h-5 w-5 ${filter.id === "FAVORITES" ? "fill-current" : ""}`} />
-                                <span className="text-sm font-semibold">{filter.label}</span>
-                            </div>
-                            {filter.count > 0 && (
-                                <span className={`
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Icon className={`h-5 w-5 ${filter.id === "FAVORITES" ? "fill-current" : ""}`} />
+                                    <span className="text-sm font-semibold">{filter.label}</span>
+                                </div>
+                                {filter.count > 0 && (
+                                    <span className={`
                                     px-2 py-0.5 rounded-full text-xs font-bold ml-2
                                     ${isActive ? "bg-white/20" : colors.badge}
                                 `}>
-                                    {filter.count}
-                                </span>
-                            )}
-                        </button>
-                    )
-                })}
-            </div>
+                                        {filter.count}
+                                    </span>
+                                )}
+                            </button>
+                        )
+                    })}
+                </div>
+            )}
 
             {/* Search & Filters (Only visible on ALL tab) */}
             {activeTab === "ALL" && (

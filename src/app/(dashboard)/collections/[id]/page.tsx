@@ -105,6 +105,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                 </div>
             ) : (
                 <BookList
+                    showTabs={false}
                     books={collection.books.map(book => ({
                         ...book,
                         rating: book.rating ? Number(book.rating) : null
