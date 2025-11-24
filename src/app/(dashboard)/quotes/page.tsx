@@ -1,8 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { Card } from "@/components/ui/card"
-import { Quote as QuoteIcon } from "lucide-react"
-import { UserQuoteCard } from "@/components/user-quote-card"
-
+import { QuotesList } from "@/components/quotes-list"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 
@@ -44,22 +41,8 @@ export default async function QuotesPage() {
                 </p>
             </div>
 
-            {/* Quotes List */}
-            {quotes.length === 0 ? (
-                <Card className="p-8 sm:p-12">
-                    <div className="text-center text-muted-foreground">
-                        <QuoteIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-sm sm:text-base">Aucune citation enregistrée pour le moment.</p>
-                        <p className="text-xs sm:text-sm mt-2">Ajoutez des citations depuis les pages de vos livres !</p>
-                    </div>
-                </Card>
-            ) : (
-                <div className="grid gap-4 sm:gap-6">
-                    {quotes.map((quote) => (
-                        <UserQuoteCard key={quote.id} quote={quote} />
-                    ))}
-                </div>
-            )}
+            {/* Quotes List with Pagination */}
+            <QuotesList quotes={quotes} />
         </div>
     )
 }
