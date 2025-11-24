@@ -169,8 +169,7 @@ export function GoalCard({ year, month, currentMonthly, currentAnnual, targetMon
                                         <Cell
                                             key={`cell-${index}`}
                                             fill={index === 0 ? "var(--primary)" : "var(--muted)"}
-                                            stroke={index === 1 ? "var(--background)" : "none"}
-                                            strokeWidth={index === 1 ? 2 : 0}
+                                            stroke="none"
                                         />
                                     ))}
                                 </Pie>

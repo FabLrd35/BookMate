@@ -7,6 +7,8 @@ import { getDashboardStats, getRecentBooks } from "@/app/actions/statistics"
 import { getReadingGoal } from "@/app/actions/goals"
 import { GoalCard } from "@/components/goal-card"
 import { SnowfallEffect } from "@/components/snowfall-effect"
+import { ChristmasTitle } from "@/components/christmas-title"
+import { ChristmasLights } from "@/components/christmas-lights"
 
 export default async function Home() {
   const stats = await getDashboardStats()
@@ -38,7 +40,8 @@ export default async function Home() {
       <SnowfallEffect />
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-bold tracking-tight">Tableau de bord</h1>
+        <ChristmasLights />
+        <ChristmasTitle />
         <p className="text-muted-foreground mt-2">
           Bon retour ! Voici votre aperçu de lecture.
         </p>
