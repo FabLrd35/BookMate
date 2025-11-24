@@ -13,6 +13,8 @@ import {
     getLongestStreak,
     populateActivityFromBooks,
 } from "@/app/actions/reading-activity";
+import { getFinishedBooks, type FinishedBook } from "@/app/actions/calendar";
+import { BookCalendar } from "@/components/book-calendar";
 import { toast } from "sonner";
 
 export default function CalendarPage() {
@@ -20,6 +22,7 @@ export default function CalendarPage() {
     const [activityMap, setActivityMap] = useState<Record<string, number>>({});
     const [currentStreak, setCurrentStreak] = useState(0);
     const [longestStreak, setLongestStreak] = useState(0);
+    const [finishedBooks, setFinishedBooks] = useState<FinishedBook[]>([]);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -31,11 +34,13 @@ export default function CalendarPage() {
 
     async function loadData() {
         setLoading(true);
-        const [activityResult, currentStreakResult, longestStreakResult] = await Promise.all([
+        const [activityResult, currentStreakResult, longestStreakResult, booksResult] = await Promise.all([
             getReadingActivityForYear(currentYear),
             getCurrentStreak(),
             getLongestStreak(),
+            getFinishedBooks(currentYear)
         ]);
+
         if (activityResult.success) {
             setActivityMap(activityResult.activityMap);
             // Count unique books instead of summing activities
@@ -44,6 +49,8 @@ export default function CalendarPage() {
         }
         if (currentStreakResult.success) setCurrentStreak(currentStreakResult.streak);
         if (longestStreakResult.success) setLongestStreak(longestStreakResult.streak);
+        setFinishedBooks(booksResult);
+
         setLoading(false);
     }
 
@@ -75,7 +82,7 @@ export default function CalendarPage() {
     const thisYear = new Date().getFullYear();
 
     return (
-        <div className="space-y-6 max-w-full overflow-x-hidden">
+        <div className="space-y-8 max-w-full overflow-x-hidden">
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -161,6 +168,18 @@ export default function CalendarPage() {
                     </Card>
                 ) : (
                     <ReadingHeatmap year={currentYear} activityMap={activityMap} onDayClick={handleDayClick} />
+                )}
+            </div>
+
+            {/* Book Calendar View */}
+            <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Détail des lectures</h3>
+                {loading ? (
+                    <Card className="p-8 flex justify-center">
+                        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" />
+                    </Card>
+                ) : (
+                    <BookCalendar books={finishedBooks} currentYear={currentYear} />
                 )}
             </div>
 
