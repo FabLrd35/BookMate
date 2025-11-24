@@ -351,6 +351,8 @@ export async function searchBooks(query: string, startIndex: number = 0) {
                 publisher: volumeInfo.publisher || null,
                 publishedDate: volumeInfo.publishedDate || null,
                 isbn: volumeInfo.industryIdentifiers?.[0]?.identifier || null,
+                averageRating: volumeInfo.averageRating || null,
+                ratingsCount: volumeInfo.ratingsCount || null,
             }
         })
 
