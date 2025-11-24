@@ -54,19 +54,28 @@ export function BookList({ books, showTabs = true }: BookListProps) {
         | null;
     const activeTab = showTabs ? tabParam || "ALL" : "ALL";
 
+    // Lire la page depuis l'URL
+    const pageParam = searchParams.get("page");
+    const currentPage = pageParam ? parseInt(pageParam) : 1;
+
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState<
         "date-desc" | "date-asc" | "rating-desc" | "rating-asc"
     >("date-desc");
     const [ratingFilter, setRatingFilter] = useState<string>("ALL");
-    const [currentPage, setCurrentPage] = useState(1);
     const BOOKS_PER_PAGE = 20;
 
     const setActiveTab = (tab: "TO_READ" | "READING" | "READ" | "ABANDONED" | "FAVORITES" | "ALL") => {
         const params = new URLSearchParams(searchParams.toString());
         params.set("tab", tab);
+        params.delete("page"); // Reset to page 1 when changing tabs
         router.push(`?${params.toString()}`, { scroll: false });
-        setCurrentPage(1); // Reset to page 1 when changing tabs
+    };
+
+    const setCurrentPage = (page: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("page", page.toString());
+        router.push(`?${params.toString()}`, { scroll: false });
     };
 
     // Basic book groups
