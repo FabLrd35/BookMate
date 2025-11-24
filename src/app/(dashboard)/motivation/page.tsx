@@ -10,7 +10,7 @@ export default function MotivationPage() {
             {/* Hero Section with Quote */}
             <section className="space-y-6">
                 <div className="flex items-center gap-2">
-                    <Sparkles className="h-6 w-6 text-indigo-500" />
+                    <Sparkles className="h-6 w-6 text-teal-500" />
                     <h1 className="text-3xl font-bold tracking-tight">Motivation & Inspiration</h1>
                 </div>
                 <p className="text-muted-foreground max-w-2xl">
@@ -42,7 +42,7 @@ export default function MotivationPage() {
                     {tips.map((tip, index) => (
                         <Card key={index} className="bg-muted/30 border-none shadow-sm">
                             <CardContent className="p-6 flex gap-4">
-                                <div className="p-3 bg-background rounded-full h-fit shadow-sm text-indigo-600 dark:text-indigo-400">
+                                <div className="p-3 bg-background rounded-full h-fit shadow-sm text-teal-600 dark:text-teal-400">
                                     <tip.icon className="h-6 w-6" />
                                 </div>
                                 <div>

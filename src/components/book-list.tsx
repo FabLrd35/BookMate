@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { BookCard } from "./book-card";
 import { BookListItem } from "./book-list-item";
-import { BookOpen, Heart, BookMarked, CheckCircle2, XCircle, Library, Search } from "lucide-react";
+import { BookOpen, Heart, BookMarked, CheckCircle2, XCircle, Library, Search, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Pagination } from "@/components/ui/pagination";
 import {
@@ -58,6 +58,7 @@ export function BookList({ books, showTabs = true }: BookListProps) {
     const [sortOrder, setSortOrder] = useState<
         "date-desc" | "date-asc" | "rating-desc" | "rating-asc"
     >("date-desc");
+    const [ratingFilter, setRatingFilter] = useState<string>("ALL");
     const [currentPage, setCurrentPage] = useState(1);
     const BOOKS_PER_PAGE = 20;
 
@@ -75,14 +76,20 @@ export function BookList({ books, showTabs = true }: BookListProps) {
     const abandonedBooks = books.filter((b) => b.status === "ABANDONED");
     const favoriteBooks = books.filter((b) => b.isFavorite);
 
-    // Helper to apply search and sorting
+    // Helper to apply search, rating filter, and sorting
     const processBooks = (list: Book[]) => {
-        const filtered = list.filter((book) => {
+        let filtered = list.filter((book) => {
             const matchesSearch =
                 book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 book.author.name.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesSearch;
         });
+
+        // Apply rating filter
+        if (ratingFilter && ratingFilter !== "ALL") {
+            const rating = parseInt(ratingFilter);
+            filtered = filtered.filter(book => Math.round(book.rating || 0) === rating);
+        }
         return filtered.sort((a, b) => {
             if (sortOrder === "date-desc") {
                 return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -250,8 +257,8 @@ export function BookList({ books, showTabs = true }: BookListProps) {
             )}
 
             {/* Search & Sort (always visible) */}
-            <div className="grid gap-4 md:grid-cols-4 bg-card p-4 rounded-lg border shadow-sm">
-                <div className="relative md:col-span-1">
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-3 md:gap-4 bg-card p-3 md:p-4 rounded-lg border shadow-sm">
+                <div className="relative col-span-2 md:col-span-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Rechercher..."
@@ -261,7 +268,7 @@ export function BookList({ books, showTabs = true }: BookListProps) {
                     />
                 </div>
                 <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as any)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm">
                         <SelectValue placeholder="Trier par" />
                     </SelectTrigger>
                     <SelectContent>
@@ -269,6 +276,20 @@ export function BookList({ books, showTabs = true }: BookListProps) {
                         <SelectItem value="date-asc">Plus anciens</SelectItem>
                         <SelectItem value="rating-desc">Meilleure note</SelectItem>
                         <SelectItem value="rating-asc">Moins bonne note</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={ratingFilter} onValueChange={setRatingFilter}>
+                    <SelectTrigger className="gap-2 text-sm">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                        <SelectValue placeholder="Note" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ALL">Notes</SelectItem>
+                        <SelectItem value="5">5 étoiles</SelectItem>
+                        <SelectItem value="4">4 étoiles</SelectItem>
+                        <SelectItem value="3">3 étoiles</SelectItem>
+                        <SelectItem value="2">2 étoiles</SelectItem>
+                        <SelectItem value="1">1 étoile</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

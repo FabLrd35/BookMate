@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { RouletteFilters, RouletteFilterState } from "@/components/roulette-filters"
-import { getRandomBook, RouletteBook } from "@/app/actions/roulette"
+import { getRandomBook, getMultipleRandomBooks, RouletteBook } from "@/app/actions/roulette"
 import { Dices, BookOpen, RotateCcw, ExternalLink } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
@@ -38,31 +38,39 @@ export function ReadingRouletteDialog() {
         }
 
         try {
-            // Fetch the actual book
-            const result = await getRandomBook(apiFilters)
+            // Fetch multiple books for animation and the final selected book
+            const [booksResult, finalBookResult] = await Promise.all([
+                getMultipleRandomBooks(apiFilters, 8),
+                getRandomBook(apiFilters)
+            ])
 
-            if (!result.success || !result.book) {
-                toast.error(result.error || "Aucun livre trouvé")
+            if (!finalBookResult.success || !finalBookResult.book) {
+                toast.error(finalBookResult.error || "Aucun livre trouvé")
                 setAnimationState("idle")
                 return
             }
 
-            // Simulate spinning with multiple books (for animation)
-            const dummyBooks: RouletteBook[] = Array(6).fill(null).map((_, i) => ({
-                id: `dummy-${i}`,
-                title: "...",
-                author: "...",
-                coverUrl: null,
-                pageCount: null,
-                genre: null,
-                source: "library" as const
-            }))
-            setSpinningBooks(dummyBooks)
+            // Use real books for spinning animation if available
+            if (booksResult.success && booksResult.books && booksResult.books.length > 0) {
+                setSpinningBooks(booksResult.books)
+            } else {
+                // Fallback to dummy books if fetch failed
+                const dummyBooks: RouletteBook[] = Array(6).fill(null).map((_, i) => ({
+                    id: `dummy-${i}`,
+                    title: "...",
+                    author: "...",
+                    coverUrl: null,
+                    pageCount: null,
+                    genre: null,
+                    source: "library" as const
+                }))
+                setSpinningBooks(dummyBooks)
+            }
 
             // After 2 seconds of spinning, show revealing state
             setTimeout(() => {
                 setAnimationState("revealing")
-                setSelectedBook(result.book!)
+                setSelectedBook(finalBookResult.book!)
 
                 // After 1 second of revealing, show final result
                 setTimeout(() => {
@@ -120,9 +128,20 @@ export function ReadingRouletteDialog() {
                                         {spinningBooks.map((book, i) => (
                                             <div
                                                 key={i}
-                                                className="w-24 h-36 sm:w-32 sm:h-48 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg blur-sm opacity-50 flex items-center justify-center flex-shrink-0"
+                                                className="w-24 h-36 sm:w-32 sm:h-48 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg shadow-lg blur-sm opacity-50 flex-shrink-0 relative overflow-hidden"
                                             >
-                                                <BookOpen className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground" />
+                                                {book.coverUrl ? (
+                                                    <Image
+                                                        src={book.coverUrl}
+                                                        alt={book.title}
+                                                        fill
+                                                        className="object-cover rounded-lg"
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-full items-center justify-center">
+                                                        <BookOpen className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground" />
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>

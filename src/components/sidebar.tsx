@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, LayoutDashboard, Library, BarChart3, Settings, Folder, Quote, MessageSquare, Users, Calendar, Sparkles, Languages, Menu, X, Star, Image as ImageIcon, Dices } from "lucide-react"
+import { BookOpen, LayoutDashboard, Library, BarChart3, Settings, Folder, Quote, MessageSquare, Users, Calendar, Sparkles, Languages, Menu, X, Star, Image as ImageIcon, Dices, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -16,8 +16,8 @@ const navigation = [
     { name: "Mes Citations", href: "/quotes", icon: Quote },
     { name: "Mon Lexique", href: "/lexique", icon: Languages },
     { name: "Mes Critiques", href: "/reviews", icon: MessageSquare },
-    { name: "Mes Notations", href: "/ratings", icon: Star },
     { name: "Calendrier", href: "/calendar", icon: Calendar },
+    { name: "Défis", href: "/challenges", icon: Trophy },
     { name: "Roulette de Lecture", href: "/roulette", icon: Dices },
     { name: "Motivation", href: "/motivation", icon: Sparkles },
     { name: "Statistiques", href: "/statistics", icon: BarChart3 },
