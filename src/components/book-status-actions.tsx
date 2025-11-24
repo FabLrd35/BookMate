@@ -35,7 +35,7 @@ export function BookStatusActions({
     if (status === "TO_READ") {
         return (
             <Button
-                className="w-full gap-2"
+                className="gap-2"
                 onClick={() => handleStatusChange("READING")}
                 disabled={isPending}
             >
@@ -46,13 +46,13 @@ export function BookStatusActions({
 
     if (status === "READING") {
         return (
-            <div className="space-y-2 w-full">
+            <div className="flex flex-wrap gap-2">
                 <FinishBookDialog
                     bookId={bookId}
                     trigger={
                         <Button
                             variant="outline"
-                            className="w-full gap-2 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+                            className="gap-2 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                             disabled={isPending}
                         >
                             <CheckCircle2 className="h-4 w-4" /> Terminer
@@ -65,7 +65,7 @@ export function BookStatusActions({
                     trigger={
                         <Button
                             variant="outline"
-                            className="w-full gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20"
+                            className="gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20"
                         >
                             <XCircle className="h-4 w-4" /> Abandonner
                         </Button>
@@ -85,7 +85,7 @@ export function BookStatusActions({
                 trigger={
                     <Button
                         variant="outline"
-                        className="w-full gap-2"
+                        className="gap-2"
                         disabled={isPending}
                     >
                         <Star className="h-4 w-4" /> {currentRating ? "Modifier ma critique" : "Ajouter une critique"}
@@ -97,11 +97,11 @@ export function BookStatusActions({
 
     if (status === "ABANDONED") {
         return (
-            <div className="space-y-2 w-full">
+            <div className="flex flex-wrap gap-2">
                 <Button
                     size="sm"
                     variant="outline"
-                    className="w-full gap-2"
+                    className="gap-2"
                     onClick={() => handleStatusChange("READING")}
                     disabled={isPending}
                 >
@@ -117,7 +117,7 @@ export function BookStatusActions({
                         <Button
                             size="sm"
                             variant="outline"
-                            className="w-full gap-2"
+                            className="gap-2"
                             disabled={isPending}
                         >
                             <Star className="h-3 w-3" /> {currentRating ? "Modifier ma critique" : "Ajouter une critique"}

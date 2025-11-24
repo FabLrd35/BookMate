@@ -38,7 +38,9 @@ export default function CalendarPage() {
         ]);
         if (activityResult.success) {
             setActivityMap(activityResult.activityMap);
-            setTotalBooks(Object.values(activityResult.activityMap).reduce((s, c) => s + c, 0));
+            // Count unique books instead of summing activities
+            const uniqueBooks = new Set(activityResult.activities.map((a: any) => a.book.id));
+            setTotalBooks(uniqueBooks.size);
         }
         if (currentStreakResult.success) setCurrentStreak(currentStreakResult.streak);
         if (longestStreakResult.success) setLongestStreak(longestStreakResult.streak);

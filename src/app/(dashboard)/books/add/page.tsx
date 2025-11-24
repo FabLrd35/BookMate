@@ -1,5 +1,8 @@
 import { getAuthors, getGenres } from "@/app/actions/books"
 import { BookForm } from "@/components/book-form"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft } from "lucide-react"
 
 interface AddBookPageProps {
     searchParams: Promise<{ title?: string; author?: string; coverUrl?: string; totalPages?: string }>
@@ -13,6 +16,13 @@ export default async function AddBookPage({ searchParams }: AddBookPageProps) {
 
     return (
         <div className="max-w-2xl mx-auto space-y-8">
+            <Button variant="ghost" className="pl-0 hover:bg-transparent hover:text-primary" asChild>
+                <Link href="/books" className="flex items-center gap-2">
+                    <ChevronLeft className="h-4 w-4" />
+                    Retour aux livres
+                </Link>
+            </Button>
+
             {/* Header */}
             <div>
                 <h1 className="text-4xl font-bold tracking-tight">Ajouter un nouveau livre</h1>

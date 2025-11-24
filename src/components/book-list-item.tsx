@@ -1,7 +1,7 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Star, Calendar, BookOpen, Play, CheckCircle2, MoreVertical, Trash2, XCircle } from "lucide-react"
+import { Star, Calendar, BookOpen, Play, CheckCircle2, MoreVertical, Trash2, XCircle, Heart } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { DeleteBookDialog } from "@/components/delete-book-dialog"
@@ -9,11 +9,12 @@ import { StarRating } from "@/components/star-rating"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
-import { updateBookStatus } from "@/app/actions/books"
-import { useTransition } from "react"
+import { updateBookStatus, toggleBookFavorite } from "@/app/actions/books"
+import { useTransition, useState } from "react"
 import { UpdateProgressDialog } from "@/components/update-progress-dialog"
 import { AbandonBookDialog } from "@/components/abandon-book-dialog"
 import { FinishBookDialog } from "@/components/finish-book-dialog"
+import { toast } from "sonner"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -51,9 +52,26 @@ interface BookListItemProps {
 export function BookListItem({ book }: BookListItemProps) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
+    const [isFavorite, setIsFavorite] = useState(book.isFavorite)
 
     const handleCardClick = () => {
         router.push(`/books/${book.id}`)
+    }
+
+    const handleToggleFavorite = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const newStatus = !isFavorite
+        setIsFavorite(newStatus)
+
+        const result = await toggleBookFavorite(book.id)
+        if (!result.success) {
+            setIsFavorite(!newStatus)
+            toast.error("Erreur lors de la mise à jour des favoris")
+        } else {
+            toast.success(newStatus ? "Ajouté aux favoris" : "Retiré des favoris")
+        }
     }
 
     const handleStatusChange = (e: React.MouseEvent, newStatus: "READING" | "READ" | "ABANDONED") => {
@@ -85,7 +103,13 @@ export function BookListItem({ book }: BookListItemProps) {
         >
             <div className="flex items-center gap-3 sm:gap-4 w-full">
                 {/* Book Cover */}
-                <div className="relative h-24 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted border">
+                <div className="relative h-24 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted border group/cover">
+                    <button
+                        onClick={handleToggleFavorite}
+                        className={`absolute top-1 left-1 z-10 p-1 rounded-full bg-black/20 hover:bg-black/40 text-white transition-all ${isFavorite ? "opacity-100" : "opacity-100 sm:opacity-0 sm:group-hover/cover:opacity-100"}`}
+                    >
+                        <Heart className={`h-3 w-3 ${isFavorite ? "fill-red-500 text-red-500" : "text-white"}`} />
+                    </button>
                     {book.coverUrl ? (
                         <Image
                             src={book.coverUrl}

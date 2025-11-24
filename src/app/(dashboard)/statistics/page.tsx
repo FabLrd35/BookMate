@@ -7,12 +7,15 @@ import {
     getYearOverYearComparison,
     getReadingPrediction,
 } from "@/app/actions/statistics"
-import { StatsCharts } from "@/components/stats-charts"
-import { PreferencesAnalysis } from "@/components/preferences-analysis"
+import { MonthlyActivityChart } from "@/components/charts/monthly-activity-chart"
+import { MonthlyPagesChart } from "@/components/charts/monthly-pages-chart"
+import { RatingDistributionChart } from "@/components/charts/rating-distribution-chart"
+import { MoodChart } from "@/components/charts/mood-chart"
+import { TrendsChart } from "@/components/charts/trends-chart"
+import { YearComparisonChart } from "@/components/charts/year-comparison-chart"
 import { ReadingPrediction } from "@/components/reading-prediction"
-import { AdvancedAnalyticsCharts } from "@/components/advanced-analytics-charts"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart3, Sparkles } from "lucide-react"
+import { PreferencesAnalysis } from "@/components/preferences-analysis"
+import { BookOpen, BookCopy, FileText, TrendingUp } from "lucide-react"
 
 export default async function StatisticsPage() {
     const [
@@ -34,85 +37,78 @@ export default async function StatisticsPage() {
     ])
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pb-8">
             <div>
-                <h1 className="text-4xl font-bold tracking-tight">Statistiques</h1>
+                <h1 className="text-4xl font-bold tracking-tight">Tableau de Bord</h1>
                 <p className="text-muted-foreground mt-2">
-                    Analysez vos habitudes de lecture et vos préférences.
+                    Vue d'ensemble de vos activités et habitudes de lecture.
                 </p>
             </div>
 
-            {/* Stats Cards */}
+            {/* KPI Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
-                    <div className="flex flex-col space-y-1.5">
-                        <span className="text-sm font-medium text-muted-foreground">Total livres lus</span>
-                        <span className="text-2xl font-bold">{stats.totalRead}</span>
+                <div className="rounded-xl border bg-card text-card-foreground shadow p-6 flex flex-col justify-between space-y-4">
+                    <div className="flex items-center justify-between space-y-0">
+                        <span className="text-sm font-medium text-muted-foreground">Livres Lus</span>
+                        <BookOpen className="h-4 w-4 text-muted-foreground" />
                     </div>
+                    <div className="text-2xl font-bold">{stats.totalRead}</div>
                 </div>
 
-                <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
-                    <div className="flex flex-col space-y-1.5">
-                        <span className="text-sm font-medium text-muted-foreground">Pages lues cette année</span>
-                        <span className="text-2xl font-bold">{pagesStats.totalPagesThisYear.toLocaleString('fr-FR')}</span>
+                <div className="rounded-xl border bg-card text-card-foreground shadow p-6 flex flex-col justify-between space-y-4">
+                    <div className="flex items-center justify-between space-y-0">
+                        <span className="text-sm font-medium text-muted-foreground">Pages (Année)</span>
+                        <FileText className="h-4 w-4 text-muted-foreground" />
                     </div>
+                    <div className="text-2xl font-bold">{pagesStats.totalPagesThisYear.toLocaleString('fr-FR')}</div>
                 </div>
 
-                <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
-                    <div className="flex flex-col space-y-1.5">
-                        <span className="text-sm font-medium text-muted-foreground">Pages lues au total</span>
-                        <span className="text-2xl font-bold">{pagesStats.totalPagesAllTime.toLocaleString('fr-FR')}</span>
+                <div className="rounded-xl border bg-card text-card-foreground shadow p-6 flex flex-col justify-between space-y-4">
+                    <div className="flex items-center justify-between space-y-0">
+                        <span className="text-sm font-medium text-muted-foreground">Pages (Total)</span>
+                        <BookCopy className="h-4 w-4 text-muted-foreground" />
                     </div>
+                    <div className="text-2xl font-bold">{pagesStats.totalPagesAllTime.toLocaleString('fr-FR')}</div>
                 </div>
 
-                <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
-                    <div className="flex flex-col space-y-1.5">
-                        <span className="text-sm font-medium text-muted-foreground">Moyenne pages/livre</span>
-                        <span className="text-2xl font-bold">{pagesStats.averagePagesPerBook.toLocaleString('fr-FR')}</span>
+                <div className="rounded-xl border bg-card text-card-foreground shadow p-6 flex flex-col justify-between space-y-4">
+                    <div className="flex items-center justify-between space-y-0">
+                        <span className="text-sm font-medium text-muted-foreground">Moyenne Pages/Livre</span>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </div>
+                    <div className="text-2xl font-bold">{pagesStats.averagePagesPerBook.toLocaleString('fr-FR')}</div>
                 </div>
             </div>
 
-            {/* Tabs for different views */}
-            <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 max-w-md">
-                    <TabsTrigger value="overview" className="flex items-center gap-2">
-                        <BarChart3 className="h-4 w-4" />
-                        Vue d'ensemble
-                    </TabsTrigger>
-                    <TabsTrigger value="advanced" className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4" />
-                        Analyses avancées
-                    </TabsTrigger>
-                </TabsList>
+            {/* Main Charts Grid */}
+            <div className="grid gap-6 md:grid-cols-2">
+                <MonthlyActivityChart data={stats.monthlyActivity} />
+                <MonthlyPagesChart data={pagesStats.monthlyPages} />
+            </div>
 
-                <TabsContent value="overview" className="mt-6">
-                    <StatsCharts
-                        monthlyActivity={stats.monthlyActivity}
-                        genreDistribution={stats.genreDistribution}
-                        ratingDistribution={stats.ratingDistribution}
-                        monthlyPages={pagesStats.monthlyPages}
-                    />
-                </TabsContent>
+            {/* Secondary Charts Grid */}
+            <div className="grid gap-6 md:grid-cols-2">
+                <div className="md:col-span-1">
+                    <RatingDistributionChart data={stats.ratingDistribution} />
+                </div>
+                <div className="md:col-span-1">
+                    <MoodChart data={moodData} />
+                </div>
+            </div>
 
-                <TabsContent value="advanced" className="mt-6 space-y-6">
-                    {/* Prediction */}
-                    <ReadingPrediction prediction={prediction} />
+            {/* Advanced Analysis */}
+            <div className="grid gap-6 md:grid-cols-2">
+                <TrendsChart data={trends} />
+                <YearComparisonChart data={yearComparison} />
+            </div>
 
-                    {/* Preferences */}
-                    <PreferencesAnalysis
-                        topGenres={preferences.topGenres}
-                        topAuthors={preferences.topAuthors}
-                    />
-
-                    {/* Advanced Charts */}
-                    <AdvancedAnalyticsCharts
-                        moodData={moodData}
-                        trendsData={trends}
-                        yearComparisonData={yearComparison}
-                    />
-                </TabsContent>
-            </Tabs>
+            {/* Insights & Predictions */}
+            <div className="grid gap-6 md:grid-cols-2">
+                <ReadingPrediction prediction={prediction} />
+                <PreferencesAnalysis
+                    topAuthors={preferences.topAuthors}
+                />
+            </div>
         </div>
     )
 }
