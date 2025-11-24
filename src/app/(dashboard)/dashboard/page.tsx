@@ -9,6 +9,7 @@ import { GoalCard } from "@/components/goal-card"
 import { SnowfallEffect } from "@/components/snowfall-effect"
 import { ChristmasTitle } from "@/components/christmas-title"
 import { ChristmasLights } from "@/components/christmas-lights"
+import { SantaSleigh } from "@/components/santa-sleigh"
 
 export default async function Home() {
   const stats = await getDashboardStats()
@@ -38,6 +39,7 @@ export default async function Home() {
   return (
     <div className="space-y-8">
       <SnowfallEffect />
+      <SantaSleigh />
       {/* Header */}
       <div>
         <ChristmasLights />
