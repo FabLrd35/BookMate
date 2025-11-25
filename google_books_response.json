@@ -1,0 +1,102 @@
+{
+  "kind": "books#volumes",
+  "totalItems": 1000000,
+  "items": [
+    {
+      "kind": "books#volume",
+      "id": "q7B2CwAAQBAJ",
+      "etag": "V56XNjIH63Q",
+      "selfLink": "https://www.googleapis.com/books/v1/volumes/q7B2CwAAQBAJ",
+      "volumeInfo": {
+        "title": "Harry Potter: La Collection Complète (1-7)",
+        "authors": [
+          "J.K. Rowling"
+        ],
+        "publisher": "Pottermore Publishing",
+        "publishedDate": "2016-01-28",
+        "description": "Quand Harry Potter est laissé sur le pas d'une porte, encore bébé, il n'a pas la moindre idée qu'il est le Survivant, et encore moins qu'il est déjà célèbre à travers le monde des sorciers. Des années après, il est stupéfait de recevoir une lettre d'admission à l'École de Magie et de Sorcellerie de Poudlard et se voit bientôt propulsé dans une extraordinaire aventure magique. Accompagnez Harry est ses fidèles amis, Hermione et Ron, dans cette histoire sur le pouvoir de la confiance, de l'amour et de l'espoir. Devenus des classiques de notre époque, les livres numériques de Harry Potter ne cessent d'offrir réconfort et évasion. L'histoire du Survivant, son message d'espoir et d'appartenance, ainsi que le pouvoir impérissable de la vérité et de l'amour continuent de captiver des générations de nouveaux lecteurs.",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9781781106501"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "1781106509"
+          }
+        ],
+        "readingModes": {
+          "text": true,
+          "image": false
+        },
+        "pageCount": 4790,
+        "printType": "BOOK",
+        "categories": [
+          "Juvenile Fiction"
+        ],
+        "maturityRating": "NOT_MATURE",
+        "allowAnonLogging": true,
+        "contentVersion": "2.15.16.0.preview.2",
+        "panelizationSummary": {
+          "containsEpubBubbles": false,
+          "containsImageBubbles": false
+        },
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=q7B2CwAAQBAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=q7B2CwAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        },
+        "language": "fr",
+        "previewLink": "http://books.google.fr/books?id=q7B2CwAAQBAJ&dq=intitle:Harry+Potter&hl=&cd=1&source=gbs_api",
+        "infoLink": "https://play.google.com/store/books/details?id=q7B2CwAAQBAJ&source=gbs_api",
+        "canonicalVolumeLink": "https://play.google.com/store/books/details?id=q7B2CwAAQBAJ"
+      },
+      "saleInfo": {
+        "country": "FR",
+        "saleability": "FOR_SALE",
+        "isEbook": true,
+        "listPrice": {
+          "amount": 59.99,
+          "currencyCode": "EUR"
+        },
+        "retailPrice": {
+          "amount": 59.99,
+          "currencyCode": "EUR"
+        },
+        "buyLink": "https://play.google.com/store/books/details?id=q7B2CwAAQBAJ&rdid=book-q7B2CwAAQBAJ&rdot=1&source=gbs_api",
+        "offers": [
+          {
+            "finskyOfferType": 1,
+            "listPrice": {
+              "amountInMicros": 59990000,
+              "currencyCode": "EUR"
+            },
+            "retailPrice": {
+              "amountInMicros": 59990000,
+              "currencyCode": "EUR"
+            },
+            "giftable": true
+          }
+        ]
+      },
+      "accessInfo": {
+        "country": "FR",
+        "viewability": "NO_PAGES",
+        "embeddable": false,
+        "publicDomain": false,
+        "textToSpeechPermission": "ALLOWED",
+        "epub": {
+          "isAvailable": true
+        },
+        "pdf": {
+          "isAvailable": true
+        },
+        "webReaderLink": "http://play.google.com/books/reader?id=q7B2CwAAQBAJ&hl=&source=gbs_api",
+        "accessViewStatus": "NONE",
+        "quoteSharingAllowed": false
+      },
+      "searchInfo": {
+        "textSnippet": "Quand Harry Potter est laissé sur le pas d&#39;une porte, encore bébé, il n&#39;a pas la moindre idée qu&#39;il est le Survivant, et encore moins qu&#39;il est déjà célèbre à travers le monde des sorciers."
+      }
+    }
+  ]
+}

@@ -21,6 +21,8 @@ model User {
   collections    Collection[]
   badges         Badge[]
   userChallenges UserChallenge[]
+  series         Series[]
+
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -41,6 +43,9 @@ model Book {
   finishDate  DateTime?
   genre       Genre?            @relation(fields: [genreId], references: [id])
   genreId     String?
+  series      Series?           @relation(fields: [seriesId], references: [id])
+  seriesId    String?
+  seriesOrder Float?
   quotes      Quote[]
   collections Collection[]
   activities  ReadingActivity[]
@@ -51,6 +56,7 @@ model Book {
   updatedAt   DateTime          @updatedAt
   images      BookImage[]
   isFavorite  Boolean           @default(false)
+
 }
 
 model BookImage {
@@ -177,6 +183,19 @@ model Word {
   updatedAt  DateTime @updatedAt
 }
 
+model Series {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  books       Book[]
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, userId])
+}
+
 enum ReadingStatus {
   TO_READ
   READING
@@ -220,3 +239,6 @@ enum BadgeCategory {
   MILESTONE
   SPECIAL
 }
+
+
+

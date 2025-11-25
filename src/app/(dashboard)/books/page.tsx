@@ -26,13 +26,15 @@ export default async function BooksPage() {
         include: {
             author: true,
             genre: true,
+            series: true,
         },
         orderBy: {
             updatedAt: 'desc',
         },
     }).then(books => books.map(book => ({
         ...book,
-        rating: book.rating === null ? null : Number(book.rating)
+        rating: book.rating === null ? null : Number(book.rating),
+        seriesOrder: book.seriesOrder === null ? null : Number(book.seriesOrder)
     })))
 
     return (

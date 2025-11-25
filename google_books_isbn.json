@@ -1,0 +1,81 @@
+{
+  "kind": "books#volumes",
+  "totalItems": 1,
+  "items": [
+    {
+      "kind": "books#volume",
+      "id": "57i3AAAACAAJ",
+      "etag": "/NforzvRQPA",
+      "selfLink": "https://www.googleapis.com/books/v1/volumes/57i3AAAACAAJ",
+      "volumeInfo": {
+        "title": "Harry Potter à l'école des sorciers",
+        "authors": [
+          "J.K. Rowling"
+        ],
+        "publisher": "Gallimard-Jeunesse",
+        "publishedDate": "1999-11-24",
+        "description": "Le jour de ses onze ans, Harry Potter, un orphelin élevé par un oncle et une tante qui le détestent, voit son existence bouleversée. Un géant vient le chercher pour l'emmener au collège Poudlard, école de sorcellerie, où une place l'attend depuis toujours. Qui est donc Harry Potter? Et qui est l'effroyable V..., le mage dont personne n'ose prononcer le nom ? Harry Potter à l'école des sorciers a obtenu le prix Sorcières du roman 1999. Harry Potter vous ensorcelle dès les premiers paragraphes et vous procure un sentiment continu de jubilation. Un bonheur ! Le Monde des Livres Le jeune Potter est bien parti pour devenir une star de la littérature. Télérama Une fois ouvert, vous ne pourrez plus refermer ce petit bijou de la littérature de jeunesse. Le Figaro Magazine Les adultes s'y sont mis,car J. K. Rowling sait mieux que personne réveiller et charmer l'enfant qui est en chacun de nous. Elle Harry Potter rejoint le groupe minuscule de ces livres qu'on lit et relit jusque dans l'âge adulte. The Times Literary Supplement A en juger par les millions de lecteurs qu'il a déjà envoûtés, Harry Potter est, sans conteste, un très puissant magicien. Newsweek Les exploits d'un jeune sorcier ont enchanté les lecteurs adultes et enfants confondus et ont apporté une nouvelle touche de magie à la littérature de jeunesse. The Time Magazine",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "2070541274"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9782070541270"
+          }
+        ],
+        "readingModes": {
+          "text": false,
+          "image": false
+        },
+        "pageCount": 232,
+        "printType": "BOOK",
+        "categories": [
+          "England"
+        ],
+        "averageRating": 4.5,
+        "ratingsCount": 6,
+        "maturityRating": "NOT_MATURE",
+        "allowAnonLogging": false,
+        "contentVersion": "preview-1.0.0",
+        "panelizationSummary": {
+          "containsEpubBubbles": false,
+          "containsImageBubbles": false
+        },
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=57i3AAAACAAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=57i3AAAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        },
+        "language": "fr",
+        "previewLink": "http://books.google.fr/books?id=57i3AAAACAAJ&dq=isbn:9782070541270&hl=&cd=1&source=gbs_api",
+        "infoLink": "http://books.google.fr/books?id=57i3AAAACAAJ&dq=isbn:9782070541270&hl=&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Harry_Potter_%C3%A0_l_%C3%A9cole_des_sorciers.html?hl=&id=57i3AAAACAAJ"
+      },
+      "saleInfo": {
+        "country": "FR",
+        "saleability": "NOT_FOR_SALE",
+        "isEbook": false
+      },
+      "accessInfo": {
+        "country": "FR",
+        "viewability": "NO_PAGES",
+        "embeddable": false,
+        "publicDomain": false,
+        "textToSpeechPermission": "ALLOWED",
+        "epub": {
+          "isAvailable": false
+        },
+        "pdf": {
+          "isAvailable": false
+        },
+        "webReaderLink": "http://play.google.com/books/reader?id=57i3AAAACAAJ&hl=&source=gbs_api",
+        "accessViewStatus": "NONE",
+        "quoteSharingAllowed": false
+      },
+      "searchInfo": {
+        "textSnippet": "Analyse : Roman fantastique"
+      }
+    }
+  ]
+}
