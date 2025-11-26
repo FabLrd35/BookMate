@@ -54,7 +54,7 @@ export function SeriesList() {
     return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {series.map((s: any) => (
-                <Link key={s.id} href={`/series/${s.id}`}>
+                <Link key={s.id} href={`/series/${s.id}`} className="block min-w-0 w-full">
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
                         <CardHeader className="relative">
                             <div className="absolute top-4 right-4 z-10">
@@ -71,7 +71,7 @@ export function SeriesList() {
                             </Badge>
                         </CardHeader>
                         <CardContent className="overflow-hidden">
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent max-w-full">
                                 {s.books.slice(0, 5).map((book: any) => (
                                     <div key={book.id} className="relative flex-shrink-0 group">
                                         <div className="relative w-16 h-24 rounded overflow-hidden bg-muted">
