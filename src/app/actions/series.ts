@@ -389,23 +389,48 @@ export async function detectSeries() {
 function findCommonPrefixes(titles: string[]): string[] {
     if (titles.length < 2) return []
 
-    const prefixes = new Set<string>()
+    const prefixCandidates: Array<{ prefix: string; matchCount: number; wordCount: number }> = []
 
     // Check for common words at the start
     for (let i = 0; i < titles.length; i++) {
         const words = titles[i].split(/\s+/)
-        for (let len = 1; len <= Math.min(words.length - 1, 5); len++) {
+        // Start at 2 words minimum to avoid too short prefixes like "Harry"
+        for (let len = 2; len <= Math.min(words.length - 1, 4); len++) {
             const prefix = words.slice(0, len).join(' ')
 
-            // Check if at least 2 other titles start with this prefix
+            // Check if at least 2 titles start with this prefix
             const matchCount = titles.filter(t => t.startsWith(prefix)).length
             if (matchCount >= 2) {
-                prefixes.add(prefix)
+                prefixCandidates.push({ prefix, matchCount, wordCount: len })
             }
         }
     }
 
-    return Array.from(prefixes)
+    // Remove duplicates and overlapping prefixes
+    // Keep the prefix with the best balance: not too short, not too long
+    const filteredPrefixes: string[] = []
+    const sortedCandidates = prefixCandidates.sort((a, b) => {
+        // Prioritize prefixes with more matches
+        if (a.matchCount !== b.matchCount) {
+            return b.matchCount - a.matchCount
+        }
+        // Then prefer 2-3 word prefixes over longer ones
+        return Math.abs(a.wordCount - 2.5) - Math.abs(b.wordCount - 2.5)
+    })
+
+    for (const candidate of sortedCandidates) {
+        // Check if this prefix is not a substring of an already selected prefix
+        // or if an already selected prefix is not a substring of this one
+        const isOverlapping = filteredPrefixes.some(existing =>
+            existing.startsWith(candidate.prefix) || candidate.prefix.startsWith(existing)
+        )
+
+        if (!isOverlapping) {
+            filteredPrefixes.push(candidate.prefix)
+        }
+    }
+
+    return filteredPrefixes
 }
 
 // Helper function to extract order number from title
