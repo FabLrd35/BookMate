@@ -36,6 +36,7 @@ export async function createBook(formData: FormData) {
     const rating = formData.get("rating") as string | null
     const comment = formData.get("comment") as string | null
     const summary = formData.get("summary") as string | null
+    const publishedDate = formData.get("publishedDate") as string | null
 
     // Find or create author
     let author = await prisma.author.findUnique({
@@ -73,6 +74,7 @@ export async function createBook(formData: FormData) {
             rating: rating ? parseFloat(rating) : null,
             comment: comment || null,
             summary: summary || null,
+            publishedDate: publishedDate || null,
             startDate: status === "READING" || status === "READ" ? (formData.get("startDate") ? new Date(formData.get("startDate") as string) : new Date()) : null,
             finishDate: status === "READ" ? (formData.get("finishDate") ? new Date(formData.get("finishDate") as string) : new Date()) : null,
             userId: user.id,
@@ -135,6 +137,7 @@ export async function updateBook(id: string, formData: FormData) {
     const rating = formData.get("rating") as string | null
     const comment = formData.get("comment") as string | null
     const summary = formData.get("summary") as string | null
+    const publishedDate = formData.get("publishedDate") as string | null
     const totalPages = formData.get("totalPages") as string | null
     const currentPage = formData.get("currentPage") as string | null
     const startDateStr = formData.get("startDate") as string | null
@@ -193,6 +196,7 @@ export async function updateBook(id: string, formData: FormData) {
             rating: rating ? parseFloat(rating) : null,
             comment: comment || null,
             summary: summary || null,
+            publishedDate: publishedDate || null,
             totalPages: totalPages ? parseInt(totalPages) : null,
             currentPage: currentPage ? parseInt(currentPage) : null,
             // Use dates from form if provided, otherwise set based on status

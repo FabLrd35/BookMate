@@ -2,10 +2,12 @@ import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, FolderOpen } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { BookList } from "@/components/book-list"
 import { auth } from "@/auth"
 import { CollectionBookPicker } from "@/components/collection-book-picker"
+import { CollectionHeader } from "@/components/collection-header"
+import { updateCollection } from "@/app/actions/collections"
 
 interface CollectionPageProps {
     params: Promise<{ id: string }>
@@ -59,6 +61,11 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     const collectionBookIds = new Set(collection.books.map(b => b.id))
     const availableBooks = allUserBooks.filter(book => !collectionBookIds.has(book.id))
 
+    async function update(formData: FormData) {
+        "use server"
+        await updateCollection(id, formData)
+    }
+
     return (
         <div className="space-y-8">
             <div className="flex items-center justify-between">
@@ -72,25 +79,16 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
                 </div>
             </div>
 
-            <div className="flex items-center justify-between border-b pb-4">
-                <div className="flex items-center gap-3">
-                    <div className="p-3 bg-primary/10 rounded-full">
-                        <FolderOpen className="h-8 w-8 text-primary" />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">{collection.name}</h1>
-                        <p className="text-muted-foreground">
-                            {collection.books.length} livre{collection.books.length > 1 ? "s" : ""}
-                        </p>
-                    </div>
-                </div>
-                {collection.books.length > 0 && (
+            <CollectionHeader collection={collection} updateAction={update} />
+
+            {collection.books.length > 0 && (
+                <div className="flex justify-end">
                     <CollectionBookPicker
                         collectionId={collection.id}
                         availableBooks={availableBooks}
                     />
-                )}
-            </div>
+                </div>
+            )}
 
             {collection.books.length === 0 ? (
                 <div className="text-center py-12">

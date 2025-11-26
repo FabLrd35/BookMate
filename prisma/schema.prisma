@@ -46,6 +46,7 @@ model Book {
   series      Series?           @relation(fields: [seriesId], references: [id])
   seriesId    String?
   seriesOrder Float?
+  publishedDate String?
   quotes      Quote[]
   collections Collection[]
   activities  ReadingActivity[]
@@ -110,6 +111,8 @@ model Collection {
   id          String   @id @default(uuid())
   name        String
   description String?
+  coverUrl    String?
+  color       String?
   books       Book[]
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)

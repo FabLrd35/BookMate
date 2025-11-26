@@ -223,7 +223,11 @@ export async function getSeries() {
             where: { userId: user.id },
             include: {
                 books: {
-                    orderBy: { seriesOrder: 'asc' },
+                    orderBy: [
+                        { seriesOrder: 'asc' },
+                        { publishedDate: 'asc' },
+                        { createdAt: 'asc' },
+                    ],
                     include: {
                         author: true,
                     },
@@ -258,7 +262,11 @@ export async function getSeriesById(id: string) {
             where: { id },
             include: {
                 books: {
-                    orderBy: { seriesOrder: 'asc' },
+                    orderBy: [
+                        { seriesOrder: 'asc' },
+                        { publishedDate: 'asc' },
+                        { createdAt: 'asc' },
+                    ],
                     include: {
                         author: true,
                         genre: true,
@@ -330,12 +338,40 @@ export async function detectSeries() {
             for (const prefix of commonPrefixes) {
                 const matchingBooks = authorBooks.filter(b => b.title.startsWith(prefix))
                 if (matchingBooks.length >= 2) {
+                    // Sort by publishedDate first, then by title-based order extraction, then by createdAt
+                    const sortedBooks = matchingBooks.sort((a, b) => {
+                        // Prioritize publishedDate if both books have it
+                        if (a.publishedDate && b.publishedDate) {
+                            return a.publishedDate.localeCompare(b.publishedDate)
+                        }
+
+                        // If only one has a publishedDate, prioritize it
+                        if (a.publishedDate) return -1
+                        if (b.publishedDate) return 1
+
+                        // Try to extract order from title
+                        const orderA = extractOrderFromTitle(a.title)
+                        const orderB = extractOrderFromTitle(b.title)
+
+                        // If both have extracted orders, use them
+                        if (orderA !== null && orderB !== null) {
+                            return orderA - orderB
+                        }
+
+                        // If only one has an order, prioritize it
+                        if (orderA !== null) return -1
+                        if (orderB !== null) return 1
+
+                        // Fallback to creation date (when added to library)
+                        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                    })
+
                     suggestions.push({
                         seriesName: prefix.trim(),
-                        books: matchingBooks.map((b, idx) => ({
+                        books: sortedBooks.map((b, idx) => ({
                             id: b.id,
                             title: b.title,
-                            suggestedOrder: extractOrderFromTitle(b.title) || idx + 1,
+                            suggestedOrder: idx + 1,
                         })),
                     })
                 }

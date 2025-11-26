@@ -46,8 +46,8 @@ export async function SeriesList() {
                                 {s.books.length} livre{s.books.length > 1 ? 's' : ''}
                             </Badge>
                         </CardHeader>
-                        <CardContent>
-                            <div className="flex gap-2 overflow-x-auto pb-2">
+                        <CardContent className="overflow-hidden">
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
                                 {s.books.slice(0, 5).map((book: any) => (
                                     <div
                                         key={book.id}

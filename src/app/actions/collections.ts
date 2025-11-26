@@ -5,11 +5,9 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 import type { Collection } from "@prisma/client"
 
-export async function createCollection(
-    name: string,
-    description?: string,
-    bookId?: string
-): Promise<Collection | null> {
+import { uploadCoverImage } from "@/lib/storage"
+
+export async function createCollection(formData: FormData) {
     const session = await auth()
     if (!session?.user?.email) return null
 
@@ -18,11 +16,27 @@ export async function createCollection(
     })
     if (!user) return null
 
+    const name = formData.get("name") as string
+    const description = formData.get("description") as string | undefined
+    const bookId = formData.get("bookId") as string | undefined
+    const color = formData.get("color") as string | undefined
+    let coverUrl = formData.get("coverUrl") as string | undefined
+    const coverFile = formData.get("coverFile") as File | null
+
+    if (coverFile && coverFile.size > 0) {
+        const uploadedUrl = await uploadCoverImage(coverFile)
+        if (uploadedUrl) {
+            coverUrl = uploadedUrl
+        }
+    }
+
     // ✅ on crée la collection
     const collection = await prisma.collection.create({
         data: {
             name,
             description,
+            coverUrl,
+            color,
             userId: user.id,
 
             // ✅ auto-ajout du livre UNIQUEMENT si bookId fourni
@@ -41,6 +55,46 @@ export async function createCollection(
 
     // ✅ IMPORTANT : on retourne l'objet créé
     return collection
+}
+
+export async function updateCollection(id: string, formData: FormData) {
+    const session = await auth()
+    if (!session?.user?.email) return null
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) return null
+
+    const collection = await prisma.collection.findUnique({ where: { id } })
+    if (!collection || collection.userId !== user.id) return null
+
+    const name = formData.get("name") as string | undefined
+    const description = formData.get("description") as string | undefined
+    const color = formData.get("color") as string | undefined
+    const coverFile = formData.get("coverFile") as File | null
+
+    const data: any = {}
+    if (name) data.name = name
+    if (description !== undefined) data.description = description
+    if (color !== undefined) data.color = color
+
+    // Only update coverUrl if a new file was uploaded
+    if (coverFile && coverFile.size > 0) {
+        const uploadedUrl = await uploadCoverImage(coverFile)
+        if (uploadedUrl) {
+            data.coverUrl = uploadedUrl
+        }
+    }
+
+    const updatedCollection = await prisma.collection.update({
+        where: { id },
+        data,
+    })
+
+    revalidatePath("/collections")
+    revalidatePath(`/collections/${id}`)
+    return updatedCollection
 }
 
 export async function deleteCollection(id: string) {
