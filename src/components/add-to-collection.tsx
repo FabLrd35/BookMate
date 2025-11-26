@@ -92,7 +92,12 @@ export function AddToCollection({ bookId, availableCollections, bookCollections 
 
     async function handleCreateCollection() {
         if (!newCollectionName.trim()) return
-        await createCollection(newCollectionName, undefined, bookId)
+
+        const formData = new FormData()
+        formData.append("name", newCollectionName)
+        formData.append("bookId", bookId)
+
+        await createCollection(formData)
         setNewCollectionName("")
         setIsCreateOpen(false)
         setSuccessMessage("Collection créée et livre ajouté")
