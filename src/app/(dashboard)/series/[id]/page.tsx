@@ -7,7 +7,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BookOpen, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { RenameSeriesDialog } from "@/components/rename-series-dialog"
+import { DeleteSeriesButton } from "@/components/delete-series-button"
 import { StarRating } from "@/components/star-rating"
+import { SeriesOrderEditor } from "@/components/series-order-editor"
 
 export default async function SeriesDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const session = await auth()
@@ -31,15 +34,24 @@ export default async function SeriesDetailsPage({ params }: { params: Promise<{ 
                 <Link href="/series">
                     <Button variant="ghost" className="mb-4 -ml-4">
                         <ArrowLeft className="h-4 w-4 mr-2" />
-                        Retour aux séries
+                        Retour aux sagas
                     </Button>
                 </Link>
-                <h1 className="text-3xl font-bold">{series.name}</h1>
-                {author && (
-                    <p className="text-muted-foreground mt-2">
-                        par {author.name}
-                    </p>
-                )}
+
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold">{series.name}</h1>
+                        {author && (
+                            <p className="text-muted-foreground mt-2">
+                                par {author.name}
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <RenameSeriesDialog seriesId={series.id} currentName={series.name} />
+                        <DeleteSeriesButton seriesId={series.id} seriesName={series.name} />
+                    </div>
+                </div>
                 {series.description && (
                     <p className="text-muted-foreground mt-2">
                         {series.description}
@@ -51,21 +63,26 @@ export default async function SeriesDetailsPage({ params }: { params: Promise<{ 
             </div>
 
             <div className="space-y-4">
-                <h2 className="text-2xl font-semibold">Livres de la série</h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-semibold">Livres de la saga</h2>
+                    {series.books.length > 1 && (
+                        <SeriesOrderEditor seriesId={series.id} books={series.books} />
+                    )}
+                </div>
 
                 {series.books.length === 0 ? (
                     <Card>
                         <CardContent className="py-12 text-center">
                             <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                             <p className="text-muted-foreground">
-                                Aucun livre dans cette série pour le moment
+                                Aucun livre dans cette saga pour le moment
                             </p>
                         </CardContent>
                     </Card>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {series.books.map((book: any) => (
-                            <Link key={book.id} href={`/books/${book.id}`}>
+                            <Link key={book.id} href={`/books/${book.id}?from=/series/${series.id}`}>
                                 <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
                                     <div className="flex gap-4 p-4">
                                         <div className="relative w-20 h-28 flex-shrink-0 rounded overflow-hidden bg-muted">

@@ -21,10 +21,12 @@ import { StarRating } from "@/components/star-rating"
 
 interface BookDetailsPageProps {
     params: Promise<{ id: string }>
+    searchParams: Promise<{ from?: string }>
 }
 
-export default async function BookDetailsPage({ params }: BookDetailsPageProps) {
+export default async function BookDetailsPage({ params, searchParams }: BookDetailsPageProps) {
     const { id } = await params
+    const { from } = await searchParams
 
     const [book, allCollections] = await Promise.all([
         prisma.book.findUnique({
@@ -83,7 +85,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
             {/* Header with Back Button */}
             <div className="flex items-center gap-4">
-                <BackButton />
+                <BackButton fallbackUrl={from} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8">

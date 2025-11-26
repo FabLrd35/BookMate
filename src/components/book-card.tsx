@@ -133,7 +133,7 @@ export function BookCard({ book }: BookCardProps) {
             {/* Book Info */}
             <div className="p-3 sm:p-4 space-y-2 flex-1 flex flex-col">
                 <div className="flex-1">
-                    <h3 className="font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                    <h3 className="font-semibold sm:line-clamp-2 group-hover:text-primary transition-colors">
                         {book.title}
                     </h3>
 

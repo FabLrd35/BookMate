@@ -43,9 +43,9 @@ export function SeriesList() {
         return (
             <div className="text-center py-12">
                 <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Aucune série pour le moment</p>
+                <p className="text-muted-foreground">Aucune saga pour le moment</p>
                 <p className="text-sm text-muted-foreground mt-2">
-                    Utilisez la détection automatique ou créez une série manuellement
+                    Utilisez la détection automatique ou créez une saga manuellement
                 </p>
             </div>
         )

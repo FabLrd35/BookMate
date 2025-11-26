@@ -126,10 +126,10 @@ export function BookListItem({ book }: BookListItemProps) {
 
                 {/* Book Info */}
                 <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                    <h3 className="font-bold text-base sm:text-lg leading-tight line-clamp-2 sm:truncate group-hover:text-primary transition-colors">
+                    <h3 className="font-bold text-base sm:text-lg leading-tight sm:truncate group-hover:text-primary transition-colors">
                         {book.title}
                     </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground line-clamp-2 sm:truncate">
+                    <p className="text-sm sm:text-base text-muted-foreground sm:truncate">
                         {book.author.name}
                     </p>
 

@@ -61,10 +61,10 @@ export function DeleteSeriesButton({ seriesId, seriesName }: DeleteSeriesButtonP
 
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer la série ?</AlertDialogTitle>
+                        <AlertDialogTitle>Supprimer la saga ?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Êtes-vous sûr de vouloir supprimer la série &quot;{seriesName}&quot; ? Les livres ne
-                            seront pas supprimés, seulement retirés de la série.
+                            Êtes-vous sûr de vouloir supprimer la saga &quot;{seriesName}&quot; ? Les livres ne
+                            seront pas supprimés, seulement retirés de la saga.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

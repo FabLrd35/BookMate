@@ -508,3 +508,95 @@ export async function acceptSeriesSuggestion(
         return { success: false, error: "Échec de la création de la série" }
     }
 }
+export async function reorderSeriesBooks(seriesId: string, bookIds: string[]) {
+    const session = await auth()
+    if (!session?.user?.email) {
+        return { success: false, error: "Non authentifié" }
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        return { success: false, error: "Utilisateur non trouvé" }
+    }
+
+    // Verify ownership
+    const series = await prisma.series.findUnique({
+        where: { id: seriesId },
+        select: { userId: true }
+    })
+
+    if (!series || series.userId !== user.id) {
+        return { success: false, error: "Saga non trouvée ou accès non autorisé" }
+    }
+
+    try {
+        // Update order for each book
+        await prisma.$transaction(
+            bookIds.map((bookId, index) =>
+                prisma.book.update({
+                    where: { id: bookId },
+                    data: { seriesOrder: index + 1 },
+                })
+            )
+        )
+
+        revalidatePath(`/series/${seriesId}`)
+        return { success: true }
+    } catch (error) {
+        console.error("Error reordering series books:", error)
+        return { success: false, error: "Échec de la réorganisation des livres" }
+    }
+}
+
+export async function autoSortSeriesBooks(seriesId: string) {
+    const session = await auth()
+    if (!session?.user?.email) {
+        return { success: false, error: "Non authentifié" }
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+
+    if (!user) {
+        return { success: false, error: "Utilisateur non trouvé" }
+    }
+
+    // Verify ownership
+    const series = await prisma.series.findUnique({
+        where: { id: seriesId },
+        include: { books: true }
+    })
+
+    if (!series || series.userId !== user.id) {
+        return { success: false, error: "Saga non trouvée ou accès non autorisé" }
+    }
+
+    try {
+        // Sort books by publishedDate
+        const sortedBooks = [...series.books].sort((a, b) => {
+            if (!a.publishedDate) return 1
+            if (!b.publishedDate) return -1
+            return a.publishedDate.localeCompare(b.publishedDate)
+        })
+
+        // Update order
+        await prisma.$transaction(
+            sortedBooks.map((book, index) =>
+                prisma.book.update({
+                    where: { id: book.id },
+                    data: { seriesOrder: index + 1 },
+                })
+            )
+        )
+
+        revalidatePath(`/series/${seriesId}`)
+        return { success: true }
+    } catch (error) {
+        console.error("Error auto-sorting series books:", error)
+        return { success: false, error: "Échec du tri automatique" }
+    }
+}

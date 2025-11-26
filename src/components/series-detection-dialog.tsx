@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -26,6 +27,7 @@ export function SeriesDetectionDialog() {
     const [loading, setLoading] = useState(false)
     const [suggestions, setSuggestions] = useState<SeriesSuggestion[]>([])
     const [acceptedSuggestions, setAcceptedSuggestions] = useState<Set<string>>(new Set())
+    const router = useRouter()
 
     const handleDetect = async () => {
         setLoading(true)
@@ -34,7 +36,7 @@ export function SeriesDetectionDialog() {
             if (result.success && result.suggestions) {
                 setSuggestions(result.suggestions)
                 if (result.suggestions.length === 0) {
-                    toast.info("Aucune série détectée", {
+                    toast.info("Aucune saga détectée", {
                         description: "Essayez d'ajouter plus de livres du même auteur."
                     })
                 }
@@ -58,8 +60,9 @@ export function SeriesDetectionDialog() {
             if (result.success) {
                 toast.success("Série créée avec succès")
                 setAcceptedSuggestions(prev => new Set([...prev, suggestion.seriesName]))
+                router.refresh()
             } else {
-                toast.error(result.error || "Échec de la création de la série")
+                toast.error(result.error || "Échec de la création de la saga")
             }
         } catch (error) {
             toast.error("Une erreur est survenue")
@@ -76,14 +79,14 @@ export function SeriesDetectionDialog() {
             <DialogTrigger asChild>
                 <Button variant="outline" className="gap-2">
                     <Sparkles className="h-4 w-4" />
-                    Détecter les séries
+                    Détecter les sagas
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Détection automatique des séries</DialogTitle>
+                    <DialogTitle>Détection automatique des sagas</DialogTitle>
                     <DialogDescription>
-                        Analysez votre bibliothèque pour identifier automatiquement les séries de livres.
+                        Analysez votre bibliothèque pour identifier automatiquement les sagas de livres.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -102,7 +105,7 @@ export function SeriesDetectionDialog() {
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <p className="text-sm text-muted-foreground">
-                                {suggestions.length} série{suggestions.length > 1 ? 's' : ''} détectée{suggestions.length > 1 ? 's' : ''}
+                                {suggestions.length} saga{suggestions.length > 1 ? 's' : ''} détectée{suggestions.length > 1 ? 's' : ''}
                             </p>
                             <Button onClick={handleDetect} variant="outline" size="sm" disabled={loading}>
                                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -1,24 +1,27 @@
 "use client"
 
+"use client"
+
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BookOpen, LayoutDashboard, Library, BarChart3, Settings, Folder, Quote, MessageSquare, Users, Calendar, Sparkles, Languages, Menu, X, Star, Image as ImageIcon, Dices, Trophy, BookMarked } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 
 const navigation = [
     { name: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
     { name: "Mes Livres", href: "/books", icon: Library },
     { name: "Collections", href: "/collections", icon: Folder },
-    { name: "Séries", href: "/series", icon: BookMarked },
+    { name: "Sagas", href: "/series", icon: BookMarked },
     { name: "Mes Auteurs", href: "/authors", icon: Users },
     { name: "Mes Citations", href: "/quotes", icon: Quote },
     { name: "Mon Lexique", href: "/lexique", icon: Languages },
     { name: "Mes Critiques", href: "/reviews", icon: MessageSquare },
     { name: "Calendrier", href: "/calendar", icon: Calendar },
-    { name: "Défis", href: "/challenges", icon: Trophy },
+    { name: "Top 10", href: "/top-10", icon: Trophy },
+    { name: "Défis", href: "/challenges", icon: Star },
     { name: "Roulette de Lecture", href: "/roulette", icon: Dices },
     { name: "Motivation", href: "/motivation", icon: Sparkles },
     { name: "Statistiques", href: "/statistics", icon: BarChart3 },
@@ -92,6 +95,7 @@ export function Sidebar() {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-64 p-0">
+                    <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
                     <div className="flex h-full flex-col">
                         <SidebarContent onNavigate={() => setOpen(false)} />
                     </div>

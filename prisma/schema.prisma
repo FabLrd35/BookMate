@@ -22,6 +22,7 @@ model User {
   badges         Badge[]
   userChallenges UserChallenge[]
   readingLogs    ReadingLog[]
+  topBooks       TopBook[]
   series         Series[]
 
   createdAt      DateTime        @default(now())
@@ -58,6 +59,7 @@ model Book {
   updatedAt   DateTime          @updatedAt
   images      BookImage[]
   isFavorite  Boolean           @default(false)
+  topBooks    TopBook[]
 
 }
 
@@ -213,6 +215,21 @@ model ReadingLog {
 
   @@unique([date, userId])
   @@index([date])
+}
+
+model TopBook {
+  id        String   @id @default(uuid())
+  year      Int
+  position  Int      // 1-10
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, position, userId])
+  @@index([userId, year])
 }
 
 enum ReadingStatus {
