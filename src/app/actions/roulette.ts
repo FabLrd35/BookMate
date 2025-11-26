@@ -194,43 +194,37 @@ export async function getRouletteFilters() {
             return { success: false, error: "Utilisateur non trouvé" }
         }
 
-        const genres = await prisma.genre.findMany({
-            where: {
-                books: {
-                    some: {
-                        userId: user.id,
-                        status: "TO_READ"
-                    }
-                }
-            },
-            orderBy: {
-                name: "asc"
-            }
-        })
-
-        const toReadCount = await prisma.book.count({
-            where: {
-                userId: user.id,
-                status: "TO_READ"
-            }
-        })
-
-        const books = await prisma.book.findMany({
-            where: {
+        // Helper to count books with specific page range
+        const countBooks = async (min?: number, max?: number) => {
+            const where: any = {
                 userId: user.id,
                 status: "TO_READ",
-                totalPages: { not: null }
-            },
-            select: {
-                totalPages: true
             }
-        })
+
+            if (min !== undefined || max !== undefined) {
+                where.totalPages = {}
+                if (min !== undefined) where.totalPages.gte = min
+                if (max !== undefined) where.totalPages.lte = max
+            }
+
+            return await prisma.book.count({ where })
+        }
+
+        const [total, short, medium, long] = await Promise.all([
+            countBooks(),
+            countBooks(undefined, 200),
+            countBooks(200, 400),
+            countBooks(400, undefined)
+        ])
 
         return {
             success: true,
-            genres: genres.map(g => g.name),
-            toReadCount,
-            hasPageCounts: books.length > 0
+            counts: {
+                total,
+                short,
+                medium,
+                long
+            }
         }
     } catch (error) {
         console.error("Error getting roulette filters:", error)

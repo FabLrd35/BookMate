@@ -4,7 +4,8 @@ import { auth } from "@/auth"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { BookOpen } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { BookOpen, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { StarRating } from "@/components/star-rating"
 
@@ -27,6 +28,12 @@ export default async function SeriesDetailsPage({ params }: { params: Promise<{ 
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
+                <Link href="/series">
+                    <Button variant="ghost" className="mb-4 -ml-4">
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Retour aux séries
+                    </Button>
+                </Link>
                 <h1 className="text-3xl font-bold">{series.name}</h1>
                 {author && (
                     <p className="text-muted-foreground mt-2">

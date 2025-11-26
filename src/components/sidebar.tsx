@@ -23,7 +23,6 @@ const navigation = [
     { name: "Motivation", href: "/motivation", icon: Sparkles },
     { name: "Statistiques", href: "/statistics", icon: BarChart3 },
     { name: "Ma Galerie", href: "/gallery", icon: ImageIcon },
-    { name: "Paramètres", href: "/settings", icon: Settings },
 ]
 
 interface SidebarContentProps {

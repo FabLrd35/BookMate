@@ -15,8 +15,10 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  captionLayout = "label",
+  captionLayout = "dropdown",
   buttonVariant = "ghost",
+  fromYear = 1900,
+  toYear = new Date().getFullYear() + 5,
   formatters,
   components,
   ...props

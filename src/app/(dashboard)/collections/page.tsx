@@ -24,6 +24,7 @@ import Link from "next/link"
 import { CreateCollectionDialog, EditCollectionDialog } from "@/components/collection-dialogs"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { OwlAnimation } from "@/components/owl-animation"
 
 export default async function CollectionsPage() {
     const collections = await getCollections()
@@ -45,6 +46,7 @@ export default async function CollectionsPage() {
 
     return (
         <div className="space-y-6">
+            <OwlAnimation />
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Mes Collections</h1>

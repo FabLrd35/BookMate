@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { AuthorCard } from "@/components/author-card"
 import { Input } from "@/components/ui/input"
+import { Pagination } from "@/components/ui/pagination"
 import { Search, Users } from "lucide-react"
 
 interface AuthorWithStats {
@@ -18,12 +19,25 @@ interface AuthorsGridProps {
     authors: AuthorWithStats[]
 }
 
+const AUTHORS_PER_PAGE = 12
+
 export function AuthorsGrid({ authors }: AuthorsGridProps) {
     const [searchQuery, setSearchQuery] = useState("")
+    const [currentPage, setCurrentPage] = useState(1)
 
     const filteredAuthors = authors.filter(author =>
         author.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
+
+    const totalPages = Math.ceil(filteredAuthors.length / AUTHORS_PER_PAGE)
+    const startIndex = (currentPage - 1) * AUTHORS_PER_PAGE
+    const endIndex = startIndex + AUTHORS_PER_PAGE
+    const currentAuthors = filteredAuthors.slice(startIndex, endIndex)
+
+    const handleSearchChange = (value: string) => {
+        setSearchQuery(value)
+        setCurrentPage(1) // Reset to page 1 when search changes
+    }
 
     return (
         <div className="space-y-6">
@@ -33,7 +47,7 @@ export function AuthorsGrid({ authors }: AuthorsGridProps) {
                     <Input
                         placeholder="Rechercher un auteur..."
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => handleSearchChange(e.target.value)}
                         className="pl-9"
                     />
                 </div>
@@ -54,11 +68,30 @@ export function AuthorsGrid({ authors }: AuthorsGridProps) {
                     </p>
                 </div>
             ) : (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredAuthors.map((author) => (
-                        <AuthorCard key={author.id} author={author} />
-                    ))}
-                </div>
+                <>
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {currentAuthors.map((author) => (
+                            <AuthorCard key={author.id} author={author} />
+                        ))}
+                    </div>
+
+                    {totalPages > 1 && (
+                        <>
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={(page) => {
+                                    setCurrentPage(page)
+                                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                                }}
+                            />
+
+                            <p className="text-center text-sm text-muted-foreground">
+                                Affichage de {startIndex + 1} à {Math.min(endIndex, filteredAuthors.length)} sur {filteredAuthors.length} auteur{filteredAuthors.length > 1 ? 's' : ''}
+                            </p>
+                        </>
+                    )}
+                </>
             )}
         </div>
     )

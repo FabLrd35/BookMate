@@ -96,8 +96,12 @@ export function BookList({ books, showTabs = true }: BookListProps) {
 
         // Apply rating filter
         if (ratingFilter && ratingFilter !== "ALL") {
-            const rating = parseInt(ratingFilter);
-            filtered = filtered.filter(book => Math.round(book.rating || 0) === rating);
+            if (ratingFilter === "NONE") {
+                filtered = filtered.filter(book => !book.rating || book.rating === 0);
+            } else {
+                const rating = parseInt(ratingFilter);
+                filtered = filtered.filter(book => Math.round(book.rating || 0) === rating);
+            }
         }
         return filtered.sort((a, b) => {
             if (sortOrder === "date-desc") {
@@ -294,6 +298,7 @@ export function BookList({ books, showTabs = true }: BookListProps) {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="ALL">Notes</SelectItem>
+                        <SelectItem value="NONE">Pas de notation</SelectItem>
                         <SelectItem value="5">5 étoiles</SelectItem>
                         <SelectItem value="4">4 étoiles</SelectItem>
                         <SelectItem value="3">3 étoiles</SelectItem>

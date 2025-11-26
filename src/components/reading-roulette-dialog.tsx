@@ -15,7 +15,6 @@ type AnimationState = "idle" | "spinning" | "revealing" | "result"
 export function ReadingRouletteDialog() {
     const [open, setOpen] = useState(false)
     const [filters, setFilters] = useState<RouletteFilterState>({
-        genres: [],
         lengthFilter: "all"
     })
     const [animationState, setAnimationState] = useState<AnimationState>("idle")
@@ -28,7 +27,6 @@ export function ReadingRouletteDialog() {
 
         // Convert filters to API format
         const apiFilters = {
-            genres: filters.genres.length > 0 ? filters.genres : undefined,
             minPages: filters.lengthFilter === "short" ? undefined :
                 filters.lengthFilter === "medium" ? 200 :
                     filters.lengthFilter === "long" ? 400 : undefined,
@@ -89,6 +87,10 @@ export function ReadingRouletteDialog() {
         setAnimationState("idle")
         setSelectedBook(null)
         setSpinningBooks([])
+    }
+
+    const handleRestart = () => {
+        handleSpin()
     }
 
     return (
@@ -240,7 +242,7 @@ export function ReadingRouletteDialog() {
                                                 Voir le livre
                                             </Button>
                                         </Link>
-                                        <Button variant="outline" onClick={handleReset} className="w-full gap-2">
+                                        <Button variant="outline" onClick={handleRestart} className="w-full gap-2">
                                             <RotateCcw className="h-4 w-4" />
                                             Relancer la roulette
                                         </Button>

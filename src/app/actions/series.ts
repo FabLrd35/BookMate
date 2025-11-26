@@ -236,7 +236,16 @@ export async function getSeries() {
             orderBy: { name: 'asc' },
         })
 
-        return { success: true, series }
+        // Convert Prisma Decimal fields (e.g., rating) to plain numbers for client compatibility
+        const plainSeries = series.map((s: any) => ({
+            ...s,
+            books: s.books.map((b: any) => ({
+                ...b,
+                rating: b.rating ? Number(b.rating) : null,
+            })),
+        }))
+
+        return { success: true, series: plainSeries }
     } catch (error) {
         console.error("Error fetching series:", error)
         return { success: false, error: "Échec de la récupération des séries" }

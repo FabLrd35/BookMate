@@ -194,22 +194,24 @@ export function BookCalendar({ books, currentYear }: BookCalendarProps) {
                                 <DialogTrigger asChild className="cursor-pointer text-left">
                                     {DayContent}
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-[550px]">
+                                <DialogContent className="sm:max-w-[550px] max-h-[85vh] flex flex-col">
                                     <DialogHeader>
                                         <DialogTitle className="flex items-center gap-2">
                                             <BookOpen className="w-5 h-5" />
                                             Lectures du {format(day, "d MMMM yyyy", { locale: fr })}
                                         </DialogTitle>
                                     </DialogHeader>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-4">
-                                        {dayBooks.map((book) => (
-                                            <Link href={`/books/${book.id}`} key={book.id} className="group block">
-                                                <BookCover book={book} />
-                                                <p className="mt-2 text-xs font-medium text-center line-clamp-2 group-hover:text-primary transition-colors">
-                                                    {book.title}
-                                                </p>
-                                            </Link>
-                                        ))}
+                                    <div className="overflow-y-auto flex-1 pr-2">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-4">
+                                            {dayBooks.map((book) => (
+                                                <Link href={`/books/${book.id}`} key={book.id} className="group block">
+                                                    <BookCover book={book} />
+                                                    <p className="mt-2 text-xs font-medium text-center line-clamp-2 group-hover:text-primary transition-colors">
+                                                        {book.title}
+                                                    </p>
+                                                </Link>
+                                            ))}
+                                        </div>
                                     </div>
                                 </DialogContent>
                             </Dialog>
