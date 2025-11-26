@@ -521,9 +521,18 @@ export async function getReadingRecords() {
     }
 
     return {
-        thickestBook,
-        thinnestBook,
-        highestRatedBook,
+        thickestBook: thickestBook ? {
+            ...thickestBook,
+            rating: thickestBook.rating ? Number(thickestBook.rating) : null
+        } : null,
+        thinnestBook: thinnestBook ? {
+            ...thinnestBook,
+            rating: thinnestBook.rating ? Number(thinnestBook.rating) : null
+        } : null,
+        highestRatedBook: highestRatedBook ? {
+            ...highestRatedBook,
+            rating: highestRatedBook.rating ? Number(highestRatedBook.rating) : null
+        } : null,
         fastestRead,
         slowestRead
     }

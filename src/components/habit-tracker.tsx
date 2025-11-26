@@ -128,8 +128,8 @@ export function HabitTracker() {
             </CardHeader>
             <CardContent className="pt-6">
                 <div className="grid grid-cols-7 gap-2 text-center text-sm mb-3">
-                    {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => (
-                        <div key={d} className="text-muted-foreground font-semibold py-1">
+                    {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => (
+                        <div key={i} className="text-muted-foreground font-semibold py-1">
                             {d}
                         </div>
                     ))}
