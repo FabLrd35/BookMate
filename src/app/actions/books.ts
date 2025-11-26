@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { uploadCoverImage } from "@/lib/storage"
+import { checkAndUpdateChallenges } from "./challenges"
 
 export async function createBook(formData: FormData) {
     const session = await auth()
@@ -100,6 +101,11 @@ export async function createBook(formData: FormData) {
                 activityType: "FINISHED",
             },
         }).catch(() => { }) // Ignore duplicates
+    }
+
+    // Update challenges if book is marked as READ
+    if (status === "READ") {
+        await checkAndUpdateChallenges()
     }
 
     revalidatePath("/books")
@@ -551,6 +557,11 @@ export async function updateBookStatus(
         }
     }
 
+    // Update challenges if book is marked as READ
+    if (newStatus === "READ") {
+        await checkAndUpdateChallenges()
+    }
+
     revalidatePath("/books")
     revalidatePath(`/books/${bookId}`)
     revalidatePath("/")
@@ -670,6 +681,11 @@ export async function quickAddBook(formData: FormData) {
             }).catch(() => { }) // Ignore duplicates
         }
 
+        // Update challenges if book is marked as READ
+        if (status === "READ") {
+            await checkAndUpdateChallenges()
+        }
+
         revalidatePath("/books")
         revalidatePath("/")
         revalidatePath("/calendar")
@@ -711,7 +727,7 @@ export async function toggleBookFavorite(bookId: string) {
         })
 
         revalidatePath("/books")
-        revalidatePath(`/books/${bookId}`)
+        revalidatePath(`/ books / ${bookId}`)
         revalidatePath("/")
 
         return { success: true, isFavorite: !book.isFavorite }

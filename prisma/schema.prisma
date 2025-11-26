@@ -21,6 +21,7 @@ model User {
   collections    Collection[]
   badges         Badge[]
   userChallenges UserChallenge[]
+  readingLogs    ReadingLog[]
   series         Series[]
 
   createdAt      DateTime        @default(now())
@@ -157,6 +158,8 @@ model UserChallenge {
   isCompleted Boolean   @default(false)
   completedAt DateTime?
   startedAt   DateTime  @default(now())
+  startDate   DateTime?
+  endDate     DateTime?
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -172,6 +175,8 @@ model Badge {
   unlockedAt  DateTime      @default(now())
   userId      String
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([name, userId])
 }
 
 model Word {
@@ -197,6 +202,17 @@ model Series {
   updatedAt   DateTime @updatedAt
 
   @@unique([name, userId])
+}
+
+model ReadingLog {
+  id        String   @id @default(uuid())
+  date      DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([date, userId])
+  @@index([date])
 }
 
 enum ReadingStatus {

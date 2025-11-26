@@ -8,21 +8,24 @@ import { auth } from "@/auth"
 
 export async function initializePredefinedChallenges() {
     try {
-        // Check if predefined challenges already exist
-        const existing = await prisma.challenge.count({
-            where: { isPredefined: true },
-        })
+        let createdCount = 0
+        for (const challenge of PREDEFINED_CHALLENGES) {
+            const existing = await prisma.challenge.findFirst({
+                where: {
+                    title: challenge.title,
+                    isPredefined: true
+                }
+            })
 
-        if (existing > 0) {
-            return { success: true, message: "Challenges already initialized" }
+            if (!existing) {
+                await prisma.challenge.create({
+                    data: challenge
+                })
+                createdCount++
+            }
         }
 
-        // Create predefined challenges
-        await prisma.challenge.createMany({
-            data: PREDEFINED_CHALLENGES,
-        })
-
-        return { success: true, message: `${PREDEFINED_CHALLENGES.length} challenges created` }
+        return { success: true, message: `${createdCount} new challenges created` }
     } catch (error) {
         console.error("Error initializing challenges:", error)
         return { success: false, error: "Failed to initialize challenges" }
@@ -52,13 +55,33 @@ export async function getUserChallenges() {
             orderBy: { startedAt: 'desc' },
         })
 
-        // Calculate progress for each challenge
+        // Calculate and update progress for each challenge
         const challengesWithProgress = await Promise.all(
             userChallenges.map(async (uc) => {
-                const progress = await calculateChallengeProgress(uc.challenge)
+                const progress = await calculateChallengeProgress(uc.challenge, { startDate: uc.startDate, endDate: uc.endDate })
+                const isCompleted = progress >= uc.challenge.target
+
+                // Update progress in database if changed
+                if (progress !== uc.progress || isCompleted !== uc.isCompleted) {
+                    await prisma.userChallenge.update({
+                        where: { id: uc.id },
+                        data: {
+                            progress,
+                            isCompleted,
+                            completedAt: isCompleted && !uc.isCompleted ? new Date() : uc.completedAt,
+                        },
+                    })
+
+                    // Award badges if newly completed
+                    if (isCompleted && !uc.isCompleted) {
+                        await checkAndAwardBadges(uc.userId)
+                    }
+                }
+
                 return {
                     ...uc,
                     progress,
+                    isCompleted,
                 }
             })
         )
@@ -70,7 +93,7 @@ export async function getUserChallenges() {
     }
 }
 
-export async function joinChallenge(challengeId: string) {
+export async function joinChallenge(challengeId: string, customDates?: { startDate: Date, endDate: Date }) {
     try {
         const session = await auth()
         if (!session?.user?.email) {
@@ -98,6 +121,8 @@ export async function joinChallenge(challengeId: string) {
             data: {
                 challengeId,
                 userId: user.id,
+                startDate: customDates?.startDate,
+                endDate: customDates?.endDate,
             },
             include: {
                 challenge: true,
@@ -119,6 +144,8 @@ export async function createCustomChallenge(data: {
     target: number
     period: string
     icon?: string
+    startDate?: Date
+    endDate?: Date
 }) {
     try {
         const session = await auth()
@@ -136,10 +163,13 @@ export async function createCustomChallenge(data: {
 
         const challenge = await prisma.challenge.create({
             data: {
-                ...data,
-                isPredefined: false,
+                title: data.title,
+                description: data.description,
                 challengeType: data.challengeType as any,
+                target: data.target,
                 period: data.period as any,
+                icon: data.icon,
+                isPredefined: false,
             },
         })
 
@@ -148,6 +178,8 @@ export async function createCustomChallenge(data: {
             data: {
                 challengeId: challenge.id,
                 userId: user.id,
+                startDate: data.startDate,
+                endDate: data.endDate,
             },
         })
 
@@ -159,14 +191,30 @@ export async function createCustomChallenge(data: {
     }
 }
 
-async function calculateChallengeProgress(challenge: any): Promise<number> {
+async function calculateChallengeProgress(
+    challenge: any,
+    customDates?: { startDate?: Date | null, endDate?: Date | null }
+): Promise<number> {
     try {
+        // Determine effective date range
+        let dateFilter: any = undefined
+
+        if (customDates?.startDate) {
+            dateFilter = {
+                gte: customDates.startDate,
+                lte: customDates.endDate || undefined
+            }
+        } else {
+            dateFilter = getDateRangeForPeriod(challenge.period)
+        }
+
         switch (challenge.challengeType) {
             case "GENRE_DIVERSITY": {
                 const genres = await prisma.book.findMany({
                     where: {
                         status: "READ",
                         genreId: { not: null },
+                        finishDate: dateFilter,
                     },
                     select: { genreId: true },
                     distinct: ["genreId"],
@@ -175,11 +223,10 @@ async function calculateChallengeProgress(challenge: any): Promise<number> {
             }
 
             case "BOOK_COUNT": {
-                const dateRange = getDateRangeForPeriod(challenge.period)
                 const count = await prisma.book.count({
                     where: {
                         status: "READ",
-                        finishDate: dateRange,
+                        finishDate: dateFilter,
                     },
                 })
                 return count
@@ -190,17 +237,17 @@ async function calculateChallengeProgress(challenge: any): Promise<number> {
                     where: {
                         status: "READ",
                         totalPages: { gte: 500 },
+                        finishDate: dateFilter,
                     },
                 })
                 return count
             }
 
             case "PAGE_COUNT": {
-                const dateRange = getDateRangeForPeriod(challenge.period)
                 const books = await prisma.book.findMany({
                     where: {
                         status: "READ",
-                        finishDate: dateRange,
+                        finishDate: dateFilter,
                         totalPages: { not: null },
                     },
                     select: { totalPages: true },
@@ -302,7 +349,10 @@ export async function updateChallengeProgress(userChallengeId: string) {
             return { success: false, error: "Challenge not found" }
         }
 
-        const progress = await calculateChallengeProgress(userChallenge.challenge)
+        const progress = await calculateChallengeProgress(userChallenge.challenge, {
+            startDate: userChallenge.startDate,
+            endDate: userChallenge.endDate
+        })
         const isCompleted = progress >= userChallenge.challenge.target
 
         await prisma.userChallenge.update({
@@ -344,6 +394,61 @@ export async function updateAllChallengesProgress() {
         return { success: false }
     }
 }
+
+// Helper function to check and update all challenges for current user
+// This should be called after book status changes
+export async function checkAndUpdateChallenges() {
+    try {
+        const session = await auth()
+        if (!session?.user?.email) return { success: false }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+
+        if (!user) return { success: false }
+
+        const userChallenges = await prisma.userChallenge.findMany({
+            where: {
+                userId: user.id,
+                isCompleted: false
+            },
+            include: { challenge: true },
+        })
+
+        const newlyCompleted = []
+
+        for (const uc of userChallenges) {
+            const progress = await calculateChallengeProgress(uc.challenge, { startDate: uc.startDate, endDate: uc.endDate })
+            const isCompleted = progress >= uc.challenge.target
+
+            if (progress !== uc.progress || isCompleted !== uc.isCompleted) {
+                await prisma.userChallenge.update({
+                    where: { id: uc.id },
+                    data: {
+                        progress,
+                        isCompleted,
+                        completedAt: isCompleted && !uc.isCompleted ? new Date() : uc.completedAt,
+                    },
+                })
+
+                if (isCompleted && !uc.isCompleted) {
+                    newlyCompleted.push(uc.challenge.title)
+                }
+            }
+        }
+
+        if (newlyCompleted.length > 0) {
+            await checkAndAwardBadges(user.id)
+        }
+
+        return { success: true, newlyCompleted }
+    } catch (error) {
+        console.error("Error checking challenges:", error)
+        return { success: false, newlyCompleted: [] }
+    }
+}
+
 
 export async function getUnlockedBadges() {
     try {

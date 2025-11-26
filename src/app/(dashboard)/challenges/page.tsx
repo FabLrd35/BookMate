@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ChallengeCard } from "@/components/challenge-card"
 import { BadgeDisplay } from "@/components/badge-display"
 import { CreateChallengeDialog } from "@/components/create-challenge-dialog"
-import { Trophy, Target, Award, RefreshCw } from "lucide-react"
+import { Trophy, Target, Award } from "lucide-react"
 import {
     getPredefinedChallenges,
     getUserChallenges,
@@ -22,7 +22,6 @@ export default function ChallengesPage() {
     const [userChallenges, setUserChallenges] = useState<any[]>([])
     const [badges, setBadges] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [refreshing, setRefreshing] = useState(false)
 
     useEffect(() => {
         loadData()
@@ -66,20 +65,6 @@ export default function ChallengesPage() {
         }
     }
 
-    async function handleRefreshProgress() {
-        setRefreshing(true)
-        const result = await updateAllChallengesProgress()
-
-        if (result.success) {
-            toast.success("Progression mise à jour!")
-            loadData()
-        } else {
-            toast.error("Erreur lors de la mise à jour")
-        }
-
-        setRefreshing(false)
-    }
-
     const activeChallenges = userChallenges.filter(uc => !uc.isCompleted)
     const completedChallenges = userChallenges.filter(uc => uc.isCompleted)
     const availableChallenges = predefinedChallenges.filter(
@@ -109,17 +94,7 @@ export default function ChallengesPage() {
                         Relevez des défis et gagnez des badges!
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={handleRefreshProgress}
-                        disabled={refreshing}
-                    >
-                        <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                        Actualiser
-                    </Button>
-                    <CreateChallengeDialog />
-                </div>
+                <CreateChallengeDialog />
             </div>
 
             {/* Stats */}
@@ -160,7 +135,7 @@ export default function ChallengesPage() {
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue="active" className="w-full">
+            < Tabs defaultValue="active" className="w-full" >
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="active">
                         Actifs ({activeChallenges.length})
@@ -250,7 +225,7 @@ export default function ChallengesPage() {
                         </div>
                     )}
                 </TabsContent>
-            </Tabs>
-        </div>
+            </Tabs >
+        </div >
     )
 }

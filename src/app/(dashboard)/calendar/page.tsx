@@ -16,6 +16,8 @@ import {
 import { getFinishedBooks, type FinishedBook } from "@/app/actions/calendar";
 import { BookCalendar } from "@/components/book-calendar";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HabitTracker } from "@/components/habit-tracker";
 
 export default function CalendarPage() {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -100,88 +102,115 @@ export default function CalendarPage() {
                 </Button>
             </div>
 
-            {/* Streak */}
-            <StreakDisplay currentStreak={currentStreak} longestStreak={longestStreak} />
+            {/* Tabs */}
+            <Tabs defaultValue="overview" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+                    <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+                    <TabsTrigger value="tracker">Suivi</TabsTrigger>
+                    <TabsTrigger value="books">Livres</TabsTrigger>
+                </TabsList>
 
-            {/* Summary cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <Card className="p-3 sm:p-4">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-950">
-                            <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-                        </div>
-                        <div>
-                            <p className="text-xl sm:text-2xl font-bold">{totalBooks}</p>
-                            <p className="text-xs text-muted-foreground">Livres en {currentYear}</p>
-                        </div>
-                    </div>
-                </Card>
-                <Card className="p-3 sm:p-4">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="p-2 rounded-full bg-green-100 dark:bg-green-950">
-                            <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
-                        </div>
-                        <div>
-                            <p className="text-xl sm:text-2xl font-bold">{activeDays}</p>
-                            <p className="text-xs text-muted-foreground">Jours actifs</p>
-                        </div>
-                    </div>
-                </Card>
-                <Card className="p-3 sm:p-4">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-950">
-                            <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
-                        </div>
-                        <div>
-                            <p className="text-xl sm:text-2xl font-bold">
-                                {activeDays > 0 ? Math.round((activeDays / 365) * 100) : 0}%
-                            </p>
-                            <p className="text-xs text-muted-foreground">De l'année</p>
-                        </div>
-                    </div>
-                </Card>
-            </div>
+                <TabsContent value="overview" className="space-y-8">
+                    {/* Streak */}
+                    <StreakDisplay currentStreak={currentStreak} longestStreak={longestStreak} />
 
-            {/* Year navigation */}
-            <div className="flex items-center justify-center gap-4">
-                <Button variant="outline" size="icon" onClick={handlePreviousYear}>
-                    <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="text-base sm:text-lg font-semibold min-w-[80px] sm:min-w-[100px] text-center">
-                    {currentYear}
-                </span>
-                <Button variant="outline" size="icon" onClick={handleNextYear} disabled={currentYear >= thisYear}>
-                    <ChevronRight className="h-4 w-4" />
-                </Button>
-            </div>
-
-            {/* Heatmap */}
-            <div className="w-full max-h-[500px] overflow-y-auto overflow-x-hidden p-3 sm:p-4">
-                {loading ? (
-                    <Card className="p-4 sm:p-3">
-                        <div className="flex items-center justify-center py-12">
-                            <div className="text-center">
-                                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent mb-4" />
-                                <p className="text-sm text-muted-foreground">Chargement...</p>
+                    {/* Summary cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                        <Card className="p-3 sm:p-4">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-950">
+                                    <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                                </div>
+                                <div>
+                                    <p className="text-xl sm:text-2xl font-bold">{totalBooks}</p>
+                                    <p className="text-xs text-muted-foreground">Livres en {currentYear}</p>
+                                </div>
                             </div>
-                        </div>
-                    </Card>
-                ) : (
-                    <ReadingHeatmap year={currentYear} activityMap={activityMap} onDayClick={handleDayClick} />
-                )}
-            </div>
+                        </Card>
+                        <Card className="p-3 sm:p-4">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="p-2 rounded-full bg-green-100 dark:bg-green-950">
+                                    <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+                                </div>
+                                <div>
+                                    <p className="text-xl sm:text-2xl font-bold">{activeDays}</p>
+                                    <p className="text-xs text-muted-foreground">Jours actifs</p>
+                                </div>
+                            </div>
+                        </Card>
+                        <Card className="p-3 sm:p-4">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-950">
+                                    <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
+                                </div>
+                                <div>
+                                    <p className="text-xl sm:text-2xl font-bold">
+                                        {activeDays > 0 ? Math.round((activeDays / 365) * 100) : 0}%
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">De l'année</p>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
 
-            {/* Book Calendar View */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Détail des lectures</h3>
-                {loading ? (
-                    <Card className="p-8 flex justify-center">
-                        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" />
-                    </Card>
-                ) : (
-                    <BookCalendar books={finishedBooks} currentYear={currentYear} />
-                )}
-            </div>
+                    {/* Year navigation */}
+                    <div className="flex items-center justify-center gap-4">
+                        <Button variant="outline" size="icon" onClick={handlePreviousYear}>
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <span className="text-base sm:text-lg font-semibold min-w-[80px] sm:min-w-[100px] text-center">
+                            {currentYear}
+                        </span>
+                        <Button variant="outline" size="icon" onClick={handleNextYear} disabled={currentYear >= thisYear}>
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
+
+                    {/* Heatmap */}
+                    <div className="w-full max-h-[500px] overflow-y-auto overflow-x-hidden p-3 sm:p-4">
+                        {loading ? (
+                            <Card className="p-4 sm:p-3">
+                                <div className="flex items-center justify-center py-12">
+                                    <div className="text-center">
+                                        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent mb-4" />
+                                        <p className="text-sm text-muted-foreground">Chargement...</p>
+                                    </div>
+                                </div>
+                            </Card>
+                        ) : (
+                            <ReadingHeatmap year={currentYear} activityMap={activityMap} onDayClick={handleDayClick} />
+                        )}
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="tracker" className="space-y-4">
+                    <div className="flex flex-col items-center space-y-4">
+                        <div className="text-center max-w-lg">
+                            <h3 className="text-lg font-semibold">Suivi Quotidien</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Cochez les jours où vous avez lu, même si vous n'avez pas fini de livre.
+                            </p>
+                        </div>
+                        <div className="w-full max-w-md">
+                            <HabitTracker />
+                        </div>
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="books" className="space-y-4">
+                    {/* Book Calendar View */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Détail des lectures</h3>
+                        {loading ? (
+                            <Card className="p-8 flex justify-center">
+                                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" />
+                            </Card>
+                        ) : (
+                            <BookCalendar books={finishedBooks} currentYear={currentYear} />
+                        )}
+                    </div>
+                </TabsContent>
+            </Tabs>
 
             {/* Dialog */}
             <DayActivityDialog date={selectedDate} open={dialogOpen} onOpenChange={setDialogOpen} />

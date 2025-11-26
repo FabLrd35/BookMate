@@ -6,7 +6,9 @@ import {
     getReadingTrends,
     getYearOverYearComparison,
     getReadingPrediction,
+    getReadingRecords,
 } from "@/app/actions/statistics"
+import { getCurrentStreak, getLongestStreak } from "@/app/actions/reading-activity"
 import { MonthlyActivityChart } from "@/components/charts/monthly-activity-chart"
 import { MonthlyPagesChart } from "@/components/charts/monthly-pages-chart"
 import { RatingDistributionChart } from "@/components/charts/rating-distribution-chart"
@@ -15,6 +17,7 @@ import { TrendsChart } from "@/components/charts/trends-chart"
 import { YearComparisonChart } from "@/components/charts/year-comparison-chart"
 import { ReadingPrediction } from "@/components/reading-prediction"
 import { PreferencesAnalysis } from "@/components/preferences-analysis"
+import { StatisticsRecords } from "@/components/statistics-records"
 import { BookOpen, BookCopy, FileText, TrendingUp } from "lucide-react"
 
 export default async function StatisticsPage() {
@@ -26,6 +29,9 @@ export default async function StatisticsPage() {
         trends,
         yearComparison,
         prediction,
+        records,
+        currentStreakResult,
+        longestStreakResult,
     ] = await Promise.all([
         getDetailedStats(),
         getPagesReadStats(),
@@ -34,7 +40,15 @@ export default async function StatisticsPage() {
         getReadingTrends(),
         getYearOverYearComparison(),
         getReadingPrediction(),
+        getReadingRecords(),
+        getCurrentStreak(),
+        getLongestStreak(),
     ])
+
+    const streaks = {
+        current: currentStreakResult.success ? currentStreakResult.streak : 0,
+        longest: longestStreakResult.success ? longestStreakResult.streak : 0,
+    }
 
     return (
         <div className="space-y-8 pb-8">
@@ -79,6 +93,9 @@ export default async function StatisticsPage() {
                     <div className="text-2xl font-bold">{pagesStats.averagePagesPerBook.toLocaleString('fr-FR')}</div>
                 </div>
             </div>
+
+            {/* Records & Streaks */}
+            <StatisticsRecords records={records} streaks={streaks} />
 
             {/* Main Charts Grid */}
             <div className="grid gap-6 md:grid-cols-2">

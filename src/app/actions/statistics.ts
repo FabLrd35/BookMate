@@ -459,3 +459,72 @@ export async function getReadingPrediction() {
         averagePerMonth: (booksThisYear / (now.getMonth() + 1)).toFixed(1),
     }
 }
+
+export async function getReadingRecords() {
+    const session = await auth()
+    if (!session?.user?.email) return null
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) return null
+
+    const [thickestBook, thinnestBook, highestRatedBook] = await Promise.all([
+        prisma.book.findFirst({
+            where: { userId: user.id, status: "READ", totalPages: { not: null } },
+            orderBy: { totalPages: "desc" },
+            include: { author: true }
+        }),
+        prisma.book.findFirst({
+            where: { userId: user.id, status: "READ", totalPages: { gt: 0 } },
+            orderBy: { totalPages: "asc" },
+            include: { author: true }
+        }),
+        prisma.book.findFirst({
+            where: { userId: user.id, status: "READ", rating: { not: null } },
+            orderBy: { rating: "desc" },
+            include: { author: true }
+        })
+    ])
+
+    // Calculate fastest/slowest read
+    const booksWithDates = await prisma.book.findMany({
+        where: {
+            userId: user.id,
+            status: "READ",
+            startDate: { not: null },
+            finishDate: { not: null }
+        },
+        select: {
+            id: true,
+            title: true,
+            coverUrl: true,
+            startDate: true,
+            finishDate: true,
+            author: { select: { name: true } }
+        }
+    })
+
+    let fastestRead = null
+    let slowestRead = null
+
+    if (booksWithDates.length > 0) {
+        const booksWithDuration = booksWithDates.map(book => {
+            const start = new Date(book.startDate!)
+            const end = new Date(book.finishDate!)
+            const duration = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+            return { ...book, duration }
+        }).sort((a, b) => a.duration - b.duration)
+
+        fastestRead = booksWithDuration[0]
+        slowestRead = booksWithDuration[booksWithDuration.length - 1]
+    }
+
+    return {
+        thickestBook,
+        thinnestBook,
+        highestRatedBook,
+        fastestRead,
+        slowestRead
+    }
+}

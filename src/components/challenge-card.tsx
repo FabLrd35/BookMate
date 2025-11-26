@@ -23,6 +23,8 @@ interface UserChallenge {
     isCompleted: boolean
     completedAt: Date | null
     startedAt: Date
+    startDate?: Date | null
+    endDate?: Date | null
     challenge: Challenge
 }
 
@@ -38,6 +40,12 @@ export function ChallengeCard({ challenge, userChallenge, onJoin }: ChallengeCar
     const isCompleted = userChallenge?.isCompleted || false
 
     const getPeriodLabel = (period: string) => {
+        if (userChallenge?.startDate && userChallenge?.endDate) {
+            const start = new Date(userChallenge.startDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+            const end = new Date(userChallenge.endDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+            return `${start} - ${end}`
+        }
+
         switch (period) {
             case "WEEKLY": return "Hebdomadaire"
             case "MONTHLY": return "Mensuel"

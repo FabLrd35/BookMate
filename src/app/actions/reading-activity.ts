@@ -48,6 +48,25 @@ export async function getReadingActivityForYear(year: number) {
             activityMap[dateKey] = (activityMap[dateKey] || 0) + 1
         })
 
+        // Also fetch manual reading logs
+        const logs = await prisma.readingLog.findMany({
+            where: {
+                userId: user.id,
+                date: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            }
+        })
+
+        logs.forEach((log) => {
+            const dateKey = log.date.toISOString().split('T')[0]
+            // If we already have activity from books, we don't need to double count, 
+            // or maybe we do? "Activity Level" increases.
+            // Let's just increment.
+            activityMap[dateKey] = (activityMap[dateKey] || 0) + 1
+        })
+
         return { success: true, activityMap, activities }
     } catch (error) {
         console.error("Error fetching reading activity:", error)
