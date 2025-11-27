@@ -53,10 +53,20 @@ export function BookExportDialog({ book }: BookExportDialogProps) {
             // Small delay to ensure styles are applied
             await new Promise(resolve => setTimeout(resolve, 100))
 
+            const width = aspectRatio === 'square' ? 500 : 360
+            const height = aspectRatio === 'square' ? 500 : 640
+
             const image = await toPng(previewRef.current, {
                 cacheBust: true,
                 pixelRatio: 2,
                 backgroundColor: 'transparent',
+                width: width,
+                height: height,
+                style: {
+                    transform: 'scale(1)',
+                    transformOrigin: 'top left',
+                    margin: '0',
+                }
             })
 
             const link = document.createElement("a")
@@ -99,10 +109,10 @@ export function BookExportDialog({ book }: BookExportDialogProps) {
                     <Share2 className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row gap-6">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row gap-6 p-4 md:p-6">
 
                 {/* Controls Column */}
-                <div className="w-full md:w-80 flex-shrink-0 space-y-6">
+                <div className="w-full md:w-80 flex-shrink-0 space-y-6 order-2 md:order-1">
                     <DialogHeader>
                         <DialogTitle>Partager ma lecture</DialogTitle>
                         <DialogDescription>
@@ -182,11 +192,12 @@ export function BookExportDialog({ book }: BookExportDialogProps) {
                 </div>
 
                 {/* Preview Column */}
-                <div className="flex-1 bg-muted/30 rounded-lg p-4 flex items-center justify-center overflow-hidden min-h-[500px]">
+                <div className="flex-1 bg-muted/30 rounded-lg p-4 flex items-center justify-center overflow-hidden min-h-[400px] md:min-h-[500px] order-1 md:order-2">
                     <div
                         ref={previewRef}
                         className={cn(
-                            "relative flex flex-col p-8 shadow-2xl transition-all duration-300 overflow-hidden",
+                            "relative flex-shrink-0 flex flex-col p-8 shadow-2xl transition-all duration-300 overflow-hidden transform origin-center",
+                            "scale-[0.55] sm:scale-75 md:scale-100", // Responsive scaling
                             themes[theme],
                             aspectRatio === 'square' ? "w-[500px] h-[500px]" : "w-[360px] h-[640px]"
                         )}
