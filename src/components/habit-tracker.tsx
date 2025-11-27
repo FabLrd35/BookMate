@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Check, Flame, Calendar as CalendarIcon } fro
 import { toggleReadingLog, getReadingLogs } from "@/app/actions/reading-logs"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { MonthYearPicker } from "@/components/month-year-picker"
 
 export function HabitTracker() {
     const [currentDate, setCurrentDate] = useState(new Date())
@@ -87,23 +88,12 @@ export function HabitTracker() {
         })
     }
 
-    const prevMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
-    }
-
-    const nextMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
-    }
-
     const monthName = currentDate.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
 
     return (
         <Card className="overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                 <div className="space-y-1">
-                    <CardTitle className="text-xl font-bold capitalize">
-                        {monthName}
-                    </CardTitle>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1.5">
                             <CalendarIcon className="h-4 w-4" />
@@ -117,16 +107,14 @@ export function HabitTracker() {
                         )}
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={prevMonth} className="hover:bg-primary/10">
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={nextMonth} className="hover:bg-primary/10">
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="space-y-4">
+                <MonthYearPicker
+                    currentDate={currentDate}
+                    onDateChange={setCurrentDate}
+                    maxDate={new Date()}
+                    className="justify-center"
+                />
                 <div className="grid grid-cols-7 gap-2 text-center text-sm mb-3">
                     {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => (
                         <div key={i} className="text-muted-foreground font-semibold py-1">

@@ -3,10 +3,14 @@ import { BenefitCard } from "@/components/benefit-card"
 import { benefits, tips } from "@/lib/motivation-data"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
+import { HedwigAnimation } from "@/components/hedwig-animation"
 
 export default function MotivationPage() {
     return (
         <div className="max-w-6xl mx-auto space-y-12 pb-12">
+            {/* Hedwig Easter Egg */}
+            <HedwigAnimation />
+
             {/* Hero Section with Quote */}
             <section className="space-y-6">
                 <div className="flex items-center gap-2">

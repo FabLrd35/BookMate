@@ -29,6 +29,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { MonthYearPicker } from "@/components/month-year-picker"
 
 interface BookCalendarProps {
     books: FinishedBook[]
@@ -127,19 +128,12 @@ export function BookCalendar({ books, currentYear }: BookCalendarProps) {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg sm:text-xl font-semibold capitalize">
-                    {format(currentMonth, "MMMM yyyy", { locale: fr })}
-                </h2>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="icon" onClick={prevMonth} className="h-8 w-8 sm:h-9 sm:w-9">
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={nextMonth} className="h-8 w-8 sm:h-9 sm:w-9">
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
+            <MonthYearPicker
+                currentDate={currentMonth}
+                onDateChange={setCurrentMonth}
+                maxDate={new Date()}
+                className="justify-center"
+            />
 
             <div className="grid grid-cols-7 gap-px bg-muted/20 rounded-lg overflow-hidden border">
                 {/* Weekday headers */}

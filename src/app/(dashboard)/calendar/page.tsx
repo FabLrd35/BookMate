@@ -18,6 +18,7 @@ import { BookCalendar } from "@/components/book-calendar";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HabitTracker } from "@/components/habit-tracker";
+import { YearPicker } from "@/components/year-picker";
 
 export default function CalendarPage() {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -154,17 +155,7 @@ export default function CalendarPage() {
                     </div>
 
                     {/* Year navigation */}
-                    <div className="flex items-center justify-center gap-4">
-                        <Button variant="outline" size="icon" onClick={handlePreviousYear}>
-                            <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <span className="text-base sm:text-lg font-semibold min-w-[80px] sm:min-w-[100px] text-center">
-                            {currentYear}
-                        </span>
-                        <Button variant="outline" size="icon" onClick={handleNextYear} disabled={currentYear >= thisYear}>
-                            <ChevronRight className="h-4 w-4" />
-                        </Button>
-                    </div>
+                    <YearPicker currentYear={currentYear} onYearChange={setCurrentYear} />
 
                     {/* Heatmap */}
                     <div className="w-full max-h-[500px] overflow-y-auto overflow-x-hidden p-3 sm:p-4">

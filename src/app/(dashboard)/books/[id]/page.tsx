@@ -18,6 +18,7 @@ import { FavoriteButton } from "@/components/favorite-button"
 import { BackButton } from "@/components/back-button"
 import { DeleteBookDialog } from "@/components/delete-book-dialog"
 import { StarRating } from "@/components/star-rating"
+import { BookExportDialog } from "@/components/book-export-dialog"
 
 interface BookDetailsPageProps {
     params: Promise<{ id: string }>
@@ -53,7 +54,8 @@ export default async function BookDetailsPage({ params, searchParams }: BookDeta
             },
         }).then(b => b ? ({
             ...b,
-            rating: b.rating === null ? null : Number(b.rating)
+            rating: b.rating === null ? null : Number(b.rating),
+            quotes: b.quotes.map(q => ({ ...q, text: q.content }))
         }) : null),
         getCollections(),
     ])
@@ -159,6 +161,7 @@ export default async function BookDetailsPage({ params, searchParams }: BookDeta
                                     availableCollections={allCollections}
                                     bookCollections={book.collections}
                                 />
+                                <BookExportDialog book={book} />
                                 <Link href={`/books/${book.id}/edit`}>
                                     <Button variant="outline" size="icon" title="Modifier">
                                         <Edit className="h-4 w-4" />
