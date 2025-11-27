@@ -1,56 +1,60 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-
-interface Badge {
-    id: string
-    name: string
-    description: string
-    icon: string
-    category: string
-    unlockedAt: Date
-}
+import { cn } from "@/lib/utils"
+import { Lock } from "lucide-react"
 
 interface BadgeDisplayProps {
-    badge: Badge
+    badge: {
+        name: string
+        description: string
+        icon: string
+        category: string
+        unlockedAt?: Date
+    }
+    locked?: boolean
 }
 
-export function BadgeDisplay({ badge }: BadgeDisplayProps) {
-    const formatDate = (date: Date) => {
-        return new Date(date).toLocaleDateString('fr-FR', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        })
-    }
-
+export function BadgeDisplay({ badge, locked = false }: BadgeDisplayProps) {
     return (
-        <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-            <div className="text-6xl mb-3">{badge.icon}</div>
-            <h4 className="font-semibold text-lg mb-1">{badge.name}</h4>
-            <p className="text-sm text-muted-foreground mb-3">
+        <Card className={cn(
+            "p-4 flex flex-col items-center text-center transition-all hover:scale-105",
+            locked ? "opacity-60 bg-muted/50" : "bg-gradient-to-br from-card to-accent/10 border-primary/20"
+        )}>
+            <div className={cn(
+                "text-4xl mb-3 p-3 rounded-full relative",
+                locked ? "bg-muted grayscale filter" : "bg-primary/10"
+            )}>
+                {badge.icon}
+                {locked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-full">
+                        <Lock className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                )}
+            </div>
+
+            <h3 className={cn(
+                "font-semibold mb-1",
+                locked && "text-muted-foreground"
+            )}>
+                {badge.name}
+            </h3>
+
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                 {badge.description}
             </p>
-            <p className="text-xs text-muted-foreground">
-                Débloqué le {formatDate(badge.unlockedAt)}
-            </p>
-        </Card>
-    )
-}
 
-interface LockedBadgeProps {
-    name: string
-    icon: string
-}
+            {!locked && badge.unlockedAt && (
+                <span className="text-[10px] text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                    {new Date(badge.unlockedAt).toLocaleDateString()}
+                </span>
+            )}
 
-export function LockedBadge({ name, icon }: LockedBadgeProps) {
-    return (
-        <Card className="p-6 text-center opacity-40 grayscale">
-            <div className="text-6xl mb-3 blur-sm">{icon}</div>
-            <h4 className="font-semibold text-lg mb-1">???</h4>
-            <p className="text-sm text-muted-foreground">
-                Badge verrouillé
-            </p>
+            {locked && (
+                <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                    Verrouillé
+                </span>
+            )}
         </Card>
     )
 }

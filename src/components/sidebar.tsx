@@ -5,7 +5,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, LayoutDashboard, Library, BarChart3, Settings, Folder, Quote, MessageSquare, Users, Calendar, Sparkles, Languages, Menu, X, Star, Image as ImageIcon, Dices, Trophy, BookMarked } from "lucide-react"
+import { BookOpen, LayoutDashboard, Library, BarChart3, Settings, Folder, Quote, MessageSquare, Users, Calendar, Sparkles, Languages, Menu, X, Star, Image as ImageIcon, Dices, Trophy, BookMarked, Award } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
@@ -22,6 +22,7 @@ const navigation = [
     { name: "Calendrier", href: "/calendar", icon: Calendar },
     { name: "Top 10", href: "/top-10", icon: Trophy },
     { name: "Défis", href: "/challenges", icon: Star },
+    { name: "Badges", href: "/badges", icon: Award },
     { name: "Roulette de Lecture", href: "/roulette", icon: Dices },
     { name: "Motivation", href: "/motivation", icon: Sparkles },
     { name: "Statistiques", href: "/statistics", icon: BarChart3 },

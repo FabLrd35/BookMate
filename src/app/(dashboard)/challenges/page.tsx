@@ -4,9 +4,8 @@ import { useEffect, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { ChallengeCard } from "@/components/challenge-card"
-import { BadgeDisplay } from "@/components/badge-display"
 import { CreateChallengeDialog } from "@/components/create-challenge-dialog"
-import { Trophy, Target, Award } from "lucide-react"
+import { Trophy, Target, Award, Archive } from "lucide-react"
 import {
     getPredefinedChallenges,
     getUserChallenges,
@@ -65,8 +64,9 @@ export default function ChallengesPage() {
         }
     }
 
-    const activeChallenges = userChallenges.filter(uc => !uc.isCompleted)
-    const completedChallenges = userChallenges.filter(uc => uc.isCompleted)
+    const activeChallenges = userChallenges.filter(uc => !uc.isCompleted && !uc.isArchived)
+    const completedChallenges = userChallenges.filter(uc => uc.isCompleted && !uc.isArchived)
+    const archivedChallenges = userChallenges.filter(uc => uc.isArchived)
     const availableChallenges = predefinedChallenges.filter(
         pc => !userChallenges.some(uc => uc.challengeId === pc.id)
     )
@@ -143,8 +143,8 @@ export default function ChallengesPage() {
                     <TabsTrigger value="available">
                         Disponibles ({availableChallenges.length})
                     </TabsTrigger>
-                    <TabsTrigger value="badges">
-                        Badges ({badges.length})
+                    <TabsTrigger value="archived">
+                        Archivés ({archivedChallenges.length})
                     </TabsTrigger>
                 </TabsList>
 
@@ -208,19 +208,23 @@ export default function ChallengesPage() {
                     )}
                 </TabsContent>
 
-                {/* Badges */}
-                <TabsContent value="badges" className="mt-6">
-                    {badges.length === 0 ? (
+                {/* Archived Challenges */}
+                <TabsContent value="archived" className="mt-6">
+                    {archivedChallenges.length === 0 ? (
                         <div className="text-center py-12">
-                            <Award className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                            <Archive className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
                             <p className="text-muted-foreground">
-                                Complétez des défis pour débloquer des badges!
+                                Aucun défi archivé.
                             </p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {badges.map((badge) => (
-                                <BadgeDisplay key={badge.id} badge={badge} />
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {archivedChallenges.map((uc) => (
+                                <ChallengeCard
+                                    key={uc.id}
+                                    challenge={uc.challenge}
+                                    userChallenge={uc}
+                                />
                             ))}
                         </div>
                     )}

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { getCurrentStreak } from "./reading-activity"
 import { PREDEFINED_CHALLENGES } from "../../../prisma/predefined-challenges"
 import { auth } from "@/auth"
+import { BADGES } from "@/lib/badges"
 
 export async function initializePredefinedChallenges() {
     try {
@@ -58,7 +59,11 @@ export async function getUserChallenges() {
         // Calculate and update progress for each challenge
         const challengesWithProgress = await Promise.all(
             userChallenges.map(async (uc) => {
-                const progress = await calculateChallengeProgress(uc.challenge, { startDate: uc.startDate, endDate: uc.endDate })
+                const progress = await calculateChallengeProgress(uc.challenge, {
+                    startDate: uc.startDate,
+                    endDate: uc.endDate,
+                    manualProgress: uc.manualProgress
+                })
                 const isCompleted = progress >= uc.challenge.target
 
                 // Update progress in database if changed
@@ -193,9 +198,10 @@ export async function createCustomChallenge(data: {
 
 async function calculateChallengeProgress(
     challenge: any,
-    customDates?: { startDate?: Date | null, endDate?: Date | null }
+    customDates?: { startDate?: Date | null, endDate?: Date | null, manualProgress?: number }
 ): Promise<number> {
     try {
+        const manualProgress = customDates?.manualProgress || 0
         // Determine effective date range
         let dateFilter: any = undefined
 
@@ -219,7 +225,7 @@ async function calculateChallengeProgress(
                     select: { genreId: true },
                     distinct: ["genreId"],
                 })
-                return genres.length
+                return genres.length + manualProgress
             }
 
             case "BOOK_COUNT": {
@@ -229,7 +235,7 @@ async function calculateChallengeProgress(
                         finishDate: dateFilter,
                     },
                 })
-                return count
+                return count + manualProgress
             }
 
             case "LONG_BOOKS": {
@@ -240,7 +246,7 @@ async function calculateChallengeProgress(
                         finishDate: dateFilter,
                     },
                 })
-                return count
+                return count + manualProgress
             }
 
             case "PAGE_COUNT": {
@@ -252,7 +258,7 @@ async function calculateChallengeProgress(
                     },
                     select: { totalPages: true },
                 })
-                return books.reduce((sum, b) => sum + (b.totalPages || 0), 0)
+                return books.reduce((sum, b) => sum + (b.totalPages || 0), 0) + manualProgress
             }
 
             case "AUTHOR_DIVERSITY": {
@@ -261,7 +267,7 @@ async function calculateChallengeProgress(
                     select: { authorId: true },
                     distinct: ["authorId"],
                 })
-                return authors.length
+                return authors.length + manualProgress
             }
 
             case "REVIEW_COUNT": {
@@ -271,17 +277,17 @@ async function calculateChallengeProgress(
                         comment: { not: null },
                     },
                 })
-                return count
+                return count + manualProgress
             }
 
             case "QUOTE_COUNT": {
                 const count = await prisma.quote.count()
-                return count
+                return count + manualProgress
             }
 
             case "READING_STREAK": {
                 const result = await getCurrentStreak()
-                return result.streak
+                return result.streak + manualProgress
             }
 
             case "COLLECTION_SIZE": {
@@ -293,11 +299,11 @@ async function calculateChallengeProgress(
                     },
                 })
                 const maxSize = Math.max(...collections.map(c => c._count.books), 0)
-                return maxSize
+                return maxSize + manualProgress
             }
 
             default:
-                return 0
+                return manualProgress
         }
     } catch (error) {
         console.error("Error calculating progress:", error)
@@ -351,7 +357,8 @@ export async function updateChallengeProgress(userChallengeId: string) {
 
         const progress = await calculateChallengeProgress(userChallenge.challenge, {
             startDate: userChallenge.startDate,
-            endDate: userChallenge.endDate
+            endDate: userChallenge.endDate,
+            manualProgress: userChallenge.manualProgress
         })
         const isCompleted = progress >= userChallenge.challenge.target
 
@@ -419,7 +426,11 @@ export async function checkAndUpdateChallenges() {
         const newlyCompleted = []
 
         for (const uc of userChallenges) {
-            const progress = await calculateChallengeProgress(uc.challenge, { startDate: uc.startDate, endDate: uc.endDate })
+            const progress = await calculateChallengeProgress(uc.challenge, {
+                startDate: uc.startDate,
+                endDate: uc.endDate,
+                manualProgress: uc.manualProgress
+            })
             const isCompleted = progress >= uc.challenge.target
 
             if (progress !== uc.progress || isCompleted !== uc.isCompleted) {
@@ -475,64 +486,86 @@ export async function getUnlockedBadges() {
 
 async function checkAndAwardBadges(userId: string) {
     try {
-        const completedCount = await prisma.userChallenge.count({
-            where: { isCompleted: true, userId },
-        })
+        // Fetch all necessary data once to minimize DB calls
+        const [
+            readBooks,
+            userChallenges,
+            quotesCount,
+            streakData,
+            predefinedChallengesCount,
+            createdChallengesCount
+        ] = await Promise.all([
+            prisma.book.findMany({
+                where: { userId, status: "READ", finishDate: { not: null } },
+                include: { genre: true }
+            }),
+            prisma.userChallenge.findMany({
+                where: { userId, isCompleted: true },
+                include: { challenge: true }
+            }),
+            prisma.quote.count({ where: { userId } }),
+            getCurrentStreak(),
+            prisma.challenge.count({ where: { isPredefined: true } }),
+            prisma.userChallenge.count({ where: { userId, challenge: { isPredefined: false } } })
+        ])
 
-        // Badge: Premier Pas (1st challenge)
-        if (completedCount >= 1) {
-            await awardBadgeIfNotExists(userId, {
-                name: "Premier Pas",
-                description: "Complétez votre premier défi",
-                icon: "🎯",
-                category: "CHALLENGE_COMPLETION",
-            })
-        }
+        const totalPages = readBooks.reduce((sum, book) => sum + (book.totalPages || 0), 0)
+        const reviewsCount = readBooks.filter(b => b.comment && b.comment.length > 0).length
+        const uniqueGenres = new Set(readBooks.map(b => b.genreId).filter(Boolean)).size
 
-        // Badge: Défi Relevé (5 challenges)
-        if (completedCount >= 5) {
-            await awardBadgeIfNotExists(userId, {
-                name: "Défi Relevé",
-                description: "Complétez 5 défis",
-                icon: "🏆",
-                category: "CHALLENGE_COMPLETION",
-            })
-        }
+        // Author counts
+        const authorCounts: Record<string, number> = {}
+        readBooks.forEach(b => {
+            if (b.authorId) authorCounts[b.authorId] = (authorCounts[b.authorId] || 0) + 1
+        })
+        const maxBooksByAuthor = Math.max(...Object.values(authorCounts), 0)
 
-        // Badge: Maître des Défis (all predefined)
-        const predefinedCount = await prisma.challenge.count({
-            where: { isPredefined: true },
-        })
-        const completedPredefined = await prisma.userChallenge.count({
-            where: {
-                isCompleted: true,
-                challenge: { isPredefined: true },
-                userId,
-            },
-        })
-        if (completedPredefined >= predefinedCount) {
-            await awardBadgeIfNotExists(userId, {
-                name: "Maître des Défis",
-                description: "Complétez tous les défis prédéfinis",
-                icon: "👑",
-                category: "CHALLENGE_COMPLETION",
-            })
-        }
+        // Check each badge
+        for (const badge of BADGES) {
+            let awarded = false
 
-        // Badge: Créateur (1 custom challenge)
-        const customCount = await prisma.userChallenge.count({
-            where: {
-                userId,
-                challenge: { isPredefined: false }
-            },
-        })
-        if (customCount >= 1) {
-            await awardBadgeIfNotExists(userId, {
-                name: "Créateur",
-                description: "Créez votre premier défi personnalisé",
-                icon: "✨",
-                category: "SPECIAL",
-            })
+            switch (badge.category) {
+                case 'READING':
+                    if (badge.target && readBooks.length >= badge.target) awarded = true
+                    break
+                case 'PAGES':
+                    if (badge.target && totalPages >= badge.target) awarded = true
+                    break
+                case 'STREAK':
+                    if (badge.target && streakData.streak >= badge.target) awarded = true
+                    break
+                case 'SOCIAL':
+                    if (badge.id.startsWith('review') && badge.target && reviewsCount >= badge.target) awarded = true
+                    if (badge.id.startsWith('quote') && badge.target && quotesCount >= badge.target) awarded = true
+                    break
+                case 'CHALLENGE':
+                    if (badge.id === 'challenge-all-predefined') {
+                        const completedPredefined = userChallenges.filter(uc => uc.challenge.isPredefined).length
+                        if (completedPredefined >= predefinedChallengesCount && predefinedChallengesCount > 0) awarded = true
+                    } else if (badge.target && userChallenges.length >= badge.target) {
+                        awarded = true
+                    }
+                    break
+                case 'SPECIAL':
+                    if (badge.id === 'genre-5' && uniqueGenres >= 5) awarded = true
+                    if (badge.id === 'long-book' && readBooks.some(b => (b.totalPages || 0) >= 500)) awarded = true
+                    if (badge.id === 'create-challenge' && createdChallengesCount >= 1) awarded = true
+                    if (badge.id === 'author-3' && maxBooksByAuthor >= 3) awarded = true
+                    if (badge.id === 'fast-read') {
+                        const hasFastRead = readBooks.some(b => {
+                            if (!b.startDate || !b.finishDate) return false
+                            const diffTime = Math.abs(b.finishDate.getTime() - b.startDate.getTime())
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                            return diffDays <= 3
+                        })
+                        if (hasFastRead) awarded = true
+                    }
+                    break
+            }
+
+            if (awarded) {
+                await awardBadgeIfNotExists(userId, badge)
+            }
         }
 
         return { success: true }
@@ -542,23 +575,79 @@ async function checkAndAwardBadges(userId: string) {
     }
 }
 
-async function awardBadgeIfNotExists(userId: string, badgeData: {
-    name: string
-    description: string
-    icon: string
-    category: string
-}) {
+async function awardBadgeIfNotExists(userId: string, badgeDef: any) {
     const existing = await prisma.badge.findFirst({
-        where: { name: badgeData.name, userId },
+        where: { name: badgeDef.name, userId },
     })
 
     if (!existing) {
         await prisma.badge.create({
             data: {
-                ...badgeData,
-                category: badgeData.category as any,
+                name: badgeDef.name,
+                description: badgeDef.description,
+                icon: badgeDef.icon,
+                category: badgeDef.category,
                 userId,
             },
         })
+    }
+}
+
+export async function addManualProgress(userChallengeId: string, amount: number) {
+    try {
+        const userChallenge = await prisma.userChallenge.findUnique({
+            where: { id: userChallengeId },
+        })
+
+        if (!userChallenge) {
+            return { success: false, error: "Challenge not found" }
+        }
+
+        const newManualProgress = (userChallenge.manualProgress || 0) + amount
+
+        await prisma.userChallenge.update({
+            where: { id: userChallengeId },
+            data: { manualProgress: newManualProgress },
+        })
+
+        return await updateChallengeProgress(userChallengeId)
+    } catch (error) {
+        console.error("Error adding manual progress:", error)
+        return { success: false, error: "Failed to add manual progress" }
+    }
+}
+
+export async function archiveChallenge(userChallengeId: string) {
+    try {
+        await prisma.userChallenge.update({
+            where: { id: userChallengeId },
+            data: { isArchived: true },
+        })
+        revalidatePath("/challenges")
+        return { success: true }
+    } catch (error) {
+        console.error("Error archiving challenge:", error)
+        return { success: false, error: "Failed to archive challenge" }
+    }
+}
+
+export async function relaunchChallenge(userChallengeId: string) {
+    try {
+        await prisma.userChallenge.update({
+            where: { id: userChallengeId },
+            data: {
+                progress: 0,
+                isCompleted: false,
+                completedAt: null,
+                startedAt: new Date(),
+                manualProgress: 0,
+                isArchived: false,
+            },
+        })
+        revalidatePath("/challenges")
+        return { success: true }
+    } catch (error) {
+        console.error("Error relaunching challenge:", error)
+        return { success: false, error: "Failed to relaunch challenge" }
     }
 }
