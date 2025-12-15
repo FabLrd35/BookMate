@@ -71,19 +71,17 @@ function Calendar({
           "w-full flex items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5",
           defaultClassNames.dropdowns
         ),
-        dropdown_root: cn(
-          "relative has-focus:border-ring border border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] rounded-md",
-          defaultClassNames.dropdown_root
-        ),
         dropdown: cn(
-          "absolute bg-popover inset-0 opacity-0",
+          "h-8 w-full rounded-md border border-input bg-background py-1 px-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           defaultClassNames.dropdown
         ),
+        dropdown_root: cn(
+          "flex items-center",
+          defaultClassNames.dropdown_root
+        ),
         caption_label: cn(
-          "select-none font-medium",
-          captionLayout === "label"
-            ? "text-sm"
-            : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
+          "text-sm font-medium",
+          captionLayout === "dropdown" ? "hidden" : "block",
           defaultClassNames.caption_label
         ),
         table: "w-full border-collapse",
