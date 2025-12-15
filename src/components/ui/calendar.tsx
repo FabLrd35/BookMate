@@ -9,6 +9,14 @@ import {
 import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button, buttonVariants } from "@/components/ui/button"
 
 function Calendar({
@@ -42,6 +50,8 @@ function Calendar({
           date.toLocaleString("default", { month: "short" }),
         ...formatters,
       }}
+      fromYear={fromYear}
+      toYear={toYear}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),
         months: cn(
@@ -50,17 +60,17 @@ function Calendar({
         ),
         month: cn("flex flex-col w-full gap-4", defaultClassNames.month),
         nav: cn(
-          "flex items-center gap-1 w-full absolute top-0 inset-x-0 justify-between",
+          "flex items-center gap-1 w-full absolute top-0 inset-x-0 justify-between pointer-events-none",
           defaultClassNames.nav
         ),
         button_previous: cn(
           buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
+          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none pointer-events-auto",
           defaultClassNames.button_previous
         ),
         button_next: cn(
           buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none",
+          "size-(--cell-size) aria-disabled:opacity-50 p-0 select-none pointer-events-auto",
           defaultClassNames.button_next
         ),
         month_caption: cn(
@@ -72,7 +82,7 @@ function Calendar({
           defaultClassNames.dropdowns
         ),
         dropdown: cn(
-          "h-8 w-full rounded-md border border-input bg-background py-1 px-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "h-8 w-auto min-w-[100px] rounded-md border border-input bg-background py-1 px-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 z-20 cursor-pointer appearance-auto",
           defaultClassNames.dropdown
         ),
         dropdown_root: cn(
