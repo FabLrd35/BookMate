@@ -163,6 +163,7 @@ model UserChallenge {
   startDate   DateTime?
   endDate     DateTime?
   isArchived  Boolean   @default(false)
+  isPaused    Boolean   @default(false)
   manualProgress Int    @default(0)
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)

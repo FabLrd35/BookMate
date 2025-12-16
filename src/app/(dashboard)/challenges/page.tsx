@@ -5,7 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { ChallengeCard } from "@/components/challenge-card"
 import { CreateChallengeDialog } from "@/components/create-challenge-dialog"
-import { Trophy, Target, Award, Archive } from "lucide-react"
+import { Trophy, Target, Award, Archive, Calendar } from "lucide-react"
+import { GoalCard } from "@/components/goal-card"
+import { getReadingGoal } from "@/app/actions/goals"
+import { getDashboardStats } from "@/app/actions/statistics"
 import {
     getPredefinedChallenges,
     getUserChallenges,
@@ -22,6 +25,17 @@ export default function ChallengesPage() {
     const [badges, setBadges] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
 
+    // Goal Stats State
+    // Goal Stats State
+    const [goalStats, setGoalStats] = useState<{
+        year: number
+        month: number
+        currentMonthly: number
+        currentAnnual: number
+        targetMonthly: number | null
+        targetAnnual: number | null
+    } | null>(null)
+
     useEffect(() => {
         loadData()
     }, [])
@@ -32,17 +46,23 @@ export default function ChallengesPage() {
         // Initialize predefined challenges if needed
         await initializePredefinedChallenges()
 
-        const [predefinedResult, userResult, badgesResult] = await Promise.all([
+        const currentYear = new Date().getFullYear()
+        const currentMonth = new Date().getMonth() + 1
+
+        const [predefinedResult, userResult, badgesResult, stats, monthlyGoal, annualGoal] = await Promise.all([
             getPredefinedChallenges(),
             getUserChallenges(),
             getUnlockedBadges(),
+            getDashboardStats(),
+            getReadingGoal("MONTHLY", currentYear, currentMonth),
+            getReadingGoal("ANNUAL", currentYear),
         ])
 
         if (predefinedResult.success) {
             setPredefinedChallenges(predefinedResult.challenges)
         }
 
-        if (userResult.success) {
+        if (userResult?.success) {
             setUserChallenges(userResult.userChallenges)
         }
 
@@ -50,11 +70,21 @@ export default function ChallengesPage() {
             setBadges(badgesResult.badges)
         }
 
+        // Set Goal Stats
+        setGoalStats({
+            year: currentYear,
+            month: currentMonth,
+            currentMonthly: stats.thisMonth,
+            currentAnnual: stats.readThisYear,
+            targetMonthly: monthlyGoal?.target ?? null,
+            targetAnnual: annualGoal?.target ?? null,
+        })
+
         setLoading(false)
     }
 
-    async function handleJoinChallenge(challengeId: string) {
-        const result = await joinChallenge(challengeId)
+    async function handleJoinChallenge(challengeId: string, customDates?: { startDate: Date, endDate: Date }) {
+        const result = await joinChallenge(challengeId, customDates)
 
         if (result.success) {
             toast.success("Défi rejoint avec succès!")
@@ -64,12 +94,41 @@ export default function ChallengesPage() {
         }
     }
 
-    const activeChallenges = userChallenges.filter(uc => !uc.isCompleted && !uc.isArchived)
+    const [periodFilter, setPeriodFilter] = useState<string>("ALL")
+
+    const now = new Date()
+
+    const activeChallenges = userChallenges.filter(uc => !uc.isCompleted && !uc.isArchived && (!uc.startDate || new Date(uc.startDate) <= now))
+    const upcomingChallenges = userChallenges.filter(uc => !uc.isCompleted && !uc.isArchived && uc.startDate && new Date(uc.startDate) > now)
     const completedChallenges = userChallenges.filter(uc => uc.isCompleted && !uc.isArchived)
     const archivedChallenges = userChallenges.filter(uc => uc.isArchived)
-    const availableChallenges = predefinedChallenges.filter(
-        pc => !userChallenges.some(uc => uc.challengeId === pc.id)
-    )
+
+    // Get all available challenges (not yet joined OR joinable for future)
+    const allAvailableChallenges = predefinedChallenges.filter(pc => {
+        const userInstances = userChallenges.filter(uc => uc.challengeId === pc.id)
+
+        // If never joined, it's available
+        if (userInstances.length === 0) return true
+
+        // For Yearly challenges, allow joining if no future instance exists
+        if (pc.period === 'YEARLY') {
+            const currentYear = new Date().getFullYear()
+            const hasFutureInstance = userInstances.some(uc =>
+                uc.startDate && new Date(uc.startDate).getFullYear() > currentYear
+            )
+            // If we don't have a future one, let them plan one
+            return !hasFutureInstance
+        }
+
+        // For others, if already joined, hide it
+        return false
+    })
+
+    // Filter available challenges by selected period
+    const filteredAvailableChallenges = allAvailableChallenges.filter(challenge => {
+        if (periodFilter === "ALL") return true
+        return challenge.period === periodFilter
+    })
 
     if (loading) {
         return (
@@ -96,6 +155,20 @@ export default function ChallengesPage() {
                 </div>
                 <CreateChallengeDialog />
             </div>
+
+            {/* Reading Goal Card */}
+            {goalStats && (
+                <div className="w-full">
+                    <GoalCard
+                        year={goalStats.year}
+                        month={goalStats.month}
+                        currentMonthly={goalStats.currentMonthly}
+                        currentAnnual={goalStats.currentAnnual}
+                        targetMonthly={goalStats.targetMonthly}
+                        targetAnnual={goalStats.targetAnnual}
+                    />
+                </div>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -135,13 +208,16 @@ export default function ChallengesPage() {
             </div>
 
             {/* Tabs */}
-            < Tabs defaultValue="active" className="w-full" >
-                <TabsList className="grid w-full grid-cols-3">
+            <Tabs defaultValue="active" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="active">
                         Actifs ({activeChallenges.length})
                     </TabsTrigger>
+                    <TabsTrigger value="upcoming">
+                        À venir ({upcomingChallenges.length})
+                    </TabsTrigger>
                     <TabsTrigger value="available">
-                        Disponibles ({availableChallenges.length})
+                        Disponibles ({allAvailableChallenges.length})
                     </TabsTrigger>
                     <TabsTrigger value="archived">
                         Archivés ({archivedChallenges.length})
@@ -186,22 +262,78 @@ export default function ChallengesPage() {
                     )}
                 </TabsContent>
 
-                {/* Available Challenges */}
-                <TabsContent value="available" className="mt-6">
-                    {availableChallenges.length === 0 ? (
+                {/* Upcoming Challenges */}
+                <TabsContent value="upcoming" className="mt-6">
+                    {upcomingChallenges.length === 0 ? (
                         <div className="text-center py-12">
-                            <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                            <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
                             <p className="text-muted-foreground">
-                                Vous avez rejoint tous les défis disponibles! 🎉
+                                Aucun défi prévu pour le futur.
                             </p>
                         </div>
                     ) : (
                         <div className="grid md:grid-cols-2 gap-4">
-                            {availableChallenges.map((challenge) => (
+                            {upcomingChallenges.map((uc) => (
+                                <ChallengeCard
+                                    key={uc.id}
+                                    challenge={uc.challenge}
+                                    userChallenge={uc}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </TabsContent>
+
+                {/* Available Challenges */}
+                <TabsContent value="available" className="mt-6">
+                    {/* Period Filters */}
+                    <div className="flex gap-2 mb-6">
+                        <Button
+                            variant={periodFilter === "ALL" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setPeriodFilter("ALL")}
+                        >
+                            Tous
+                        </Button>
+                        <Button
+                            variant={periodFilter === "YEARLY" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setPeriodFilter("YEARLY")}
+                        >
+                            Annuel
+                        </Button>
+                        <Button
+                            variant={periodFilter === "MONTHLY" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setPeriodFilter("MONTHLY")}
+                        >
+                            Mensuel
+                        </Button>
+                        <Button
+                            variant={periodFilter === "WEEKLY" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setPeriodFilter("WEEKLY")}
+                        >
+                            Hebdomadaire
+                        </Button>
+                    </div>
+
+                    {filteredAvailableChallenges.length === 0 ? (
+                        <div className="text-center py-12">
+                            <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                            <p className="text-muted-foreground">
+                                {periodFilter === "ALL"
+                                    ? "Vous avez rejoint tous les défis disponibles! 🎉"
+                                    : "Aucun défi disponible pour cette période."}
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {filteredAvailableChallenges.map((challenge) => (
                                 <ChallengeCard
                                     key={challenge.id}
                                     challenge={challenge}
-                                    onJoin={() => handleJoinChallenge(challenge.id)}
+                                    onJoin={(dates) => handleJoinChallenge(challenge.id, dates)}
                                 />
                             ))}
                         </div>
@@ -229,7 +361,7 @@ export default function ChallengesPage() {
                         </div>
                     )}
                 </TabsContent>
-            </Tabs >
+            </Tabs>
         </div >
     )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,25 +35,80 @@ interface GoalCardProps {
     targetAnnual: number | null
 }
 
-export function GoalCard({ year, month, currentMonthly, currentAnnual, targetMonthly, targetAnnual }: GoalCardProps) {
+export function GoalCard({ year: initialYear, month: initialMonth, currentMonthly: initialCurrentMonthly, currentAnnual: initialCurrentAnnual, targetMonthly: initialTargetMonthly, targetAnnual: initialTargetAnnual }: GoalCardProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [period, setPeriod] = useState<GoalPeriod>("ANNUAL")
+    const [selectedYear, setSelectedYear] = useState(initialYear)
     const [newTarget, setNewTarget] = useState("")
 
+    // Local state for fetched data (defaults to props)
+    const [data, setData] = useState({
+        currentMonthly: initialCurrentMonthly,
+        currentAnnual: initialCurrentAnnual,
+        targetMonthly: initialTargetMonthly,
+        targetAnnual: initialTargetAnnual
+    })
+
+    const [isLoading, setIsLoading] = useState(false)
+
+    // Fetch data when selectedYear changes
+    useEffect(() => {
+        if (selectedYear === initialYear) {
+            // Revert to props if current year
+            setData({
+                currentMonthly: initialCurrentMonthly,
+                currentAnnual: initialCurrentAnnual,
+                targetMonthly: initialTargetMonthly,
+                targetAnnual: initialTargetAnnual
+            })
+            return
+        }
+
+        async function fetchData() {
+            setIsLoading(true)
+            try {
+                // Dynamically import imports to avoid huge bundle headers if possible, 
+                // but simpler here to just assume we can call the server actions.
+                // We need to import getReadingGoal and getDashboardStats inside component or use the ones imported at top.
+                // Since they are server actions, we can call them.
+                const { getReadingGoal } = await import("@/app/actions/goals")
+                const { getDashboardStats } = await import("@/app/actions/statistics")
+
+                const [stats, monthlyGoal, annualGoal] = await Promise.all([
+                    getDashboardStats(selectedYear, initialMonth),
+                    getReadingGoal("MONTHLY", selectedYear, initialMonth),
+                    getReadingGoal("ANNUAL", selectedYear)
+                ])
+
+                setData({
+                    currentMonthly: stats.thisMonth,
+                    currentAnnual: stats.readThisYear,
+                    targetMonthly: monthlyGoal?.target ?? null,
+                    targetAnnual: annualGoal?.target ?? null
+                })
+            } catch (error) {
+                console.error("Failed to fetch goal data", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchData()
+    }, [selectedYear, initialYear, initialMonth, initialCurrentMonthly, initialCurrentAnnual, initialTargetMonthly, initialTargetAnnual])
+
     // Determine which goal to display based on period
-    const current = period === "MONTHLY" ? currentMonthly : currentAnnual
-    const target = period === "MONTHLY" ? targetMonthly : targetAnnual
+    const current = period === "MONTHLY" ? data.currentMonthly : data.currentAnnual
+    const target = period === "MONTHLY" ? data.targetMonthly : data.targetAnnual
 
     const hasGoal = target !== null
     const percentage = hasGoal ? Math.min(100, Math.round((current / target) * 100)) : 0
     const remaining = hasGoal ? Math.max(0, target - current) : 0
 
-    const data = [
+    const chartData = [
         { name: "Read", value: current },
         { name: "Remaining", value: hasGoal ? Math.max(0, target - current) : 1 },
     ]
 
-    const monthName = new Date(year, month - 1).toLocaleString('fr-FR', { month: 'long' })
+    const monthName = new Date(selectedYear, initialMonth - 1).toLocaleString('fr-FR', { month: 'long' })
 
     function handleOpenDialog() {
         setNewTarget(target?.toString() || (period === "MONTHLY" ? "4" : "12"))
@@ -63,20 +118,34 @@ export function GoalCard({ year, month, currentMonthly, currentAnnual, targetMon
     async function handleSave() {
         const targetNum = parseInt(newTarget)
         if (!isNaN(targetNum) && targetNum > 0) {
-            await setReadingGoal(period, year, targetNum, period === "MONTHLY" ? month : undefined)
+            await setReadingGoal(period, selectedYear, targetNum, period === "MONTHLY" ? initialMonth : undefined)
+
+            // Refresh local data immediately for better UX
+            const { getReadingGoal } = await import("@/app/actions/goals")
+            const updatedGoal = await getReadingGoal(period, selectedYear, period === "MONTHLY" ? initialMonth : undefined)
+
+            setData(prev => ({
+                ...prev,
+                targetMonthly: period === "MONTHLY" ? (updatedGoal?.target ?? null) : prev.targetMonthly,
+                targetAnnual: period === "ANNUAL" ? (updatedGoal?.target ?? null) : prev.targetAnnual
+            }))
+
             setIsOpen(false)
         }
     }
+
+    const availableYears = [initialYear, initialYear + 1]
 
     return (
         <Card className="relative overflow-hidden">
             <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between space-y-0 pb-2">
                 <div className="flex items-center gap-2">
-                    <CardTitle className="text-sm font-medium">
-                        Objectif {period === "MONTHLY" ? monthName : year}
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        Objectif {period === "MONTHLY" ? monthName : selectedYear}
                     </CardTitle>
                 </div>
                 <div className="flex items-center gap-2">
+                    {/* Period Selector */}
                     <Select value={period} onValueChange={(value) => setPeriod(value as GoalPeriod)}>
                         <SelectTrigger className="w-[110px] h-8">
                             <SelectValue />
@@ -86,6 +155,19 @@ export function GoalCard({ year, month, currentMonthly, currentAnnual, targetMon
                             <SelectItem value="ANNUAL">Annuel</SelectItem>
                         </SelectContent>
                     </Select>
+
+                    {/* Year Selector */}
+                    <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
+                        <SelectTrigger className="w-[80px] h-8">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {availableYears.map(y => (
+                                <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
                         <DialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleOpenDialog}>
@@ -97,7 +179,7 @@ export function GoalCard({ year, month, currentMonthly, currentAnnual, targetMon
                             <DialogHeader>
                                 <DialogTitle>Définir votre objectif de lecture</DialogTitle>
                                 <DialogDescription>
-                                    Combien de livres souhaitez-vous lire {period === "MONTHLY" ? `en ${monthName}` : `en ${year}`} ?
+                                    Combien de livres souhaitez-vous lire {period === "MONTHLY" ? `en ${monthName}` : `en ${selectedYear}`} ?
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
@@ -125,7 +207,9 @@ export function GoalCard({ year, month, currentMonthly, currentAnnual, targetMon
             <CardContent>
                 <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                        {hasGoal ? (
+                        {isLoading ? (
+                            <div className="h-10 w-24 bg-muted animate-pulse rounded" />
+                        ) : hasGoal ? (
                             <>
                                 <div className="text-2xl font-bold">
                                     {percentage}%
@@ -153,7 +237,7 @@ export function GoalCard({ year, month, currentMonthly, currentAnnual, targetMon
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={data}
+                                    data={chartData}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={20}
@@ -165,7 +249,7 @@ export function GoalCard({ year, month, currentMonthly, currentAnnual, targetMon
                                     stroke="none"
                                     cornerRadius={4}
                                 >
-                                    {data.map((entry, index) => (
+                                    {chartData.map((entry, index) => (
                                         <Cell
                                             key={`cell-${index}`}
                                             fill={index === 0 ? "var(--primary)" : "var(--muted)"}

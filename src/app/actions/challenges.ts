@@ -26,6 +26,18 @@ export async function initializePredefinedChallenges() {
             }
         }
 
+        // Disable old predefined challenges to ensure only the user-requested ones are visible
+        const activeTitles = PREDEFINED_CHALLENGES.map(c => c.title)
+
+        // Strict cleanup: Delete old predefined challenges that are not in the new list
+        // This effectively removes them for all users, which matches the single-user requirement
+        await prisma.challenge.deleteMany({
+            where: {
+                isPredefined: true,
+                title: { notIn: activeTitles }
+            }
+        })
+
         return { success: true, message: `${createdCount} new challenges created` }
     } catch (error) {
         console.error("Error initializing challenges:", error)
@@ -49,6 +61,19 @@ export async function getPredefinedChallenges() {
 
 export async function getUserChallenges() {
     try {
+        const session = await auth()
+        if (!session?.user?.email) {
+            return { success: false, userChallenges: [] }
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        })
+
+        if (!user) {
+            return { success: false, userChallenges: [] }
+        }
+
         const userChallenges = await prisma.userChallenge.findMany({
             include: {
                 challenge: true,
@@ -56,9 +81,30 @@ export async function getUserChallenges() {
             orderBy: { startedAt: 'desc' },
         })
 
+        // Filter and delete ghosts (challenges not in the approved list)
+        const allowedTitles = [
+            "📄 Dévoreur de Pages",
+            "📚 Un Roman par Semaine",
+            "🗯️ Fan de BD",
+            "✍️ Critique Littéraire"
+        ]
+
+        const validChallenges = []
+
+        for (const uc of userChallenges) {
+            if (!allowedTitles.includes(uc.challenge.title)) {
+                // Background delete of invalid "ghost" challenge
+                await prisma.userChallenge.delete({
+                    where: { id: uc.id }
+                }).catch(err => console.error("Failed to delete ghost challenge:", err))
+            } else {
+                validChallenges.push(uc)
+            }
+        }
+
         // Calculate and update progress for each challenge
         const challengesWithProgress = await Promise.all(
-            userChallenges.map(async (uc) => {
+            validChallenges.map(async (uc) => {
                 const progress = await calculateChallengeProgress(uc.challenge, {
                     startDate: uc.startDate,
                     endDate: uc.endDate,
@@ -122,11 +168,15 @@ export async function joinChallenge(challengeId: string, customDates?: { startDa
             return { success: false, error: "Already joined this challenge" }
         }
 
+        // Default startDate to NOW to prevent immediate auto-completion based on history
+        // This answers: "Je veux pouvoir déclencher le défis quand je le souhaite"
+        const startDate = customDates?.startDate || new Date()
+
         const userChallenge = await prisma.userChallenge.create({
             data: {
                 challengeId,
                 userId: user.id,
-                startDate: customDates?.startDate,
+                startDate: startDate,
                 endDate: customDates?.endDate,
             },
             include: {
@@ -229,10 +279,28 @@ async function calculateChallengeProgress(
             }
 
             case "BOOK_COUNT": {
+                // Custom Logic for specific user requests (Roman, BD)
+                const isRomanChallenge = challenge.title.includes("Roman")
+                const isBDChallenge = challenge.title.includes("BD") || challenge.title.includes("bande dessinée")
+
+                let genreFilter: any = undefined
+
+                if (isRomanChallenge) {
+                    genreFilter = {
+                        name: { contains: "Roman", mode: "insensitive" }
+                    }
+                } else if (isBDChallenge) {
+                    // Try to match typical BD genre names
+                    genreFilter = {
+                        name: { contains: "BD", mode: "insensitive" }
+                    }
+                }
+
                 const count = await prisma.book.count({
                     where: {
                         status: "READ",
                         finishDate: dateFilter,
+                        genre: genreFilter
                     },
                 })
                 return count + manualProgress
@@ -642,6 +710,7 @@ export async function relaunchChallenge(userChallengeId: string) {
                 startedAt: new Date(),
                 manualProgress: 0,
                 isArchived: false,
+                isPaused: false,
             },
         })
         revalidatePath("/challenges")
@@ -649,5 +718,25 @@ export async function relaunchChallenge(userChallengeId: string) {
     } catch (error) {
         console.error("Error relaunching challenge:", error)
         return { success: false, error: "Failed to relaunch challenge" }
+    }
+}
+
+export async function toggleChallengePause(userChallengeId: string, isPaused: boolean) {
+    try {
+        const session = await auth()
+        if (!session?.user?.email) {
+            return { success: false, error: "Non authentifié" }
+        }
+
+        await prisma.userChallenge.update({
+            where: { id: userChallengeId },
+            data: { isPaused },
+        })
+
+        revalidatePath("/challenges")
+        return { success: true }
+    } catch (error) {
+        console.error("Error toggling challenge pause:", error)
+        return { success: false, error: "Erreur lors de la modification du statut" }
     }
 }

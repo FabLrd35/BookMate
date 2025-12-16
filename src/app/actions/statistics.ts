@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 
-export async function getDashboardStats() {
+export async function getDashboardStats(year?: number, month?: number) {
     const session = await auth()
     if (!session?.user?.email) {
         return { toRead: 0, reading: 0, read: 0, thisMonth: 0, readThisYear: 0 }
@@ -16,6 +16,16 @@ export async function getDashboardStats() {
     if (!user) {
         return { toRead: 0, reading: 0, read: 0, thisMonth: 0, readThisYear: 0 }
     }
+
+    const targetYear = year || new Date().getFullYear()
+    const targetMonth = month ? month - 1 : new Date().getMonth() // 0-indexed for Date
+
+    const startOfMonth = new Date(targetYear, targetMonth, 1)
+    const endOfMonth = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59)
+
+    const startOfYear = new Date(targetYear, 0, 1)
+    const endOfYear = new Date(targetYear, 11, 31, 23, 59, 59)
+
     const [toRead, reading, read, thisMonth, readThisYear] = await Promise.all([
         prisma.book.count({ where: { status: "TO_READ", userId: user.id } }),
         prisma.book.count({ where: { status: "READING", userId: user.id } }),
@@ -25,7 +35,8 @@ export async function getDashboardStats() {
                 status: "READ",
                 userId: user.id,
                 finishDate: {
-                    gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                    gte: startOfMonth,
+                    lte: endOfMonth
                 },
             },
         }),
@@ -34,7 +45,8 @@ export async function getDashboardStats() {
                 status: "READ",
                 userId: user.id,
                 finishDate: {
-                    gte: new Date(new Date().getFullYear(), 0, 1),
+                    gte: startOfYear,
+                    lte: endOfYear
                 },
             },
         }),
